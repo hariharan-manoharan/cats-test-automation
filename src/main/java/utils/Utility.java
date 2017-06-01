@@ -1551,7 +1551,65 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	}
 	
 	
-	
+	public void deliveryconfirmation(LinkedHashMap<String, String> inputValueMap) {
+		String query = null;
+		String SERIALIZED;
+		String TRANSACTIONID;
+		int RECORD_ID = 0;
+		ResultSet rs;
+		Statement stmt;
+
+		
+		try {
+			String	query1 =  "select * from CATS_PART WHERE PARTCODE =" +"'"+inputValueMap.get("VALUE6")+"'";
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(query1);
+			SERIALIZED = rs.getString("SERIALIZED");
+		if (SERIALIZED.equalsIgnoreCase("N")){
+			
+			String query2 = "select MAX(PARTTRANSACTIONID) AS PARTTRANSACTIONID FROM CATS_PARTTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
+			                +"and PARTCODE= "+"'"+inputValueMap.get("VALUE6")+"'";
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(query2);	
+			TRANSACTIONID = rs.getString("PARTTRANSACTIONID");
+		}else{
+			String query3 = "select MAX(ASSETTRANSACTIONID) AS ASSETTRANSACTIONID FROM CATS_ASSETTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
+					+"and PARTCODE= "+"'"+inputValueMap.get("VALUE6")+"'";
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(query3);	
+			TRANSACTIONID = rs.getString("ASSETTRANSACTIONID");
+		}
+			
+			RECORD_ID = generateRandomNum(10000000);
+			query = "INSERT"
+					+"INTO CATS.CATSCON_POREC_STG"
+					+"("
+					+TRANSACTIONID
+					+"PO_RCPT_LINE_DLVR_ID,"
+					+"LOT_NUMBER,"
+					+"RECORD_ID,"
+					+"CREATION_DATE,"
+					+"PROCESS_FLAG,"
+					+"ITEM_CODE"
+					+")"
+					+
+					"VALUES"
+					+ "("
+					+"'"+inputValueMap.get("VALUE1")+"',"
+					+"'"+inputValueMap.get("VALUE2")+"',"
+					+"'"+inputValueMap.get("VALUE3")+"',"
+					+RECORD_ID+","
+					+"'"+inputValueMap.get("VALUE4")+"',"
+					+"'"+inputValueMap.get("VALUE5")+"',"
+					+"'"+inputValueMap.get("VALUE6")+"',"
+					+")";
+			connection.commit();
+			executeUpdateQuery(query, "Deliveray Confirmation  - "+inputValueMap.get("VALUE7")+" is done successfully");
+		}catch (SQLException e) {	
+			test.log(LogStatus.FAIL, "Deliveray Confirmation   - "+inputValueMap.get("VALUE7")+" is not done successfully");
+			e.printStackTrace();			
+		}
+	}
 	
 	//Transaction Validations
 	

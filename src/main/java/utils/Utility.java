@@ -1426,7 +1426,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						    +"'"+inputValueMap.get("VALUE11")+"',"
 						    +"'"+inputValueMap.get("VALUE12")+"')";
 						 
-			System.out.println(query);
+			//System.out.println(query);
 			executeUpdateQuery(query, "BOM is created for Item code - "+inputValueMap.get("VALUE3")+" where, Item Sequence # - "+inputValueMap.get("VALUE4")+
 																										", Component Item Code - "+inputValueMap.get("VALUE5")+
 																										", Qty Per Assembly - "+ inputValueMap.get("VALUE6") );
@@ -1631,9 +1631,9 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 					verifyCounter=0;
 					break;
 				} else {
-					if (verifyCounter < 3) {
-						HardDelay(30000);
-						test.log(LogStatus.INFO,verifyCounter + ": Re-checking PROCESS_FLAG after 30 secs wait....");
+					if (verifyCounter < 11) {
+						HardDelay(10000);
+						test.log(LogStatus.INFO,verifyCounter + ": Re-checking PROCESS_FLAG after 10 secs wait....");
 						validateInboundTransaction(inboundType, query, inputValue1, recordId);
 					} else {
 						ERROR_MESSAGE = rs.getString("ERROR_MESSAGE");

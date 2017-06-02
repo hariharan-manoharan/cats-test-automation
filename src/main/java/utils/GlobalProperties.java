@@ -36,7 +36,7 @@ public class GlobalProperties{
 
 		try {
 			
-			input = new FileInputStream("src/main/resources/PropertyFiles/GlobalProperties.properties");
+			input = new FileInputStream("./src/main/resources/PropertyFiles/GlobalProperties.properties");
 			properties.load(input);
 
 		} catch (IOException e) {

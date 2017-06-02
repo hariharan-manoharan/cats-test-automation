@@ -333,6 +333,17 @@ public class Utility {
 
 	}
 	
+
+
+	public static void autoPopulateWaitTime(long delayTime) {
+		try {
+			Thread.sleep(delayTime);
+		} catch (Exception e) {
+
+		}
+
+	}
+	
 	
 	/**
 	 * Function to enter text in WebElement
@@ -1551,6 +1562,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	}
 	
 	
+	@SuppressWarnings("resource")
 	public void deliveryconfirmation(LinkedHashMap<String, String> inputValueMap) {
 		String query = null;
 		String SERIALIZED;
@@ -1638,7 +1650,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 					} else {
 						ERROR_MESSAGE = rs.getString("ERROR_MESSAGE");
 						test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - " + recordId + ")");
-						test.log(LogStatus.INFO,"PROCESS_FLAG - "+PROCESS_FLAG+" ERROR_MESSAGE - "+ERROR_MESSAGE);
+						test.log(LogStatus.INFO,"PROCESS_FLAG - "+PROCESS_FLAG+" \nERROR_MESSAGE - "+ERROR_MESSAGE);
 						verifyCounter=0;
 					}
 

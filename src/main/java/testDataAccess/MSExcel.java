@@ -172,6 +172,16 @@ public class MSExcel implements DataTable {
 				case Cell.CELL_TYPE_NUMERIC:
 					rowData.put(String.valueOf(key.getNumericCellValue()), String.valueOf(value.getNumericCellValue()));
 					break;
+				case Cell.CELL_TYPE_FORMULA:
+					switch(value.getCachedFormulaResultType()) {
+		            case Cell.CELL_TYPE_NUMERIC:		                
+		                rowData.put(String.valueOf(key.getNumericCellValue()), String.valueOf(value.getNumericCellValue()));
+		                break;
+		            case Cell.CELL_TYPE_STRING:		                
+		                rowData.put(String.valueOf(key.getRichStringCellValue()), String.valueOf(value.getRichStringCellValue()));
+		                break;
+		        }
+					break;
 				}
 
 			}

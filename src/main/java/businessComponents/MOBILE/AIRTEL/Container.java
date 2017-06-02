@@ -76,11 +76,11 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		Click(By.name(folderName), "Click - Routines Folder - " + folderName + " is selected");
 	}
 	
-	public void validateTransaction(String loopField) {		
+	public void validateTransaction(String routineName ,String loopField) {		
 		if (isObjectPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
-			report("Open Container Transaction is successfull", LogStatus.PASS);			
+			report(routineName+" Transaction is successfull", LogStatus.PASS);			
 		} else {
-			report("Open Container Transaction is not successfull", LogStatus.FAIL);			
+			report(routineName+" Transaction is not successfull", LogStatus.FAIL);			
 		}
 	}
 	
@@ -208,7 +208,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			ClickNext();
 			
 			//Verify whether Transaction is completed successfully
-			validateTransaction("Enter Barcode (*) :");
+			validateTransaction("ADD_TO_CONTAINER", "Enter Barcode (*) :");
 		}
 		
 	}
@@ -240,7 +240,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		}		
 		
 		//Verify whether Transaction is completed successfully
-		validateTransaction("Enter Location Name (*) :");
+		validateTransaction("OPEN_CONTAINER", "Enter Location Name (*) :");
 		
 		
 	}
@@ -263,7 +263,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		}
 		
 		//Verify whether Transaction is completed successfully
-		validateTransaction("Enter Location Name (*) :");
+		validateTransaction("CLOSE_CONTAINER", "Enter Location Name (*) :");
 		
 	}
 

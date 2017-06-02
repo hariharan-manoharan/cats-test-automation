@@ -57,8 +57,8 @@ public class Main{
 	
 	public static void main(String[] args) {
 		
-		initializeTestReport();			
 		prepare();	
+		initializeTestReport();		
 		initializeTestRailReporting();
 		collectRunInfo();		
 		setup();
@@ -254,6 +254,11 @@ public class Main{
 		
 		report = HtmlReport.getInstance();
 		report.loadConfig((new File("./src/main/resources/PropertyFiles/extent-report-config.xml")));
+		report.addSystemInfo("Project", properties.getProperty("Project"));
+		report.addSystemInfo("Environment", properties.getProperty("Environment"));
+		report.addSystemInfo("Project ID", properties.getProperty("testRail.projectId"));
+		report.addSystemInfo("Suite ID", properties.getProperty("testRail.suiteId"));
+		report.addSystemInfo("Test Run name", properties.getProperty("testRail.testRunName"));		
 		
 	}
 	

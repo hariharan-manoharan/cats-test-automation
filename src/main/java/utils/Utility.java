@@ -1623,9 +1623,142 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		}
 	}
 	
+	public int getLastTransactionId(String query, String columnName){
+		
+		ResultSet rs;
+		Statement stmt;
+		int lastTransactionId = 0;
+		try{
+		stmt = connection.createStatement();
+		rs = stmt.executeQuery(String.format(query));
+		while (rs.next()) {
+			lastTransactionId = Integer.parseInt(rs.getString(columnName));
+		}
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		}
+		
+		return lastTransactionId;
+		
+	}
+	
+	
+	public int createBulkTransferRequest(LinkedHashMap<String, String> inputValueMap){
+		
+		String insertquery = null;	
+		String updatequery = null;
+		int lastStageId = 0;
+		int currentStageId = 0;
+		
+		String FROMSUBINVENTORY = ((inputValueMap.get("FROMSUBINVENTORY") == null) ? "NULL" : "'"+inputValueMap.get("FROMSUBINVENTORY") +"'");
+		String TOSTATUS = ((inputValueMap.get("TOSTATUS") == null) ? "NULL" : "'"+inputValueMap.get("TOSTATUS") +"'");
+		String TOSUBINVENTORY = ((inputValueMap.get("TOSUBINVENTORY") == null) ? "NULL" : "'"+inputValueMap.get("TOSUBINVENTORY") +"'");
+		String DESTINATIONLOCATION = ((inputValueMap.get("DESTINATIONLOCATION") == null) ? "NULL" : "'"+inputValueMap.get("DESTINATIONLOCATION") +"'");
+		String SERVICEORDER = ((inputValueMap.get("SERVICEORDER") == null) ? "NULL" : "'"+inputValueMap.get("SERVICEORDER") +"'");
+		String RECEIVERNAME = ((inputValueMap.get("RECEIVERNAME") == null) ? "NULL" : "'"+inputValueMap.get("RECEIVERNAME") +"'");
+		String RECEIVERPHONE = ((inputValueMap.get("RECEIVERPHONE") == null) ? "NULL" : "'"+inputValueMap.get("RECEIVERPHONE") +"'");
+		String BEHALFOF = ((inputValueMap.get("BEHALFOF") == null) ? "NULL" : "'"+inputValueMap.get("BEHALFOF") +"'");
+		String NEEDBYDATE = ((inputValueMap.get("NEEDBYDATE") == null) ? "NULL" : "'"+inputValueMap.get("NEEDBYDATE") +"'");
+		String PARTCODE = ((inputValueMap.get("PARTCODE") == null) ? "NULL" : "'"+inputValueMap.get("PARTCODE") +"'");
+		String MFGPARTNUMBER = ((inputValueMap.get("MFGPARTNUMBER") == null) ? "NULL" : "'"+inputValueMap.get("MFGPARTNUMBER") +"'");
+		String ASSETCODE = ((inputValueMap.get("ASSETCODE") == null) ? "NULL" : "'"+inputValueMap.get("ASSETCODE") +"'");
+		String RMANUMBER = ((inputValueMap.get("RMANUMBER") == null) ? "NULL" : "'"+inputValueMap.get("RMANUMBER") +"'");
+		String FAULT_CODE = ((inputValueMap.get("FAULT_CODE") == null) ? "NULL" : "'"+inputValueMap.get("FAULT_CODE") +"'");
+		String NOTES = ((inputValueMap.get("NOTES") == null) ? "NULL" : "'"+inputValueMap.get("NOTES") +"'");
+
+
+
+		try {
+			
+			if(inputValueMap.get("TRANSACTION_TYPE").equalsIgnoreCase("INSERT")){			
+			lastStageId = getLastTransactionId("SELECT MAX(STAGEID) AS STAGEID FROM CATSCON_TRANSFERREQ_STG","STAGEID" );
+			currentStageId = lastStageId+1;
+			
+			insertquery = "INSERT "
+					+"INTO CATSCON_TRANSFERREQ_STG"
+					+"("
+							+"STAGEID,"
+						    +"PROCESSED,"
+						    +"GENERATEDREQNUM,"
+						    +"REFERENCENUMBER,"
+						    +"FROMLOCATION,"
+						    +"FROMSTATUS,"
+						    +"FROMSUBINVENTORY,"
+						    +"TOLOCATION,"
+						    +"TOSTATUS,"
+						    +"TOSUBINVENTORY,"
+						    +"DESTINATIONLOCATION,"
+						    +"REASON,"
+						    +"WO_NUMBER,"
+						    +"SERVICEORDER,"
+						    +"RECEIVERNAME,"
+						    +"RECEIVERPHONE,"
+						    +"BEHALFOF,"
+						    +"NEEDBYDATE,"
+						    +"PARTCODE,"
+						    +"MFGPARTNUMBER,"
+						    +"ASSETCODE,"
+						    +"RMANUMBER,"
+						    +"FAULT_CODE,"						    
+						    +"ADDDTTM,"
+						    +"ADDCONTACTCODE,"
+						    +"QTYNEEDED,"
+						    +"NOTES"
+						  +")"
+						  +"VALUES"
+						  +"("
+						  +currentStageId+","
+						  +"'"+inputValueMap.get("PROCESSED")+"',"
+						  +"'"+inputValueMap.get("GENERATEDREQNUM")+"',"
+						  +"'"+inputValueMap.get("REFERENCENUMBER")+"',"
+						  +"'"+inputValueMap.get("FROMLOCATION")+"',"
+						  +"'"+inputValueMap.get("FROMSTATUS")+"',"
+						  +FROMSUBINVENTORY+","
+						  +"'"+inputValueMap.get("TOLOCATION")+"',"
+						  +TOSTATUS+","
+						  +TOSUBINVENTORY+","
+						  +DESTINATIONLOCATION+","
+						  +"'"+inputValueMap.get("REASON")+"',"
+						  +"'"+inputValueMap.get("WO_NUMBER")+"',"
+						  +SERVICEORDER+","
+					      +RECEIVERNAME+","
+						  +RECEIVERPHONE+","
+						  +BEHALFOF+","
+						  +NEEDBYDATE+","
+						  +PARTCODE+","
+						  +MFGPARTNUMBER+","
+						  +ASSETCODE+","
+						  +RMANUMBER+","
+						  +FAULT_CODE+","						 
+						  +inputValueMap.get("ADDDTTM")+","
+						  +"'"+inputValueMap.get("ADDCONTACTCODE")+"',"
+						  +inputValueMap.get("QTYNEEDED")+","
+						  +NOTES+")";
+						
+			executeUpdateQuery(insertquery, "Bulk Transfer request with REFERENCENUMBER - "+inputValueMap.get("REFERENCENUMBER")+" is "+inputValueMap.get("TRANSACTION_TYPE")+"ED in CATSCON_TRANSFERREQ_STG table (STAGEID - "+currentStageId+")");
+			
+			}else {
+			lastStageId = Integer.parseInt(inputValueMap.get("STAGEID"));
+			currentStageId = lastStageId;
+			
+			updatequery = "";
+						
+			executeUpdateQuery(updatequery, "Bulk Transfer request with REFERENCENUMBER - "+inputValueMap.get("REFERENCENUMBER")+" is "+inputValueMap.get("TRANSACTION_TYPE")+"ED in CATSCON_TRANSFERREQ_STG table (STAGEID - "+currentStageId+")");
+			
+			}				
+			
+			
+			connection.commit();			
+			
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		}
+		return currentStageId;
+	}
+	
 	//Transaction Validations
 	
-	public void validateInboundTransaction(String inboundType, String query, String inputValue1, int recordId) {
+	public void validateInboundTransaction(String inboundType, String processFlag, String errorFlag, String query, String inputValue1, int recordId) {
 		ResultSet rs;
 		Statement stmt;
 		String PROCESS_FLAG;
@@ -1635,25 +1768,28 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(String.format(query, inputValue1,recordId ));
 			while (rs.next()) {
-				PROCESS_FLAG = rs.getString("PROCESS_FLAG");
+				PROCESS_FLAG = rs.getString(processFlag);
 				
 				verifyCounter++;
 				if (PROCESS_FLAG.equals("P")) {
 					test.log(LogStatus.PASS,inboundType +" - " + inputValue1 + " is processed successfully (RECORD_ID - " + recordId + ")");
 					verifyCounter=0;
 					break;
-				} else {
+				} else if ((PROCESS_FLAG.equals("N"))){
 					if (verifyCounter < 11) {
 						HardDelay(10000);
 						test.log(LogStatus.INFO,verifyCounter + ": Re-checking PROCESS_FLAG after 10 secs wait....");
-						validateInboundTransaction(inboundType, query, inputValue1, recordId);
+						validateInboundTransaction(inboundType, processFlag, errorFlag, query, inputValue1, recordId);
 					} else {
-						ERROR_MESSAGE = rs.getString("ERROR_MESSAGE");
+						ERROR_MESSAGE = rs.getString(errorFlag);
 						test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - " + recordId + ")");
-						test.log(LogStatus.INFO,"PROCESS_FLAG - "+PROCESS_FLAG+" \nERROR_MESSAGE - "+ERROR_MESSAGE);
+						test.log(LogStatus.INFO,processFlag +" - "+PROCESS_FLAG + " | "  + errorFlag+" - "+ERROR_MESSAGE);
 						verifyCounter=0;
 					}
-
+				}else{
+					ERROR_MESSAGE = rs.getString(errorFlag);
+					test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - " + recordId + ")");
+					test.log(LogStatus.INFO,processFlag +" - "+PROCESS_FLAG + " | " + errorFlag+" - "+ERROR_MESSAGE);				
 				}
 			}
 		} catch (SQLException e) {

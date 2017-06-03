@@ -74,21 +74,21 @@ public class FunctionalComponents extends Utility {
 		String validateItem = "SELECT * FROM CATSCON_PART_STG WHERE ITEM='%s' AND RECORD_ID=%d";
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");		
 		int recordId = createNewPart(dataMap);
-		validateInboundTransaction("Item", validateItem, dataMap.get("VALUE2"),recordId);	
+		validateInboundTransaction("Item", "PROCESS_FLAG", "ERROR_MESSAGE", validateItem, dataMap.get("VALUE2"),recordId);	
 	}
 	
 	public void addManufacturer(){
 		String validateMFG = "SELECT * FROM CATSCON_MFG_STG WHERE MANUFACTURER_NAME='%s' AND RECORD_ID=%d";
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");		
 		int recordId = addMfgForItem(dataMap);
-		validateInboundTransaction("MFG", validateMFG, dataMap.get("VALUE1"),recordId);
+		validateInboundTransaction("MFG", "PROCESS_FLAG", "ERROR_MESSAGE", validateMFG, dataMap.get("VALUE1"),recordId);
 	}
 	
 	public void createPurchaseOrder(){
 		String validatePO = "SELECT * FROM CATSCON_PO_STG WHERE PHA_PO_NUMBER='%s' AND RECORD_ID=%d";
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");		
 		int recordId = createPurchaseOrder(dataMap);
-		validateInboundTransaction("PO", validatePO, dataMap.get("VALUE2"),recordId);		
+		validateInboundTransaction("PO", "PROCESS_FLAG", "ERROR_MESSAGE", validatePO, dataMap.get("VALUE2"),recordId);		
 	}
 	
 	public void createBillOfMaterial(){
@@ -100,9 +100,18 @@ public class FunctionalComponents extends Utility {
 		String validateMRR = "SELECT * FROM CATSCON_MRR_STG WHERE RECEIPT_NUM='%s' AND RECORD_ID=%d";
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");
 		int recordId = createMaterialReceiveReceipt(dataMap);
-		validateInboundTransaction("MRR", validateMRR, dataMap.get("VALUE9"),recordId);
+		validateInboundTransaction("MRR", "PROCESS_FLAG", "ERROR_MESSAGE", validateMRR, dataMap.get("VALUE9"),recordId);
 		poTaxUpdate(dataMap);
 	}
+	
+	
+	public void createBulkTransferRequest(){
+		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Bulk_Transfer_Request");
+		int stageId = createBulkTransferRequest(dataMap);
+		validateInboundTransaction("Bulk Transfer Request", "PROCESSED", "ERRORMESSAGE", validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"),stageId);		
+	}
+
 
 
 	public void itemInquiry() throws TimeoutException, NoSuchElementException{

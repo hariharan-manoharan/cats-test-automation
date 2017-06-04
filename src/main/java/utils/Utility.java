@@ -769,9 +769,12 @@ public class Utility {
 
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			test.log(LogStatus.FAIL, dataRequired + " - <b>" + data +"</b>");
+			test.log(LogStatus.FAIL, e);
 		}
+		test.log(LogStatus.INFO, dataRequired + " - <b>" + data +"</b>");
 		return data.trim();
+		
 
 	}
 
@@ -1236,7 +1239,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 				    +inputValueMap.get("VALUE18")+","
 				    +"'"+inputValueMap.get("VALUE19")+"')";				
 			
-		executeUpdateQuery(query, "Part Code "+inputValueMap.get("VALUE2")+" is inserted into CATSCON_PART_STG table");
+		executeUpdateQuery(query, "Part Code <b>"+inputValueMap.get("VALUE2")+"</b> is inserted into CATSCON_PART_STG table");
 		connection.commit();			
 		
 	} catch (SQLException e) {		
@@ -1279,7 +1282,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			
 			//System.out.println(query);
 			
-			executeUpdateQuery(query, "MFG "+inputValueMap.get("VALUE1")+" with MFG Part # "+inputValueMap.get("VALUE2")+" is added for Item code "+inputValueMap.get("VALUE3")+" into CATSCON_MFG_STG table");
+			executeUpdateQuery(query, "MFG <b>"+inputValueMap.get("VALUE1")+"</b> with MFG Part # <b>"+inputValueMap.get("VALUE2")+"</b> is added for Item code <b>"+inputValueMap.get("VALUE3")+"</b> into CATSCON_MFG_STG table");
 			connection.commit();			
 			
 		} catch (SQLException e) {			
@@ -1393,7 +1396,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 					    +"'"+inputValueMap.get("VALUE44")+"')";
 					 
 			//System.out.println(query);
-			executeUpdateQuery(query, "PO - "+inputValueMap.get("VALUE2")+" for Item "+inputValueMap.get("VALUE18")+" is inserted in to CATSCON_PO_STG table");
+			executeUpdateQuery(query, "PO - <b>"+inputValueMap.get("VALUE2")+"</b> for Item <b>"+inputValueMap.get("VALUE18")+"</b> is inserted in to CATSCON_PO_STG table");
 			connection.commit();			
 			
 		} catch (SQLException e) {			
@@ -1438,9 +1441,9 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						    +"'"+inputValueMap.get("VALUE12")+"')";
 						 
 			//System.out.println(query);
-			executeUpdateQuery(query, "BOM is created for Item code - "+inputValueMap.get("VALUE3")+" where, Item Sequence # - "+inputValueMap.get("VALUE4")+
-																										", Component Item Code - "+inputValueMap.get("VALUE5")+
-																										", Qty Per Assembly - "+ inputValueMap.get("VALUE6") );
+			executeUpdateQuery(query, "BOM is created for Item code - "+inputValueMap.get("VALUE3")+" where, Item Sequence # - <b>"+inputValueMap.get("VALUE4")+
+																										"</b>, Component Item Code - <b>"+inputValueMap.get("VALUE5")+
+																										"</b>, Qty Per Assembly - <b>"+ inputValueMap.get("VALUE6")+"</b>");
 			connection.commit();			
 			
 		} catch (SQLException e) {			
@@ -1536,7 +1539,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			
 			//System.out.println(query);
 			
-			executeUpdateQuery(query, "MRR - "+inputValueMap.get("VALUE9")+" is created for PO - "+inputValueMap.get("VALUE6"));
+			executeUpdateQuery(query, "MRR - <b>"+inputValueMap.get("VALUE9")+"</b> is created for PO - <b>"+inputValueMap.get("VALUE6")+"</b>");
 			connection.commit();			
 			
 			
@@ -1556,7 +1559,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			connection.commit();			
 			
 		} catch (SQLException e) {	
-			test.log(LogStatus.FAIL, "Tax Update for PO - "+inputValueMap.get("VALUE6")+" is not done successfully");
+			test.log(LogStatus.FAIL, "Tax Update for PO - <b>"+inputValueMap.get("VALUE6")+"</b> is not done successfully");
 			e.printStackTrace();			
 		}
 	}
@@ -1735,7 +1738,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						  +inputValueMap.get("QTYNEEDED")+","
 						  +NOTES+")";
 						
-			executeUpdateQuery(insertquery, "Bulk Transfer request with REFERENCENUMBER - "+inputValueMap.get("REFERENCENUMBER")+" is "+inputValueMap.get("TRANSACTION_TYPE")+"ED in CATSCON_TRANSFERREQ_STG table (STAGEID - "+currentStageId+")");
+			executeUpdateQuery(insertquery, "Bulk Transfer request with REFERENCENUMBER - <b>"+inputValueMap.get("REFERENCENUMBER")+"</b> is <b>"+inputValueMap.get("TRANSACTION_TYPE")+"ED</b> in CATSCON_TRANSFERREQ_STG table (STAGEID - <b>"+currentStageId+"</b>)");
 			
 			}else {
 			lastStageId = Integer.parseInt(inputValueMap.get("STAGEID"));
@@ -1743,7 +1746,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			
 			updatequery = "";
 						
-			executeUpdateQuery(updatequery, "Bulk Transfer request with REFERENCENUMBER - "+inputValueMap.get("REFERENCENUMBER")+" is "+inputValueMap.get("TRANSACTION_TYPE")+"ED in CATSCON_TRANSFERREQ_STG table (STAGEID - "+currentStageId+")");
+			executeUpdateQuery(updatequery, "Bulk Transfer request with REFERENCENUMBER - <b>"+inputValueMap.get("REFERENCENUMBER")+"</b> is <b>"+inputValueMap.get("TRANSACTION_TYPE")+"ED</b> in CATSCON_TRANSFERREQ_STG table (STAGEID - <b>"+currentStageId+"</b>)");
 			
 			}				
 			
@@ -1758,11 +1761,12 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	
 	//Transaction Validations
 	
-	public void validateInboundTransaction(String inboundType, String processFlag, String errorFlag, String query, String inputValue1, int recordId) {
+	public boolean validateInboundTransaction(String inboundType, String processFlag, String errorFlag, String query, String inputValue1, int recordId) {
 		ResultSet rs;
 		Statement stmt;
 		String PROCESS_FLAG;
 		String ERROR_MESSAGE;
+		boolean succesFlag = false;
 		
 		try {
 			stmt = connection.createStatement();
@@ -1772,29 +1776,31 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 				
 				verifyCounter++;
 				if (PROCESS_FLAG.equals("P")) {
-					test.log(LogStatus.PASS,inboundType +" - " + inputValue1 + " is processed successfully (RECORD_ID - " + recordId + ")");
+					test.log(LogStatus.PASS,inboundType +" - " + inputValue1 + " is processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
 					verifyCounter=0;
+					succesFlag = true;
 					break;
 				} else if ((PROCESS_FLAG.equals("N"))){
 					if (verifyCounter < 11) {
 						HardDelay(10000);
-						test.log(LogStatus.INFO,verifyCounter + ": Re-checking PROCESS_FLAG after 10 secs wait....");
-						validateInboundTransaction(inboundType, processFlag, errorFlag, query, inputValue1, recordId);
+						test.log(LogStatus.INFO,verifyCounter + ": Re-checking "+processFlag+" after 10 secs wait....");
+						succesFlag = validateInboundTransaction(inboundType, processFlag, errorFlag, query, inputValue1, recordId);
 					} else {
 						ERROR_MESSAGE = rs.getString(errorFlag);
-						test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - " + recordId + ")");
+						test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
 						test.log(LogStatus.INFO,processFlag +" - "+PROCESS_FLAG + " | "  + errorFlag+" - "+ERROR_MESSAGE);
-						verifyCounter=0;
+						verifyCounter=0;						
 					}
 				}else{
 					ERROR_MESSAGE = rs.getString(errorFlag);
-					test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - " + recordId + ")");
-					test.log(LogStatus.INFO,processFlag +" - "+PROCESS_FLAG + " | " + errorFlag+" - "+ERROR_MESSAGE);				
+					test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
+					test.log(LogStatus.INFO,processFlag +" - <b>"+PROCESS_FLAG + "</b> | " + errorFlag+" - <b>"+ERROR_MESSAGE+"</b>");				
 				}
 			}
 		} catch (SQLException e) {
 			test.log(LogStatus.FAIL, e);
 		}
+		return succesFlag;
 	}
 	
 

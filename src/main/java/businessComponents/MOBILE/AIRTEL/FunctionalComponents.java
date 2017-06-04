@@ -6,6 +6,8 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 
 import com.relevantcodes.extentreports.ExtentTest;
+import com.relevantcodes.extentreports.LogStatus;
+
 import io.appium.java_client.android.AndroidDriver;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
@@ -106,10 +108,15 @@ public class FunctionalComponents extends Utility {
 	
 	
 	public void createBulkTransferRequest(){
-		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";
+		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";		
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Bulk_Transfer_Request");
 		int stageId = createBulkTransferRequest(dataMap);
-		validateInboundTransaction("Bulk Transfer Request", "PROCESSED", "ERRORMESSAGE", validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"),stageId);		
+		boolean successFlag = validateInboundTransaction("Bulk Transfer Request", "PROCESSED", "ERRORMESSAGE", validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"),stageId);	
+		
+		if(successFlag){
+			selectQuerySingleValue(String.format(validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"), stageId), "GENERATEDREQNUM");		
+		}
+		
 	}
 
 

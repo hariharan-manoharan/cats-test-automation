@@ -202,6 +202,8 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 						}
 						ClickNext();
 					}
+				}else{
+					ClickNext();
 				}
 				
 				

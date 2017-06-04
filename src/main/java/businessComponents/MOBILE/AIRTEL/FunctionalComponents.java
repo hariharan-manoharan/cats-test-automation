@@ -107,6 +107,14 @@ public class FunctionalComponents extends Utility {
 	}
 	
 	
+	
+	public void deliveryConfirmation(){
+		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");
+		int recordId = deliveryconfirmation1(dataMap);
+		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, dataMap.get("VALUE7"),recordId);
+	}
+
 	public void createBulkTransferRequest(){
 		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";		
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Bulk_Transfer_Request");

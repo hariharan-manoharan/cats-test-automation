@@ -56,6 +56,7 @@ public interface RoutineObjectRepository {
 	
 	String XPATH_TXT = ".//android.view.View[@content-desc='%s']";
 	String XPATH_TXT_NAME = ".//android.view.View[@name='%s']";
+	String XPATH_TXT_CONTAINS = ".//android.view.View[contains(@content-desc, '%s')]";
 	
 	By XPATH_SPYGLASS = By.xpath(".//android.view.View[@content-desc='?']");
 	

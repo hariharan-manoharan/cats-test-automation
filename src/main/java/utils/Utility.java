@@ -460,9 +460,38 @@ public class Utility {
 			text = element.getText();
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
-			test.log(LogStatus.INFO, fieldName + ": Not Returned - " + text);
+			test.log(LogStatus.INFO, fieldName + ": Not Returned - Text:" + text);
 		}
-		test.log(LogStatus.INFO, fieldName + ":  Returned - " + text);
+		test.log(LogStatus.INFO, fieldName + ":  Returned - Text:" + text);
+		return text.trim();
+
+	}
+	
+	
+	/**
+	 * Function to get attribute value from WebElement
+	 * 
+	 * @param1 By by	
+	 * @param2 String attribute	
+	 * @param3 String fieldName	 
+	 * @return String text
+	 * @author Hari 
+	 * @since 06/08/2017
+	 * 
+	 */
+	
+	public String GetAttributeValue(By by,String attribute, String fieldName) throws WebDriverException {
+		String text = null;
+
+		try {
+			waitCommand(by);
+			WebElement element = this.driver.findElement(by);
+			text = element.getAttribute(attribute);
+		} catch (Exception ex) {
+			test.log(LogStatus.FAIL, ex);
+			test.log(LogStatus.INFO,"Value of attribute '"+attribute+"' of field '"+ fieldName + "': Not Returned - Value:" + text);
+		}
+		test.log(LogStatus.INFO, "Value of attribute '"+attribute+"' of field '"+ fieldName + "': Returned - Value:" + text);
 		return text.trim();
 
 	}

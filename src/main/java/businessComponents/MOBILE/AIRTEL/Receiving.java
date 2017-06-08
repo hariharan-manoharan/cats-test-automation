@@ -33,6 +33,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	By QTY_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Quantity (*) :"));
 	By CONDITION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Condition (*) :"));
 	By NOTES_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Notes :"));
+	By PARENT_RECEIVED_COUNT = By.xpath(String.format(XPATH_TXT_CONTAINS, "/"));
 	
 	@SuppressWarnings("serial")
 	//List of Fields to be displayed
@@ -135,6 +136,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		String closeContainer = receivingTestDataHashmap.get("CLOSE_CONTAINER");
 		String noOfLineItem = receivingTestDataHashmap.get("NO_OF_LINE_ITEM");
 		String notes = receivingTestDataHashmap.get("NOTES");
+		int mfgPartNumberIndex = 0;
 		
 		
 		
@@ -163,10 +165,12 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 
 			if (validateMessage(confirmMsg1)) {
 				if (receiveInContainer.equalsIgnoreCase("Yes")) {
+					mfgPartNumberIndex = 28;
 					Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + confirmMsg1);
 					EnterText(CONTAINERC0DE_XPATH, "Enter Container Code (*) :", containerCode);
 					ClickNext();
 				} else {
+					mfgPartNumberIndex = 25;
 					Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + confirmMsg1);					
 				}
 			}
@@ -174,13 +178,113 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			switch(barcodeType){
 			
 			case "SERIALIZED_ITEMCODE":	
+				int receivedCount = 0;
+				int totalCount = 0;	
+				String parentReceiveCount[] = new String[2];
+				
 				EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 				ClickNext();
+				if(isObjectPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+					ClickSpyGlass("Enter Mfg. Part Number :",mfgPartNumberIndex);
+					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
+					ClickNext();					
+				}
+				
+				waitCommand(MFG_SERIALNUM_XPATH);
+				
+				if(isObjectPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")){					
+					parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
+					receivedCount = Integer.parseInt(parentReceiveCount[0]);
+					totalCount = Integer.parseInt(parentReceiveCount[1]);
+					totalCount = totalCount-receivedCount;
+				
+				
+				if(receiveAllQty.equalsIgnoreCase("Yes")){	
+				
+				for(int j=1; j<=totalCount;j++){
+					
+				parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
+				receivedCount = Integer.parseInt(parentReceiveCount[0]);	
+				
+				EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+j);
+				ClickNext();
+				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+j);
+				ClickNext();
+				EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
+				ClickNext();
+				EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
+				ClickNext();				
+				
+				
+				if(receivedCount == (totalCount-1)){
+					if(receiveInContainer.equalsIgnoreCase("Yes") && receiveAllQty.equalsIgnoreCase("Yes")){
+						if(validateMessage(confirmMsg2)){
+							if(closeContainer.equalsIgnoreCase("Yes")){
+							Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + confirmMsg2);						
+							}else{
+							Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + confirmMsg2);	
+							}
+							ClickNext();
+						}
+					}else{
+						ClickNext();
+					}	
+				}
+				
+				EnterText(NOTES_XPATH, "Enter Notes :", notes);
+				ClickNext();
+				if(receivedCount == (totalCount-1)){
+					if (validateMessage(transactionCompleteMsg)) {
+						Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
+						validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
+					}
+				}else{
+					validateTransaction(MMR_RECEIVE, "Enter Mfg. Serial Number (*) :");	
+				}
+				}				
+				
+				}else{
+					EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
+					ClickNext();
+					if(isObjectPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+						ClickSpyGlass("Enter Mfg. Part Number :",mfgPartNumberIndex);
+						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
+						ClickNext();					
+					}
+					waitCommand(MFG_SERIALNUM_XPATH);
+					
+					EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+i);
+					ClickNext();
+					EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+i);
+					ClickNext();
+					EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
+					ClickNext();
+					EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
+					ClickNext();
+					EnterText(NOTES_XPATH, "Enter Notes :", notes);
+					ClickNext();
+					
+					if(receivedCount == (totalCount-1)){
+						if (validateMessage(transactionCompleteMsg)) {
+							Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
+							validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
+						}
+					}else{
+						validateTransaction(MMR_RECEIVE, "Enter Mfg. Serial Number (*) :");	
+					}
+				}
+				}
+				
 			break;
 			
 			case "NON_SERIALIZED_ITEMCODE":				
 				EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
-				ClickNext();				
+				ClickNext();
+				if(isObjectPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+					ClickSpyGlass("Enter Mfg. Part Number :",25);
+					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
+					ClickNext();
+				}
 				if(!receiveAllQty.equalsIgnoreCase("Yes")){
 				EnterText(QTY_XPATH, "Enter Quantity (*) :", qty);
 				ClickNext();
@@ -191,7 +295,8 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId);
 				ClickNext();								
 				EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
-				ClickNext();				
+				ClickNext();
+				
 
 				if(receiveInContainer.equalsIgnoreCase("Yes") && receiveAllQty.equalsIgnoreCase("Yes")){
 					if(validateMessage(confirmMsg2)){
@@ -204,6 +309,18 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					}
 				}else{
 					ClickNext();
+				}		
+				
+				EnterText(NOTES_XPATH, "Enter Notes :", notes);
+				ClickNext();
+				
+				if (receiveAllQty.equalsIgnoreCase("Yes")) {
+					if (validateMessage(transactionCompleteMsg)) {
+						Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
+						validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
+					}
+				}else{
+					validateTransaction(MMR_RECEIVE, "Enter Quantity (*) :");
 				}
 				
 				
@@ -219,21 +336,12 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			break;
 			}
 	
-			EnterText(NOTES_XPATH, "Enter Notes :", notes);
-			ClickNext();
+
 			
 		}
 			
 			//Verify whether Transaction is completed successfully
 			
-			if (receiveAllQty.equalsIgnoreCase("Yes")) {
-				if (validateMessage(transactionCompleteMsg)) {
-					Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
-					validateTransaction("MMR_RECEIVE", "Enter MRR Number (*) :");
-				}
-			}else{
-				 
-			}
 			
 			
 			

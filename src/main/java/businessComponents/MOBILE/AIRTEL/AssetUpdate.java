@@ -61,7 +61,7 @@ public class AssetUpdate extends Utility implements RoutineObjectRepository {
 			ClickNext();
 			
 			//Verify whether Transaction is completed successfully
-			result = isObjectPresent(By.xpath(String.format(XPATH_TXT, "Enter Barcode (*) :")),"Loop field - Enter Barcode (*) :");
+			result = isElementPresent(By.xpath(String.format(XPATH_TXT, "Enter Barcode (*) :")),"Loop field - Enter Barcode (*) :");
 			
 			if(result){
 				report("Asset Update Transaction is successfull", LogStatus.PASS);

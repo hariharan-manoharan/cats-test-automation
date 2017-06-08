@@ -119,7 +119,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	
 	
 	public void validateTransaction(String routineName ,String loopField) {		
-		if (isObjectPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
+		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
 			report(routineName+" Transaction is successfull", LogStatus.PASS);			
 		} else {
 			report(routineName+" Transaction is not successfull", LogStatus.FAIL);			
@@ -184,7 +184,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				
 				EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 				ClickNext();
-				if(isObjectPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",mfgPartNumberIndex);
 					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
 					ClickNext();					
@@ -192,7 +192,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				
 				waitCommand(MFG_SERIALNUM_XPATH);
 				
-				if(isObjectPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")){					
+				if(isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")){					
 					parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
 					receivedCount = Integer.parseInt(parentReceiveCount[0]);
 					totalCount = Integer.parseInt(parentReceiveCount[1]);
@@ -273,7 +273,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			case "NON_SERIALIZED_ITEMCODE":				
 				EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 				ClickNext();
-				if(isObjectPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",25);
 					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
 					ClickNext();

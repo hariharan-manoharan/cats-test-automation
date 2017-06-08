@@ -77,7 +77,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	}
 	
 	public void validateTransaction(String routineName ,String loopField) {		
-		if (isObjectPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
+		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
 			report(routineName+" Transaction is successfull", LogStatus.PASS);			
 		} else {
 			report(routineName+" Transaction is not successfull", LogStatus.FAIL);			
@@ -94,7 +94,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	}
 	
 	public boolean validateMessageContains(String msgContains) {
-		if(isObjectPresent(ID_MESSAGE, "Prompt")){
+		if(isElementPresent(ID_MESSAGE, "Prompt")){
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).contains(msgContains)) {
 			report("Message contains '" + msgContains + "' is displayed", LogStatus.INFO);			
 			return true;
@@ -167,13 +167,13 @@ public class Container extends Utility implements RoutineObjectRepository  {
 				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
 				ClickNext();
 				if(mfgPartNumbertype.equalsIgnoreCase("MULTIPLE")){
-				if(isObjectPresent(MFGPARTNUM_BARCODE_XPATH, "Enter Mfg. Part Number :")){
+				if(isElementPresent(MFGPARTNUM_BARCODE_XPATH, "Enter Mfg. Part Number :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",19);
 					EnterText(MFGPARTNUM_BARCODE_XPATH, "Enter Mfg. Part Number :", GetPickListValue(1));
 					ClickNext();
 				}
 				}
-				if(isObjectPresent(LOTNUMBER_XPATH, "Enter Lot Number (*) :")){
+				if(isElementPresent(LOTNUMBER_XPATH, "Enter Lot Number (*) :")){
 					ClickSpyGlass("Enter Lot Number (*) :",25);	
 					List<String> pickListValues = GetPickListValues();					
 					for(int j = 0; j <= pickListValues.size(); j++){

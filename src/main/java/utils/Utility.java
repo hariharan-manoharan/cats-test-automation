@@ -235,16 +235,16 @@ public class Utility {
 	 * 
 	 */
 
-	public boolean isObjectPresent(final By by, final String objectName) {
+	public boolean isElementPresent(final By by, final String objectName) {
 		
 		try{
 		
 		this.driver.findElement(by).isDisplayed();		
-		test.log(LogStatus.PASS, "Object - " + objectName + " is present", "");
+		test.log(LogStatus.PASS, "Element - " + objectName + " is present", "");
 		return true;				
 		
 		}catch(NoSuchElementException  e){
-			test.log(LogStatus.INFO, "Object - " + objectName + " is not present", "");
+			test.log(LogStatus.INFO, "Element - " + objectName + " is not present", "");
 			return false;
 		}
 		

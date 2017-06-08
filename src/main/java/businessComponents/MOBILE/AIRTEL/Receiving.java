@@ -244,13 +244,6 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				}				
 				
 				}else{
-					EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
-					ClickNext();
-					if(isObjectPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
-						ClickSpyGlass("Enter Mfg. Part Number :",mfgPartNumberIndex);
-						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
-						ClickNext();					
-					}
 					waitCommand(MFG_SERIALNUM_XPATH);
 					
 					EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+i);

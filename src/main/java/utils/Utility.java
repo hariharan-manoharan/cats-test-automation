@@ -1853,8 +1853,8 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						succesFlag = validateInboundTransaction(inboundType, processFlag, errorFlag, query, inputValue1, recordId);
 					} else {
 						ERROR_MESSAGE = rs.getString(errorFlag);
-						test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
-						test.log(LogStatus.INFO,processFlag +" - "+PROCESS_FLAG + " | "  + errorFlag+" - "+ERROR_MESSAGE);
+						test.log(LogStatus.FAIL,inboundType +" - <b>" + inputValue1 + "</b> is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
+						test.log(LogStatus.INFO,processFlag +" - <b>"+PROCESS_FLAG + "</b> | "  + errorFlag+" - <b>"+ERROR_MESSAGE+"</b>");
 						verifyCounter=0;						
 					}
 				}else{

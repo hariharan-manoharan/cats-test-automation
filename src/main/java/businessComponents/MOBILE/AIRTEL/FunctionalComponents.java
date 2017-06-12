@@ -11,6 +11,7 @@ import com.relevantcodes.extentreports.LogStatus;
 import io.appium.java_client.android.AndroidDriver;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
+import main.java.utils.JMeterFromExistingJMX;
 import main.java.utils.SqlQueries;
 
 public class FunctionalComponents extends Utility {
@@ -133,6 +134,16 @@ public class FunctionalComponents extends Utility {
 		
 		Inquiry Inquiry = new Inquiry(test, driver , dataTable);
 		Inquiry.itemInquiry();
+		
+	}
+	
+	
+	//Performance Testing
+
+	public void performanceTest() throws Exception{
+		
+		JMeterFromExistingJMX JMeterFromExistingJMX = new JMeterFromExistingJMX();
+		JMeterFromExistingJMX.run();
 		
 	}
 

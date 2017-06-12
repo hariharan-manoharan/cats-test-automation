@@ -220,7 +220,7 @@ public class Utility {
 			}
 		};
 		wait.until(function);
-
+		
 	}
 	
 	/**
@@ -357,17 +357,14 @@ public class Utility {
 	 * 
 	 */
 
-	public void EnterText(By by, String reportName, String text) {
-		try {
+	public void EnterText(By by, String reportName, String text)  throws TimeoutException, NoSuchElementException {
+
 			waitCommand(by);
 			WebElement element = this.driver.findElement(by);
 			this.driver.pressKeyCode(112); // DELETE Key event - // https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 			element.sendKeys(text);
 			takeScreenshot(reportName);
-		} catch (Exception ex) {
-			test.log(LogStatus.FAIL, ex);
-
-		}
+		
 	}
 	
 	

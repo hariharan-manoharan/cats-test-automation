@@ -127,7 +127,8 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	}
 	
 	public void mrrReceive() throws TimeoutException, NoSuchElementException, WebDriverException {
-
+		
+	
 		String location = receivingTestDataHashmap.get("LOCATION_NAME");
 		String mrrNumber = receivingTestDataHashmap.get("MRR_NUMBER");
 		String subInventory = receivingTestDataHashmap.get("SUB_INVENTORY");
@@ -333,12 +334,14 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			
 		}
 			
-			//Verify whether Transaction is completed successfully
+			//Verify whether Transaction is completed successfully		
 			
 			
 			
-			
-		}
+		}	
+	
+	
 	}
+	
 	
 }

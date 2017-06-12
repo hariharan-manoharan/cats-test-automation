@@ -94,40 +94,11 @@ public class Executor extends Utility implements Runnable {
 			test.log(LogStatus.FAIL, "Android Driver and Appium server setup not done Successfully", "");
 			test.log(LogStatus.FAIL, e);
 			return;
-		} catch (ExecuteException e) {
+		} catch (ExecuteException | ClassNotFoundException | InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			test.log(LogStatus.FAIL, e);
 			return;
-		} catch (ClassNotFoundException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (InstantiationException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (IllegalAccessException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (IllegalArgumentException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (InvocationTargetException e) {
-			test.log(LogStatus.FAIL, e.getCause());
-			return;
-		} catch (NoSuchMethodException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (SecurityException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (IOException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (InterruptedException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (TimeoutException e) {
-			test.log(LogStatus.FAIL, e);
-			return;
-		} catch (NoSuchElementException e) {
+		} catch (IOException | InterruptedException | TimeoutException | NoSuchElementException e) {
 			test.log(LogStatus.FAIL, e);
 			return;
 		} catch (Exception e) {

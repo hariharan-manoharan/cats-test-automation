@@ -32,7 +32,7 @@ import main.java.utils.Utility;
 
 public class Executor extends Utility implements Runnable {
 
-	private ExtentReports report;
+	private ExtentReports report; 
 	private ExtentTest test;
 	private TestParameters testParameters;
 	private ExecutionMode execMode;
@@ -175,7 +175,7 @@ public class Executor extends Utility implements Runnable {
 		capabilities.setCapability("appActivity", testParameters.getAppActivity());
 		capabilities.setCapability("unicodeKeyboard", "true");
 		capabilities.setCapability("resetKeyboard", "true");
-		capabilities.setCapability("newCommandTimeout", 60);		
+		capabilities.setCapability("newCommandTimeout", properties.getProperty("New.Command.TimeOut"));		
 		capabilities.setCapability("noReset", true);
 		
 		driver = new AndroidDriver(new URL(

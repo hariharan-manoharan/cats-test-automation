@@ -2,6 +2,7 @@ package main.java.businessComponents.MOBILE.AIRTEL;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -38,13 +39,9 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	@SuppressWarnings("serial")
 	//List of Fields to be displayed
 	
-	ArrayList<String> listOfFields = new ArrayList<String>(){{
-		add("To Location");
-		add("MRR Number");
+	ArrayList<String> mrrReceiveAutoPopulatingFields = new ArrayList<String>(){{
 		add("PO Code");
 		add("INV Org Code");
-		add("Sub-Inventory");
-		add("Item Code or Mfg. Part #");
 		add("Item Code");
 		add("Item Description");
 		add("Manufacturer");
@@ -52,17 +49,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		add("Line Number");
 		add("Item Type");
 		add("Serialized");
-		add("Parent Received Count");
-		add("Mfg. Serial Number");
-		add("Child Manufacturer");
-		add("Child Item Description");
-	    add("Quantity");
-		add("Package ID");
-		add("Hardware Version");
-		add("Status");	
-		add("Condition");
-		add("Attach Photos");
-		add("Enter Notes :");
+		add("Parent Received Count");	
 	}};	
 	
 	// Confirm Messages
@@ -128,7 +115,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	
 	public void mrrReceive() throws TimeoutException, NoSuchElementException, WebDriverException {
 		
-	
+		// Get all header level data
 		String location = receivingTestDataHashmap.get("LOCATION_NAME");
 		String mrrNumber = receivingTestDataHashmap.get("MRR_NUMBER");
 		String subInventory = receivingTestDataHashmap.get("SUB_INVENTORY");
@@ -140,42 +127,45 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		int mfgPartNumberIndex = 0;
 		
 		
-		
+		// Looping based on the number of line item to be received
 		for(int i=1; i<= Integer.parseInt(noOfLineItem); i++){
 			
 		String receiveAllQty = receivingTestDataHashmap.get("RECEIVE_ALL_QUANTITY_"+i);
 		String barcodeType = receivingTestDataHashmap.get("BARCODE_TYPE_"+i);
+		String isAssembly = receivingTestDataHashmap.get("IS_ASSEMBLY_"+i);
 		String barcode = receivingTestDataHashmap.get("BARCODE_"+i);
 		String serialNumber = receivingTestDataHashmap.get("SERIAL_NUMBER_"+i);
 		String qty = receivingTestDataHashmap.get("QUANTITY_"+i);
 		String packageId = receivingTestDataHashmap.get("PACKAGE_ID_"+i);
 		String hardwareVersion = receivingTestDataHashmap.get("HARDWARE_VERSION_"+i);
 		String condition = receivingTestDataHashmap.get("CONDITION_"+i);
+		
 			
 			
 		
 		selectRoutine(MMR_RECEIVE);
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(MMR_RECEIVE)) {
-
+			// Entering header level details
 			EnterText(LOCATION_XPATH, "Enter Location Name (*) :", location);
 			ClickNext();
 			EnterText(MRR_NUMBER_XPATH, "Enter MRR Number (*) :", mrrNumber);
 			ClickNext();
 			EnterText(SUB_INVENTORY_XPATH, "Enter Sub-Inventory :", subInventory);
 			ClickNext();
-
+			// Checking if user needs to receive items in a Container or not
 			if (validateMessage(confirmMsg1)) {
 				if (receiveInContainer.equalsIgnoreCase("Yes")) {
 					mfgPartNumberIndex = 28;
 					Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + confirmMsg1);
-					EnterText(CONTAINERC0DE_XPATH, "Enter Container Code (*) :", containerCode);
+					EnterText(CONTAINERC0DE_XPATH, "Enter Container Code (*) :", containerCode+generateRandomNum(10000));
 					ClickNext();
 				} else {
 					mfgPartNumberIndex = 25;
 					Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + confirmMsg1);					
 				}
 			}
-									
+			
+			// Check the barcode type and perform actions accordingly
 			switch(barcodeType){
 			
 			case "SERIALIZED_ITEMCODE":	
@@ -191,34 +181,43 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					ClickNext();					
 				}
 				
-				waitCommand(MFG_SERIALNUM_XPATH);
-				
+				waitCommand(PARENT_RECEIVED_COUNT);
+				// Checks Parent Received Count 
 				if(isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")){					
 					parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
 					receivedCount = Integer.parseInt(parentReceiveCount[0]);
 					totalCount = Integer.parseInt(parentReceiveCount[1]);
 					totalCount = totalCount-receivedCount;
 				
-				
+				// Checks if users wants to receive all the quantity 
+					// If Yes - Loops till it receives remaining count
+					// If No - Receives one asset
 				if(receiveAllQty.equalsIgnoreCase("Yes")){	
 				
-				for(int j=1; j<=totalCount;j++){
-					
+				for(int j=1; j<=(totalCount-receivedCount);j++){
+				
+				// Checks received count on each iteration to ensure when to perform certain actions like 
+					//Close Container Prompt, Attachment field and Transaction complete message	
 				parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
 				receivedCount = Integer.parseInt(parentReceiveCount[0]);	
 				
-				EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+j);
+				// Checks if the item code type is Assembly 
+				//If Yes - Skips Serial #
+				//If No - Enters Serial #
+				if(!isAssembly.equalsIgnoreCase("Yes")){
+				EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+generateRandomNum(10000));
 				ClickNext();
-				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+j);
+				}
+				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+generateRandomNum(10000));
 				ClickNext();
 				EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
 				ClickNext();
 				EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
 				ClickNext();				
 				
-				
+				// Checks if user needs to click 'Yes' for the Close container Prompt
 				if(receivedCount == (totalCount-1)){
-					if(receiveInContainer.equalsIgnoreCase("Yes") && receiveAllQty.equalsIgnoreCase("Yes")){
+					if(receiveInContainer.equalsIgnoreCase("Yes")){
 						if(validateMessage(confirmMsg2)){
 							if(closeContainer.equalsIgnoreCase("Yes")){
 							Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + confirmMsg2);						
@@ -232,29 +231,56 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					}	
 				}
 				
+				// Checks list of fields to be auto-populated is correct
+				validateAutoPopulatedFields(mrrReceiveAutoPopulatingFields);
 				EnterText(NOTES_XPATH, "Enter Notes :", notes);
 				ClickNext();
-				if(receivedCount == (totalCount-1)){
+				
+				// Checks when to click 'Ok' for the transaction complete message
+				if(receivedCount == (totalCount-1)){					
 					if (validateMessage(transactionCompleteMsg)) {
 						Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
 						validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
+						deliveryConfirmation();
 					}
 				}else{
 					validateTransaction(MMR_RECEIVE, "Enter Mfg. Serial Number (*) :");	
+					deliveryConfirmation();
 				}
 				}				
 				
-				}else{
-					waitCommand(MFG_SERIALNUM_XPATH);
+				}else{					
 					
-					EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+i);
-					ClickNext();
-					EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+i);
+					if(!isAssembly.equalsIgnoreCase("Yes")){
+						waitCommand(MFG_SERIALNUM_XPATH);
+						EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+generateRandomNum(10000));
+						ClickNext();
+					}
+					EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+generateRandomNum(10000));
 					ClickNext();
 					EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
 					ClickNext();
 					EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
 					ClickNext();
+					
+
+					if(receivedCount == (totalCount-1)){
+						if(receiveInContainer.equalsIgnoreCase("Yes")){
+							if(validateMessage(confirmMsg2)){
+								if(closeContainer.equalsIgnoreCase("Yes")){
+								Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + confirmMsg2);						
+								}else{
+								Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + confirmMsg2);	
+								}
+								ClickNext();
+							}
+						}else{
+							ClickNext();
+						}	
+					}
+					
+					
+					validateAutoPopulatedFields(mrrReceiveAutoPopulatingFields);
 					EnterText(NOTES_XPATH, "Enter Notes :", notes);
 					ClickNext();
 					
@@ -262,9 +288,11 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 						if (validateMessage(transactionCompleteMsg)) {
 							Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
 							validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
+							deliveryConfirmation();
 						}
 					}else{
 						validateTransaction(MMR_RECEIVE, "Enter Mfg. Serial Number (*) :");	
+						deliveryConfirmation();
 					}
 				}
 				}
@@ -286,7 +314,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				waitCommand(QTY_XPATH);
 				ClickNext();
 				}
-				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId);
+				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+generateRandomNum(10000));
 				ClickNext();								
 				EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
 				ClickNext();
@@ -303,7 +331,9 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					}
 				}else{
 					ClickNext();
-				}		
+				}	
+				
+				validateAutoPopulatedFields(mrrReceiveAutoPopulatingFields);
 				
 				EnterText(NOTES_XPATH, "Enter Notes :", notes);
 				ClickNext();
@@ -312,9 +342,11 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					if (validateMessage(transactionCompleteMsg)) {
 						Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
 						validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
+						deliveryConfirmation();
 					}
 				}else{
 					validateTransaction(MMR_RECEIVE, "Enter Quantity (*) :");
+					deliveryConfirmation();
 				}
 				
 				
@@ -328,19 +360,34 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			default:
 			// do nothing	
 			break;
-			}
-	
-
-			
-		}
-			
-			//Verify whether Transaction is completed successfully		
-			
-			
-			
+			}		
+	}
+					
 		}	
 	
 	
+	}
+		
+	private void deliveryConfirmation(){
+		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");
+		int recordId = deliveryConfirmation(dataMap);
+		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, dataMap.get("VALUE7"),recordId);
+	}
+
+	private void validateAutoPopulatedFields(ArrayList<String> autoPopulatingFields) {
+		
+		int numberOfFields = autoPopulatingFields.size();
+		
+		test.log(LogStatus.INFO, "<b>Start: Validating Auto-Populated fields...</b>");
+		
+		for(int i=0; i<numberOfFields; i++){
+			
+			isAutoPopulateFieldPresent(String.format(XPATH_TXT,autoPopulatingFields.get(i)), autoPopulatingFields.get(i));
+			
+		}
+		
+		test.log(LogStatus.INFO, "<b>End: Validating Auto-Populated fields.</b>");
 	}
 	
 	

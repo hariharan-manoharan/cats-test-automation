@@ -224,8 +224,6 @@ public class Utility {
 	}
 	
 	/**
-	 * This function is similar to waitCommand which waits until the object is available with timeout of 100 seconds polling every 5 seconds
-	 * and returns the value of until statement
 	 *  	  
 	 * @param1 By by
 	 * @param2 String objectName	
@@ -251,6 +249,40 @@ public class Utility {
 
 	}
 
+	
+	/**
+	 *  	  
+	 * @param1 By by
+	 * @param2 String objectName	
+	 * @return boolean 
+	 * @author Hari
+	 * @since 12/27/2016
+	 * 
+	 */
+
+	public boolean isAutoPopulateFieldPresent(String labelXpath, final String objectName) {
+		
+		boolean flag = false;
+		String value = null;
+		
+		try{
+		
+		flag = this.driver.findElement(By.xpath(labelXpath)).isDisplayed();
+		
+		if(flag){
+			value = this.driver.findElement(By.xpath(labelXpath+"/following-sibling::android.view.View")).getAttribute("name");	
+		}
+		
+		test.log(LogStatus.PASS, "<b>" + objectName + "</b> - <b>"+value+"</b>", "");
+		return true;				
+		
+		}catch(NoSuchElementException  e){
+			test.log(LogStatus.FAIL, "<b>" + objectName + "</b> is not present", "");
+			return false;
+		}
+		
+
+	}
 	
 	/**
 	 * This function is similar to waitCommand which waits until the object is available with timeout of 100 seconds polling every 5 seconds
@@ -1581,18 +1613,18 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			query = "UPDATE CATSCUST_MRR "
 					+"SET TAX_UPDATE = 'Y'"
 					+"WHERE MRRID IN (SELECT MRRID FROM CATSCUST_MRR WHERE POCODE='"+inputValueMap.get("VALUE6")+"')";
-			executeUpdateQuery(query, "Tax Update for PO - "+inputValueMap.get("VALUE6")+" is done successfully");
+			executeUpdateQuery(query, "Tax Update for PO - <b>"+inputValueMap.get("VALUE6")+"</b>");
 			connection.commit();			
 			
 		} catch (SQLException e) {	
-			test.log(LogStatus.FAIL, "Tax Update for PO - <b>"+inputValueMap.get("VALUE6")+"</b> is not done successfully");
+			test.log(LogStatus.FAIL, "Tax Update for PO - <b>"+inputValueMap.get("VALUE6")+"</b>");
 			e.printStackTrace();			
 		}
 	}
 	
 	
 	@SuppressWarnings("resource")
-	 public int deliveryconfirmation1(LinkedHashMap<String, String> inputValueMap) {
+	 public int deliveryConfirmation(LinkedHashMap<String, String> inputValueMap) {
 
 		String query = null;
 		String SERIALIZED;
@@ -1642,7 +1674,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+"'"+inputValueMap.get("VALUE6")+"',"
 						+"'"+inputValueMap.get("VALUE7")+"'"
 						+")";
-				executeUpdateQuery(query, "Delivery Confirmation  - "+inputValueMap.get("VALUE7")+" is done successfully");
+				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+inputValueMap.get("VALUE7")+"</b>");
 				connection.commit();
 				
 			}
@@ -1679,7 +1711,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+"'"+inputValueMap.get("VALUE7")+"'"
 						+")";
 				connection.commit();
-				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - "+inputValueMap.get("VALUE7")+" with Assetcode : " + ASSETCODE +" is done successfully");
+				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+inputValueMap.get("VALUE7")+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
 			}
 
 		}
@@ -1842,7 +1874,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 				
 				verifyCounter++;
 				if (PROCESS_FLAG.equals("P")) {
-					test.log(LogStatus.PASS,inboundType +" - " + inputValue1 + " is processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
+					test.log(LogStatus.PASS,inboundType +" - <b>" + inputValue1 + "</b> is processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
 					verifyCounter=0;
 					succesFlag = true;
 					break;
@@ -1859,7 +1891,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 					}
 				}else{
 					ERROR_MESSAGE = rs.getString(errorFlag);
-					test.log(LogStatus.FAIL,inboundType +" - " + inputValue1 + " is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
+					test.log(LogStatus.FAIL,inboundType +" - <b>" + inputValue1 + "</b> is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
 					test.log(LogStatus.INFO,processFlag +" - <b>"+PROCESS_FLAG + "</b> | " + errorFlag+" - <b>"+ERROR_MESSAGE+"</b>");				
 				}
 			}

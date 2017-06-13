@@ -11,8 +11,8 @@ import com.relevantcodes.extentreports.LogStatus;
 import io.appium.java_client.android.AndroidDriver;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
-import main.java.utils.JMeterFromExistingJMX;
-import main.java.utils.SqlQueries;
+//import main.java.utils.JMeterFromExistingJMX;
+
 
 public class FunctionalComponents extends Utility {
 

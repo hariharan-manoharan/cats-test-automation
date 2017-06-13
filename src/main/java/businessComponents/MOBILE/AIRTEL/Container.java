@@ -26,7 +26,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	By TOSTATUS_XPATH = By.xpath(String.format(XPATH_TXT, "Enter To Status (*) :"));
 	By BARCODE_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Barcode (*) :"));
 	By ASSET_SERIAL_BARCODE_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Asset Code (UIN) or Serial Number :"));	
-	By MFGPARTNUM_BARCODE_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Mfg. Part Number :"));
+	By MFGPARTNUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Mfg. Part Number :"));
 	By LOTNUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Lot Number (*) :"));
 	By QTY_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Quantity (*) :"));
 	By NOTES_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Notes :"));
@@ -115,7 +115,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		String location = containerTestDataHashmap.get("LOCATION_NAME");
 		String containerCode = containerTestDataHashmap.get("CONTAINER_CODE");
 		String toStatus = containerTestDataHashmap.get("TO_STATUS");		
-		String noOfItemsToBeAdded = containerTestDataHashmap.get("NO_ITEMS_TO_BE_ADDED");		
+		String noOfItemsToBeAdded = containerTestDataHashmap.get("NO_ITEMS_TO_BE_ADDED_REMOVED");		
 		String notes = containerTestDataHashmap.get("NOTES");
 		
 		selectRoutine(ADD_TO_CONTAINER);		
@@ -167,9 +167,9 @@ public class Container extends Utility implements RoutineObjectRepository  {
 				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
 				ClickNext();
 				if(mfgPartNumbertype.equalsIgnoreCase("MULTIPLE")){
-				if(isElementPresent(MFGPARTNUM_BARCODE_XPATH, "Enter Mfg. Part Number :")){
+				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part Number :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",19);
-					EnterText(MFGPARTNUM_BARCODE_XPATH, "Enter Mfg. Part Number :", GetPickListValue(1));
+					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part Number :", GetPickListValue(1));
 					ClickNext();
 				}
 				}
@@ -215,9 +215,58 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	
 	public void removeFromContainer() throws TimeoutException, NoSuchElementException,  WebDriverException {
 		
+		String noOfItemsToBeAdded = containerTestDataHashmap.get("NO_ITEMS_TO_BE_ADDED_REMOVED");
+		String notes = containerTestDataHashmap.get("NOTES");
+		
+		for(int i=1; i<=Integer.parseInt(noOfItemsToBeAdded);i++){
+		
+		String barcodeType = containerTestDataHashmap.get("BARCODE_TYPE_"+i);
+		String barcode = containerTestDataHashmap.get("BARCODE_"+i);
+		
 		selectRoutine(REMOVE_FROM_CONTAINER);		
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(REMOVE_FROM_CONTAINER)) {
 			
+			switch(barcodeType){
+			
+			case "CONTAINERCODE":
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
+				ClickNext();
+				ClickNext();
+			break;
+			
+			case "ASSETCODE":
+			case "SERIAL_NUMBER":	
+			case "PACKAGE_TAG":
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
+				ClickNext();	
+				ClickNext();
+				
+			break;	
+			
+			case "SERIALIZED_ITEMCODE":	
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
+				ClickNext();
+				
+				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+					ClickSpyGlass("Enter Mfg. Part Number :",10);
+					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
+					ClickNext();
+				}
+				
+				EnterText(ASSET_SERIAL_BARCODE_XPATH, "Enter Asset Code (UIN) or Serial Number :", barcode);
+				ClickNext();
+				ClickNext();
+			break;
+			
+			case "NON_SERIALIZED_ITEMCODE":
+				
+			break;
+				
+			}
+			
+			EnterText(NOTES_XPATH, "Enter Notes :", notes);
+			ClickNext();
+		}
 		}
 	}
 	

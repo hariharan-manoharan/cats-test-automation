@@ -133,11 +133,11 @@ public class FunctionalComponents extends Utility {
 	
 	//Performance Testing
 
-	public void performanceTest() throws Exception{
+/*	public void performanceTest() throws Exception{
 		
 		JMeterFromExistingJMX JMeterFromExistingJMX = new JMeterFromExistingJMX();
 		JMeterFromExistingJMX.run();
 		
-	}
+	}*/
 
 }

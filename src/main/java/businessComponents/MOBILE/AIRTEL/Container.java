@@ -209,7 +209,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			ClickNext();
 			
 			//Verify whether Transaction is completed successfully
-			validateTransaction("ADD_TO_CONTAINER", "Enter Barcode (*) :");
+			validateTransaction(ADD_TO_CONTAINER, "Enter Barcode (*) :");
 		}
 		
 	}
@@ -241,7 +241,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			case "ASSETCODE":
 			case "SERIAL_NUMBER":	
 			case "PACKAGE_TAG":
-				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", (barcode = (barcode.contains("#")) ?  getGeneratedTestdata("RECEIVING",barcode) : generateTestData("CONTAINER", "BARCODE_1", barcode)));
 				ClickNext();	
 				ClickNext();
 				
@@ -296,6 +296,8 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		}
 		}
 		
+		//Verify whether Transaction is completed successfully
+		validateTransaction(REMOVE_FROM_CONTAINER, "Enter Barcode (*) :");
 	}
 	
 	public void openContainer() throws TimeoutException, NoSuchElementException,  WebDriverException {
@@ -309,7 +311,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(OPEN_CONTAINER)) {
 			EnterText(LOCATION_XPATH, "Enter Location Name (*) :", location);
 			ClickNext();
-			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", containerCode);
+			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getGeneratedTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
 			ClickNext();
 			ClickNext();
 			EnterText(NOTES_XPATH, "Enter Notes :", notes);
@@ -317,7 +319,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		}		
 		
 		//Verify whether Transaction is completed successfully
-		validateTransaction("OPEN_CONTAINER", "Enter Location Name (*) :");
+		validateTransaction(OPEN_CONTAINER, "Enter Location Name (*) :");
 		
 		
 	}
@@ -332,7 +334,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(CLOSE_CONTAINER)) {
 			EnterText(LOCATION_XPATH, "Enter Location Name (*) :", location);
 			ClickNext();
-			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", containerCode);
+			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getGeneratedTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
 			ClickNext();
 			ClickNext();
 			EnterText(NOTES_XPATH, "Enter Notes :", notes);
@@ -340,7 +342,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		}
 		
 		//Verify whether Transaction is completed successfully
-		validateTransaction("CLOSE_CONTAINER", "Enter Location Name (*) :");
+		validateTransaction(CLOSE_CONTAINER, "Enter Location Name (*) :");
 		
 	}
 	

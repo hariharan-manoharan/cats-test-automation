@@ -149,7 +149,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			case "ASSETCODE":
 			case "SERIAL_NUMBER":	
 			case "PACKAGE_TAG":
-				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", (barcode = (barcode.contains("#")) ?  getGeneratedTestdata("RECEIVING",barcode) : generateTestData("CONTAINER", "BARCODE_1", barcode)));
 				ClickNext();
 				ClickNext();				
 			break;	

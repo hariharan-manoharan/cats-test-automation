@@ -189,8 +189,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				if(isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")){					
 					parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
 					receivedCount = Integer.parseInt(parentReceiveCount[0]);
-					totalCount = Integer.parseInt(parentReceiveCount[1]);
-					totalCount = totalCount-receivedCount;
+					totalCount = Integer.parseInt(parentReceiveCount[1]);				
 				
 				// Checks if users wants to receive all the quantity 
 					// If Yes - Loops till it receives remaining count
@@ -207,11 +206,11 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				// Checks if the item code type is Assembly 
 				//If Yes - Skips Serial #
 				//If No - Enters Serial #
-				if(!isAssembly.equalsIgnoreCase("Yes")){
-				EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+generateRandomNum(10000));
+				if(!isAssembly.equalsIgnoreCase("Yes")){					
+				EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", (serialNumber = (serialNumber.contains("#")) ?  getGeneratedTestdata("RECEIVING",serialNumber) : generateTestData("RECEIVING", "SERIAL_NUMBER_"+j, serialNumber)));
 				ClickNext();
 				}
-				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+generateRandomNum(10000));
+				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", (packageId = (packageId.contains("#")) ?  getGeneratedTestdata("RECEIVING",packageId) : generateTestData("RECEIVING", "PACKAGE_ID_"+j, packageId)));
 				ClickNext();
 				EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
 				ClickNext();
@@ -256,10 +255,10 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					
 					if(!isAssembly.equalsIgnoreCase("Yes")){
 						waitCommand(MFG_SERIALNUM_XPATH);
-						EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", serialNumber+generateRandomNum(10000));
+						EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :", (serialNumber = (serialNumber.contains("#")) ?  getGeneratedTestdata("RECEIVING",serialNumber) : generateTestData("RECEIVING", "SERIAL_NUMBER_1", serialNumber)));
 						ClickNext();
 					}
-					EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+generateRandomNum(10000));
+					EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", (packageId = (packageId.contains("#")) ?  getGeneratedTestdata("RECEIVING",packageId) : generateTestData("RECEIVING", "PACKAGE_ID_1", packageId)));
 					ClickNext();
 					EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
 					ClickNext();
@@ -319,7 +318,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				waitCommand(QTY_XPATH);
 				ClickNext();
 				}
-				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", packageId+generateRandomNum(10000));
+				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", (packageId = (packageId.contains("#")) ?  getGeneratedTestdata("RECEIVING",packageId) : generateTestData("RECEIVING", "PACKAGE_ID", packageId)));
 				ClickNext();								
 				EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
 				ClickNext();

@@ -119,7 +119,8 @@ public class FunctionalComponents extends Utility {
 	public void createBulkTransferRequest(){
 		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";		
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Bulk_Transfer_Request");
-		int stageId = createBulkTransferRequest(dataMap);
+		Transfer transfer = new Transfer(test, driver, dataTable);
+		int stageId = transfer.createBulkTransferRequest(dataMap);
 		boolean successFlag = validateInboundTransaction("Bulk Transfer Request", "PROCESSED", "ERRORMESSAGE", validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"),stageId);	
 		
 		if(successFlag){

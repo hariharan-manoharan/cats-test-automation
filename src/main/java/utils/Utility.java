@@ -2,6 +2,7 @@ package main.java.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -1249,6 +1250,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		
 	String query = null;	
 	int RECORD_ID = 0;
+	CallableStatement stproc_stmt;  
 	try {
 		
 		RECORD_ID = generateRandomNum(10000000);
@@ -1297,8 +1299,17 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 				    +inputValueMap.get("VALUE18")+","
 				    +"'"+inputValueMap.get("VALUE19")+"')";				
 			
-		executeUpdateQuery(query, "Part Code <b>"+inputValueMap.get("VALUE2")+"</b> is inserted into CATSCON_PART_STG table");
-		connection.commit();			
+		executeUpdateQuery(query, "Part Code <b>"+inputValueMap.get("VALUE2")+"</b> is inserted into CATSCON_PART_STG table");		
+		connection.commit();
+		stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_PART}");	
+		stproc_stmt.executeUpdate();		
+		stproc_stmt = connection.prepareCall ("{call CATSCON_P_PARTINTERFACE.SP_INITPARTINTERFACE(?)}");
+		stproc_stmt.setString(1, "");
+		stproc_stmt.executeUpdate();
+		stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_PART_ERPACK}");	
+		stproc_stmt.executeUpdate();
+		
+		stproc_stmt.close();
 		
 	} catch (SQLException e) {		
 		e.printStackTrace();
@@ -1311,6 +1322,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	public int addMfgForItem(LinkedHashMap<String, String> inputValueMap) {
 		String query = null;		
 		int RECORD_ID = 0;
+		CallableStatement stproc_stmt;  
 		try {
 			
 			RECORD_ID = generateRandomNum(10000000);
@@ -1341,7 +1353,16 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			//System.out.println(query);
 			
 			executeUpdateQuery(query, "MFG <b>"+inputValueMap.get("VALUE1")+"</b> with MFG Part # <b>"+inputValueMap.get("VALUE2")+"</b> is added for Item code <b>"+inputValueMap.get("VALUE3")+"</b> into CATSCON_MFG_STG table");
-			connection.commit();			
+			connection.commit();	
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_MFG}");	
+			stproc_stmt.executeUpdate();		
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_PARTINTERFACE.SP_INITPARTINTERFACE(?)}");
+			stproc_stmt.setString(1, "");
+			stproc_stmt.executeUpdate();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_MFG_ERPACK}");	
+			stproc_stmt.executeUpdate();
+			
+			stproc_stmt.close();
 			
 		} catch (SQLException e) {			
 			e.printStackTrace();
@@ -1354,6 +1375,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	public int createPurchaseOrder(LinkedHashMap<String, String> inputValueMap){
 		String query = null;		
 		int RECORD_ID = 0;
+		CallableStatement stproc_stmt;  
 		try {
 			
 			RECORD_ID = generateRandomNum(10000000);
@@ -1455,7 +1477,16 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 					 
 			//System.out.println(query);
 			executeUpdateQuery(query, "PO - <b>"+inputValueMap.get("VALUE2")+"</b> for Item <b>"+inputValueMap.get("VALUE18")+"</b> is inserted in to CATSCON_PO_STG table");
-			connection.commit();			
+			connection.commit();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_PO}");	
+			stproc_stmt.executeUpdate();		
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_POINTERFACE.SP_INITPOINTERFACE(?)}");
+			stproc_stmt.setString(1, "");
+			stproc_stmt.executeUpdate();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_PO_ERPACK}");	
+			stproc_stmt.executeUpdate();
+			
+			stproc_stmt.close();
 			
 		} catch (SQLException e) {			
 			e.printStackTrace();
@@ -1464,7 +1495,8 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	}
 	
 	public void createBillOfMaterial(LinkedHashMap<String, String> inputValueMap){
-		String query = null;		
+		String query = null;	
+		CallableStatement stproc_stmt; 
 		try {
 			
 			query = "INSERT "
@@ -1502,7 +1534,16 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			executeUpdateQuery(query, "BOM is created for Item code - "+inputValueMap.get("VALUE3")+" where, Item Sequence # - <b>"+inputValueMap.get("VALUE4")+
 																										"</b>, Component Item Code - <b>"+inputValueMap.get("VALUE5")+
 																										"</b>, Qty Per Assembly - <b>"+ inputValueMap.get("VALUE6")+"</b>");
-			connection.commit();			
+			connection.commit();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_BOM}");	
+			stproc_stmt.executeUpdate();		
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_PARTINTERFACE.SP_INITPARTINTERFACE(?)}");
+			stproc_stmt.setString(1, "");
+			stproc_stmt.executeUpdate();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_BOM_ERPACK}");	
+			stproc_stmt.executeUpdate();
+			
+			stproc_stmt.close();
 			
 		} catch (SQLException e) {			
 			e.printStackTrace();
@@ -1512,6 +1553,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	public int createMaterialReceiveReceipt(LinkedHashMap<String, String> inputValueMap){
 		String query = null;
 		int RECORD_ID = 0;
+		CallableStatement stproc_stmt; 
 		try {
 			
 			RECORD_ID = generateRandomNum(10000000);
@@ -1598,7 +1640,16 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			//System.out.println(query);
 			
 			executeUpdateQuery(query, "MRR - <b>"+inputValueMap.get("VALUE9")+"</b> is created for PO - <b>"+inputValueMap.get("VALUE6")+"</b>");
-			connection.commit();			
+			connection.commit();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_MRR}");	
+			stproc_stmt.executeUpdate();		
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_MRRINTERFACE.SP_INITMRRINTERFACE(?)}");
+			stproc_stmt.setString(1, "");
+			stproc_stmt.executeUpdate();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_MRR_ERPACK}");	
+			stproc_stmt.executeUpdate();
+			
+			stproc_stmt.close();		
 			
 			
 		} catch (SQLException e) {			
@@ -1633,6 +1684,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		int RECORD_ID = 0;
 		ResultSet rs;
 		Statement stmt;
+		CallableStatement stproc_stmt;
 
 		
 		try {
@@ -1676,6 +1728,15 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+")";
 				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+inputValueMap.get("VALUE7")+"</b>");
 				connection.commit();
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
+				stproc_stmt.executeUpdate();		
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_POCONFINTERFACE.SP_INITPOCONFINTERFACE(?)}");
+				stproc_stmt.setString(1, "");
+				stproc_stmt.executeUpdate();
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_POREC_ERPACK}");	
+				stproc_stmt.executeUpdate();
+				
+				stproc_stmt.close();		
 				
 			}
 			
@@ -1712,6 +1773,15 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+")";
 				connection.commit();
 				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+inputValueMap.get("VALUE7")+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
+				stproc_stmt.executeUpdate();		
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_POCONFINTERFACE.SP_INITPOCONFINTERFACE(?)}");
+				stproc_stmt.setString(1, "");
+				stproc_stmt.executeUpdate();
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_POREC_ERPACK}");	
+				stproc_stmt.executeUpdate();
+				
+				stproc_stmt.close();		
 			}
 
 		}
@@ -1744,6 +1814,123 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	}
 	
 	
+	public int createBulkTransferRequest(LinkedHashMap<String, String> inputValueMap){
+		
+		String insertquery = null;	
+		String updatequery = null;
+		int lastStageId = 0;
+		int currentStageId = 0;
+		CallableStatement stproc_stmt;
+		
+		String FROMSUBINVENTORY = ((inputValueMap.get("FROMSUBINVENTORY") == null) ? "NULL" : "'"+inputValueMap.get("FROMSUBINVENTORY") +"'");
+		String TOSTATUS = ((inputValueMap.get("TOSTATUS") == null) ? "NULL" : "'"+inputValueMap.get("TOSTATUS") +"'");
+		String TOSUBINVENTORY = ((inputValueMap.get("TOSUBINVENTORY") == null) ? "NULL" : "'"+inputValueMap.get("TOSUBINVENTORY") +"'");
+		String DESTINATIONLOCATION = ((inputValueMap.get("DESTINATIONLOCATION") == null) ? "NULL" : "'"+inputValueMap.get("DESTINATIONLOCATION") +"'");
+		String SERVICEORDER = ((inputValueMap.get("SERVICEORDER") == null) ? "NULL" : "'"+inputValueMap.get("SERVICEORDER") +"'");
+		String RECEIVERNAME = ((inputValueMap.get("RECEIVERNAME") == null) ? "NULL" : "'"+inputValueMap.get("RECEIVERNAME") +"'");
+		String RECEIVERPHONE = ((inputValueMap.get("RECEIVERPHONE") == null) ? "NULL" : "'"+inputValueMap.get("RECEIVERPHONE") +"'");
+		String BEHALFOF = ((inputValueMap.get("BEHALFOF") == null) ? "NULL" : "'"+inputValueMap.get("BEHALFOF") +"'");
+		String NEEDBYDATE = ((inputValueMap.get("NEEDBYDATE") == null) ? "NULL" : "'"+inputValueMap.get("NEEDBYDATE") +"'");
+		String PARTCODE = ((inputValueMap.get("PARTCODE") == null) ? "NULL" : "'"+inputValueMap.get("PARTCODE") +"'");
+		String MFGPARTNUMBER = ((inputValueMap.get("MFGPARTNUMBER") == null) ? "NULL" : "'"+inputValueMap.get("MFGPARTNUMBER") +"'");
+		String ASSETCODE = ((inputValueMap.get("ASSETCODE") == null) ? "NULL" : "'"+inputValueMap.get("ASSETCODE") +"'");
+		String RMANUMBER = ((inputValueMap.get("RMANUMBER") == null) ? "NULL" : "'"+inputValueMap.get("RMANUMBER") +"'");
+		String FAULT_CODE = ((inputValueMap.get("FAULT_CODE") == null) ? "NULL" : "'"+inputValueMap.get("FAULT_CODE") +"'");
+		String NOTES = ((inputValueMap.get("NOTES") == null) ? "NULL" : "'"+inputValueMap.get("NOTES") +"'");
+
+
+
+		try {
+			
+			if(inputValueMap.get("TRANSACTION_TYPE").equalsIgnoreCase("INSERT")){			
+			lastStageId = getLastTransactionId("SELECT MAX(STAGEID) AS STAGEID FROM CATSCON_TRANSFERREQ_STG","STAGEID" );
+			currentStageId = lastStageId+1;
+			
+			insertquery = "INSERT "
+					+"INTO CATSCON_TRANSFERREQ_STG"
+					+"("
+							+"STAGEID,"
+						    +"PROCESSED,"
+						    +"GENERATEDREQNUM,"
+						    +"REFERENCENUMBER,"
+						    +"FROMLOCATION,"
+						    +"FROMSTATUS,"
+						    +"FROMSUBINVENTORY,"
+						    +"TOLOCATION,"
+						    +"TOSTATUS,"
+						    +"TOSUBINVENTORY,"
+						    +"DESTINATIONLOCATION,"
+						    +"REASON,"
+						    +"WO_NUMBER,"
+						    +"SERVICEORDER,"
+						    +"RECEIVERNAME,"
+						    +"RECEIVERPHONE,"
+						    +"BEHALFOF,"
+						    +"NEEDBYDATE,"
+						    +"PARTCODE,"
+						    +"MFGPARTNUMBER,"
+						    +"ASSETCODE,"
+						    +"RMANUMBER,"
+						    +"FAULT_CODE,"						    
+						    +"ADDDTTM,"
+						    +"ADDCONTACTCODE,"
+						    +"QTYNEEDED,"
+						    +"NOTES"
+						  +")"
+						  +"VALUES"
+						  +"("
+						  +currentStageId+","
+						  +"'"+inputValueMap.get("PROCESSED")+"',"
+						  +"'"+inputValueMap.get("GENERATEDREQNUM")+"',"
+						  +"'"+inputValueMap.get("REFERENCENUMBER")+"',"
+						  +"'"+inputValueMap.get("FROMLOCATION")+"',"
+						  +"'"+inputValueMap.get("FROMSTATUS")+"',"
+						  +FROMSUBINVENTORY+","
+						  +"'"+inputValueMap.get("TOLOCATION")+"',"
+						  +TOSTATUS+","
+						  +TOSUBINVENTORY+","
+						  +DESTINATIONLOCATION+","
+						  +"'"+inputValueMap.get("REASON")+"',"
+						  +"'"+inputValueMap.get("WO_NUMBER")+"',"
+						  +SERVICEORDER+","
+					      +RECEIVERNAME+","
+						  +RECEIVERPHONE+","
+						  +BEHALFOF+","
+						  +NEEDBYDATE+","
+						  +PARTCODE+","
+						  +MFGPARTNUMBER+","
+						  +ASSETCODE+","
+						  +RMANUMBER+","
+						  +FAULT_CODE+","						 
+						  +inputValueMap.get("ADDDTTM")+","
+						  +"'"+inputValueMap.get("ADDCONTACTCODE")+"',"
+						  +inputValueMap.get("QTYNEEDED")+","
+						  +NOTES+")";
+						
+			executeUpdateQuery(insertquery, "Bulk Transfer request with REFERENCENUMBER - <b>"+inputValueMap.get("REFERENCENUMBER")+"</b> is <b>"+inputValueMap.get("TRANSACTION_TYPE")+"ED</b> in CATSCON_TRANSFERREQ_STG table (STAGEID - <b>"+currentStageId+"</b>)");
+			
+			}else {
+			lastStageId = Integer.parseInt(inputValueMap.get("STAGEID"));
+			currentStageId = lastStageId;
+			
+			updatequery = "";
+						
+			executeUpdateQuery(updatequery, "Bulk Transfer request with REFERENCENUMBER - <b>"+inputValueMap.get("REFERENCENUMBER")+"</b> is <b>"+inputValueMap.get("TRANSACTION_TYPE")+"ED</b> in CATSCON_TRANSFERREQ_STG table (STAGEID - <b>"+currentStageId+"</b>)");
+			stproc_stmt = connection.prepareCall ("{call  CATSCON_P_TRANSFERIMPORT.SP_PROCESS_TRANSFERS}");	
+			stproc_stmt.executeUpdate();
+			
+			stproc_stmt.close();
+			}				
+			
+			
+			connection.commit();			
+			
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		}
+		return currentStageId;
+	}
+	
 	//Transaction Validations
 	
 	public boolean validateInboundTransaction(String inboundType, String processFlag, String errorFlag, String query, String inputValue1, int recordId) {
@@ -1765,10 +1952,10 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 					verifyCounter=0;
 					succesFlag = true;
 					break;
-				} else if ((PROCESS_FLAG.equals("N"))){
-					if (verifyCounter < 11) {
-						HardDelay(10000);
-						test.log(LogStatus.INFO,verifyCounter + ": Re-checking "+processFlag+" after 10 secs wait....");
+				} else if (PROCESS_FLAG.equals("N") || PROCESS_FLAG.equals("D")){
+					if (verifyCounter < 20) {
+						HardDelay(3000);
+						test.log(LogStatus.INFO,verifyCounter + ": Re-checking "+processFlag+" after 3 secs wait....");
 						succesFlag = validateInboundTransaction(inboundType, processFlag, errorFlag, query, inputValue1, recordId);
 					} else {
 						ERROR_MESSAGE = rs.getString(errorFlag);

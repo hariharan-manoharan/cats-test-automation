@@ -9,16 +9,15 @@ import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
+import main.java.executionSetup.TestParameters;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
 
 public class Transfer extends Utility implements RoutineObjectRepository {
 	
 	@SuppressWarnings("rawtypes")
-	public Transfer(ExtentTest test, AndroidDriver driver, DataTable dataTable) {
-		this.test = test;
-		this.driver = driver;
-		this.dataTable = dataTable;
+	public Transfer(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
+		super(test, driver, dataTable,testParameters);
 	}
 
 	

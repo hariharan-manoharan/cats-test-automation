@@ -107,6 +107,12 @@ public class FunctionalComponents extends Utility {
 		poTaxUpdate(dataMap);
 	}
 	
+	public void deliveryConfirmation(){
+		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");
+		int recordId = deliveryConfirmation(dataMap);
+		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, dataMap.get("VALUE7"),recordId);
+	}
 
 
 	public void createBulkTransferRequest(){

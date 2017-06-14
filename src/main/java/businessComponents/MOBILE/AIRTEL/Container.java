@@ -259,6 +259,8 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			break;
 			
 			case "NON_SERIALIZED_ITEMCODE":
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
+				ClickNext();
 				
 			break;
 				

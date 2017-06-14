@@ -9,6 +9,7 @@ import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
+import main.java.executionSetup.TestParameters;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
 //import main.java.utils.JMeterFromExistingJMX;
@@ -17,48 +18,48 @@ import main.java.utils.Utility;
 public class FunctionalComponents extends Utility {
 
 	@SuppressWarnings("rawtypes")
-	public FunctionalComponents(ExtentTest test, AndroidDriver driver, DataTable dataTable) {
-		super(test, driver, dataTable);
+	public FunctionalComponents(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
+		super(test, driver, dataTable, testParameters);
 	}
 
 	public void createNewConnection() {
 
-		LoginActivity loginActivity = new LoginActivity(test, driver, dataTable);
+		LoginActivity loginActivity = new LoginActivity(test, driver, dataTable,testParameters);
 		loginActivity.addConnection();
 
 	}
 
 	public void login() {
 
-		LoginActivity loginActivity = new LoginActivity(test, driver, dataTable);
+		LoginActivity loginActivity = new LoginActivity(test, driver, dataTable,testParameters);
 		loginActivity.login();
 
 	}
 
 	public void selectUserProfile() {
-		ProfilesActivity profilesActivity = new ProfilesActivity(test, driver, dataTable);
+		ProfilesActivity profilesActivity = new ProfilesActivity(test, driver, dataTable,testParameters);
 		profilesActivity.selectProfile();
 	}
 	
 	//Container Routines
 	
 	public void openContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable);
+		Container Container = new Container(test, driver, dataTable, testParameters);
 		Container.openContainer();
 	}
 	
 	public void closeContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable);
+		Container Container = new Container(test, driver, dataTable, testParameters);
 		Container.closeContainer();
 	}
 	
 	public void addToContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable);
+		Container Container = new Container(test, driver, dataTable, testParameters);
 		Container.addToContainer();
 	}
 	
 	public void removeFromContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable);
+		Container Container = new Container(test, driver, dataTable, testParameters);
 		Container.removeFromContainer();
 	}
 
@@ -66,7 +67,7 @@ public class FunctionalComponents extends Utility {
 	//Receiving Routines
 	
 	public void mrrReceive() throws TimeoutException, NoSuchElementException {
-		Receiving Receiving = new Receiving(test, driver, dataTable);
+		Receiving Receiving = new Receiving(test, driver, dataTable,testParameters);
 		Receiving.mrrReceive();
 	}
 	
@@ -131,7 +132,7 @@ public class FunctionalComponents extends Utility {
 
 	public void itemInquiry() throws TimeoutException, NoSuchElementException{
 		
-		Inquiry Inquiry = new Inquiry(test, driver , dataTable);
+		Inquiry Inquiry = new Inquiry(test, driver , dataTable,testParameters);
 		Inquiry.itemInquiry();
 		
 	}

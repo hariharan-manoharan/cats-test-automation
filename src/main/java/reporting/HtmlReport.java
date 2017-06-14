@@ -10,7 +10,7 @@ import main.java.utils.Utility;
 
 public class HtmlReport extends Utility {
 
-	public static String reportFolderName = "Run_" + getCurrentFormattedTime();
+	public static String reportFolderName = "Run_" + getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 	
 	public static String relativePath = new File(System.getProperty("user.dir")).getAbsolutePath();
 

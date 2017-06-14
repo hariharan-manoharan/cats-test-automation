@@ -10,6 +10,7 @@ import org.openqa.selenium.WebDriverException;
 import com.relevantcodes.extentreports.ExtentTest;
 
 import io.appium.java_client.android.AndroidDriver;
+import main.java.executionSetup.TestParameters;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
 
@@ -26,8 +27,8 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 		private HashMap<String, String> inquiryTestDataHashmap = new HashMap<String, String>();
 
 		@SuppressWarnings("rawtypes")
-		public Inquiry(ExtentTest test, AndroidDriver driver, DataTable dataTable) {
-			super(test, driver, dataTable);
+		public Inquiry(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
+			super(test, driver, dataTable,testParameters);
 			getTestData();
 			selectRoutineFolder(folderName);
 		}

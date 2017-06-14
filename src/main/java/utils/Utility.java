@@ -42,6 +42,7 @@ import com.relevantcodes.extentreports.LogStatus;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidKeyCode;
+import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
 
@@ -51,17 +52,21 @@ public class Utility {
 	protected AndroidDriver driver;
 	protected ExtentTest test;
 	protected DataTable dataTable;
+	protected TestParameters testParameters;
 	public static Properties properties;
 	public static Connection connection;
 	public static LinkedHashMap<String, String> environmentVariables;
+	private static HashMap<String, String> glodalRuntimeRecevingDatamap = new HashMap<String, String>();
+	private static HashMap<String, String> glodalRuntimeContainerDatamap = new HashMap<String, String>();
 	int verifyCounter = 0;
 	
 
 	@SuppressWarnings("rawtypes")
-	public Utility(ExtentTest test, AndroidDriver driver, DataTable dataTable) {
+	public Utility(ExtentTest test, AndroidDriver driver, DataTable dataTable,TestParameters testParameters) {
 		this.test = test;
 		this.driver = driver;
 		this.dataTable = dataTable;
+		this.testParameters = testParameters;
 	}
 
 	public Utility() {
@@ -90,7 +95,7 @@ public class Utility {
 
 	public void takeScreenshot(String reportName) {
 
-		String screenshotName = getCurrentFormattedTime();
+		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
 		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
 		try {
@@ -117,7 +122,7 @@ public class Utility {
 
 	public void takeScreenshotStatus(String reportName, LogStatus status) {
 
-		String screenshotName = getCurrentFormattedTime();
+		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
 		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
 		try {
@@ -145,7 +150,7 @@ public class Utility {
 
 		switchContext(contextHandles, "NATIVE");
 
-		String screenshotName = getCurrentFormattedTime();
+		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
 		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
 		try {
@@ -184,8 +189,8 @@ public class Utility {
 	 * 
 	 */
 
-	public static String getCurrentFormattedTime() {
-		DateFormat dateFormat = new SimpleDateFormat("dd_MMM_yyyy_hh_mm_ss");
+	public static String getCurrentFormattedTime(String format) {
+		DateFormat dateFormat = new SimpleDateFormat(format);
 		Calendar calendar = Calendar.getInstance();
 		return dateFormat.format(calendar.getTime());
 	}
@@ -1975,5 +1980,88 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		return succesFlag;
 	}
 	
+	
+	public String generateTestData(String routineFolderName, String columnName, String columnValue) {
+
+		String value = null;
+
+		try {
+
+			value = columnValue + getCurrentFormattedTime("hhmmss");
+
+			switch (routineFolderName) {
+
+			case "CONTAINER":
+				glodalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
+				break;
+			
+			case "RECEIVING":
+				glodalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
+				break;
+				
+			}
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+		return value;
+
+	}
+	
+	
+	
+	public void addRuntimeTestData(String routineFolderName, String columnName, String columnValue) {
+
+		
+		try {
+			
+
+			switch (routineFolderName) {
+
+			case "CONTAINER":
+				glodalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+				break;
+			
+			case "RECEIVING":
+				glodalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+				break;
+				
+			}
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+		
+
+	}
+	
+	
+	public String getGeneratedTestdata(String routineFolderName, String tescase_ColumnName) {
+
+		String value = null;
+
+		try {
+
+			switch (routineFolderName) {
+
+			case "CONTAINER":
+				value = glodalRuntimeContainerDatamap.get(tescase_ColumnName);
+				break;
+
+			case "RECEIVING":
+				value = glodalRuntimeRecevingDatamap.get(tescase_ColumnName);
+				break;
+
+			}
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+		return value;
+
+	}
 
 }

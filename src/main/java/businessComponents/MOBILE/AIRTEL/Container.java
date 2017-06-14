@@ -7,12 +7,11 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.WebElement;
-
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
+import main.java.executionSetup.TestParameters;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
 
@@ -37,8 +36,8 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	
 	//Confirm Messages
 	
-	String confirmMsg = "Container %s does not exist. Do you wish to create a new container?";
-	
+	String confirmMsg_AddToContainer = "Container %s does not exist. Do you wish to create a new container?";
+	String confirmMsg_RemoveFromContainer = "PARENT CONTAINER IS CLOSED.  DO YOU WANT TO AUTOMATICALLY OPEN/CLOSE CONTAINER TO REMOVE THIS ITEM?";
 	
 	//Error Messages
 	
@@ -56,9 +55,10 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	private String folderName = "Container";
 	private HashMap<String, String> containerTestDataHashmap = new HashMap<String, String>();
 
+
 	@SuppressWarnings("rawtypes")
-	public Container(ExtentTest test, AndroidDriver driver, DataTable dataTable) {
-		super(test, driver, dataTable);
+	public Container(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
+		super(test, driver, dataTable, testParameters);
 		getTestData();
 		selectRoutineFolder(folderName);
 	}
@@ -118,13 +118,16 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		String noOfItemsToBeAdded = containerTestDataHashmap.get("NO_ITEMS_TO_BE_ADDED_REMOVED");		
 		String notes = containerTestDataHashmap.get("NOTES");
 		
+		
+		
 		selectRoutine(ADD_TO_CONTAINER);		
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(ADD_TO_CONTAINER)) {
 			EnterText(ADD_TO_CONTAINER_LOCATION_XPATH, "Enter Location (*) :", location);			
 			ClickNext();
-			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", containerCode);
+			
+			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getGeneratedTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
 			ClickNext();
-			if (containerType.equalsIgnoreCase("NEW") && GetText(ID_MESSAGE, "Confirm Message").equalsIgnoreCase(String.format(confirmMsg, containerCode))) {
+			if (containerType.equalsIgnoreCase("NEW") && GetText(ID_MESSAGE, "Confirm Message").equalsIgnoreCase(String.format(confirmMsg_AddToContainer, containerCode))) {
 			Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for message");
 			EnterText(TOSTATUS_XPATH, "Enter To Status (*) :", toStatus);
 			ClickNext();
@@ -133,8 +136,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			for(int i=1; i<= Integer.parseInt(noOfItemsToBeAdded); i++) {							
 			
 			String barcodeType = containerTestDataHashmap.get("BARCODE_TYPE_"+i);
-			String barcode = containerTestDataHashmap.get("BARCODE_"+i);
-			String mfgPartNumbertype = containerTestDataHashmap.get("MFG_PART_NUMBER_TYPE_"+i);		
+			String barcode = containerTestDataHashmap.get("BARCODE_"+i);			
 									
 			switch(barcodeType){
 			
@@ -165,14 +167,13 @@ public class Container extends Utility implements RoutineObjectRepository  {
 				String qty = containerTestDataHashmap.get("QTY_"+i);
 				
 				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
-				ClickNext();
-				if(mfgPartNumbertype.equalsIgnoreCase("MULTIPLE")){
+				ClickNext();				
 				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part Number :")){
-					ClickSpyGlass("Enter Mfg. Part Number :",19);
+					ClickSpyGlass("Enter Mfg. Part Number :",25);
 					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part Number :", GetPickListValue(1));
 					ClickNext();
 				}
-				}
+				
 				if(isElementPresent(LOTNUMBER_XPATH, "Enter Lot Number (*) :")){
 					ClickSpyGlass("Enter Lot Number (*) :",25);	
 					List<String> pickListValues = GetPickListValues();					
@@ -215,16 +216,19 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	
 	public void removeFromContainer() throws TimeoutException, NoSuchElementException,  WebDriverException {
 		
-		String noOfItemsToBeAdded = containerTestDataHashmap.get("NO_ITEMS_TO_BE_ADDED_REMOVED");
+		String noOfItemsToBeRemoved = containerTestDataHashmap.get("NO_ITEMS_TO_BE_ADDED_REMOVED");
 		String notes = containerTestDataHashmap.get("NOTES");
-		
-		for(int i=1; i<=Integer.parseInt(noOfItemsToBeAdded);i++){
-		
-		String barcodeType = containerTestDataHashmap.get("BARCODE_TYPE_"+i);
-		String barcode = containerTestDataHashmap.get("BARCODE_"+i);
 		
 		selectRoutine(REMOVE_FROM_CONTAINER);		
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(REMOVE_FROM_CONTAINER)) {
+		for(int i=1; i<=Integer.parseInt(noOfItemsToBeRemoved);i++){
+		
+		String barcodeType = containerTestDataHashmap.get("BARCODE_TYPE_"+i);
+		String barcode = containerTestDataHashmap.get("BARCODE_"+i);
+		String mfgPartNumber = containerTestDataHashmap.get("MFG_PART_NUMBER_"+i);
+		String qty = containerTestDataHashmap.get("QTY_"+i);
+		
+	
 			
 			switch(barcodeType){
 			
@@ -259,8 +263,29 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			break;
 			
 			case "NON_SERIALIZED_ITEMCODE":
-				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
-				ClickNext();
+					EnterText(BARCODE_XPATH, "Enter Barcode (*) :", barcode);
+					ClickNext();
+					if (isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
+						/*
+						 * ClickSpyGlass("Enter Mfg. Part Number :",10);
+						 * EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :",
+						 * GetPickListValue(1)); ClickNext();
+						 */
+						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :",
+								getGeneratedTestdata("RECEIVING", mfgPartNumber));
+						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :",
+								getGeneratedTestdata("RECEIVING", mfgPartNumber));
+						ClickNext();
+
+					}
+
+					if (GetText(ID_MESSAGE, "Confirm Message").equalsIgnoreCase(confirmMsg_RemoveFromContainer)) {
+						Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for message");
+					}
+
+					EnterText(QTY_XPATH, "Enter Quantity (*) :", qty);
+					ClickNext();
+					ClickNext();
 				
 			break;
 				
@@ -270,6 +295,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			ClickNext();
 		}
 		}
+		
 	}
 	
 	public void openContainer() throws TimeoutException, NoSuchElementException,  WebDriverException {
@@ -317,5 +343,8 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		validateTransaction("CLOSE_CONTAINER", "Enter Location Name (*) :");
 		
 	}
+	
+	
+	
 
 }

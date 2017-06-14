@@ -14,6 +14,7 @@ import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
+import main.java.executionSetup.TestParameters;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
 
@@ -74,8 +75,8 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	private HashMap<String, String> receivingTestDataHashmap = new HashMap<String, String>();
 
 	@SuppressWarnings("rawtypes")
-	public Receiving(ExtentTest test, AndroidDriver driver, DataTable dataTable) {
-		super(test, driver, dataTable);
+	public Receiving(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
+		super(test, driver, dataTable,testParameters);
 		getTestData();
 		selectRoutineFolder(folderName);
 	}
@@ -177,7 +178,9 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				ClickNext();
 				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",mfgPartNumberIndex);
-					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
+					String mfgPartNumber = GetPickListValue(1);
+					addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
+					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
 					ClickNext();					
 				}
 				
@@ -304,8 +307,10 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				ClickNext();
 				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",25);
-					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", GetPickListValue(1));
-					ClickNext();
+					String mfgPartNumber = GetPickListValue(1);
+					addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
+					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
+					ClickNext();			
 				}
 				if(!receiveAllQty.equalsIgnoreCase("Yes")){
 				EnterText(QTY_XPATH, "Enter Quantity (*) :", qty);

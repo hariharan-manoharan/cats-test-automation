@@ -72,6 +72,12 @@ public class FunctionalComponents extends Utility {
 	}
 	
 	
+	public void mrrSiteReceive() throws TimeoutException, NoSuchElementException {
+		Receiving Receiving = new Receiving(test, driver, dataTable,testParameters);
+		Receiving.mrrSiteReceive();
+	}
+	
+	
 	//SQL FUNCTIONS
 	
 	public void createNewPart(){

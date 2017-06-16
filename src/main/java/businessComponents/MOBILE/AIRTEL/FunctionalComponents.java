@@ -129,7 +129,13 @@ public class FunctionalComponents extends Utility {
 		
 	}
 
-
+	//Pick Routines
+	
+	public void pick() throws TimeoutException, NoSuchElementException {
+		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
+		dispatch.pick();
+	}
+	
 
 	public void itemInquiry() throws TimeoutException, NoSuchElementException{
 		

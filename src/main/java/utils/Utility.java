@@ -1873,7 +1873,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 
 		try {
 
-			value = columnValue + getCurrentFormattedTime("hhmmss");
+			value = columnValue + getCurrentFormattedTime("ddMMhhmmss");
 
 			switch (routineFolderName) {
 

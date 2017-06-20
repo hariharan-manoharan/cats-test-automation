@@ -1,9 +1,11 @@
 package main.java.businessComponents.MOBILE.AIRTEL;
 
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriverException;
 
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
@@ -124,19 +126,28 @@ public class FunctionalComponents extends Utility {
 		boolean successFlag = validateInboundTransaction("Bulk Transfer Request", "PROCESSED", "ERRORMESSAGE", validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"),stageId);	
 		
 		if(successFlag){
-			selectQuerySingleValue(String.format(validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"), stageId), "GENERATEDREQNUM");		
+			String RequestNumber = selectQuerySingleValue(String.format(validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"), stageId), "GENERATEDREQNUM");		
+			
+			properties.setProperty("REQUESTNUMBER", RequestNumber);
+
 		}
 		
 	}
 
 	//Pick Routines
 	
-	public void pick() throws TimeoutException, NoSuchElementException {
+	public void pick() throws WebDriverException, SQLException {
 		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
 		dispatch.pick();
 	}
 	
-
+	//Pick Routines
+	
+	public void pack() throws TimeoutException , NoSuchElementException{
+		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
+		dispatch.pack();
+	}
+	
 	public void itemInquiry() throws TimeoutException, NoSuchElementException{
 		
 		Inquiry Inquiry = new Inquiry(test, driver , dataTable,testParameters);

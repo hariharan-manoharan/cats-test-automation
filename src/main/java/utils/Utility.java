@@ -1686,6 +1686,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		String SERIALIZED;
 		String TRANSACTIONID;
 		String ASSETCODE;
+		String SERIALNUMBER;
 		int RECORD_ID = 0;
 		ResultSet rs;
 		Statement stmt;
@@ -1753,6 +1754,9 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			while (rs.next()) {
 				TRANSACTIONID = rs.getString("ASSETTRANSACTIONID");	
 				ASSETCODE = rs.getString("ASSETCODE");
+				SERIALNUMBER = rs.getString("SERIALNUMBER");
+				properties.setProperty("ASSETCODE", ASSETCODE);
+				properties.setProperty("SERIALNUMBER", SERIALNUMBER);
 				RECORD_ID = generateRandomNum(10000000);
 				query = "INSERT INTO "
 						+"CATS.CATSCON_POREC_STG"

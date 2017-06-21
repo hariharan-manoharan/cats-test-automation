@@ -44,11 +44,27 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 	String PACKAGEID_XPATH=String.format(XPATH_TXT,"Package ID");
 	
 	//PACK
-	By SHIPMENT_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Shipment (*) :"));
+	By SHIPMENTNO_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Shipment (*) :"));
 	By PACK_BARCODE_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Barcode (*) :"));
 	
 	String PACKAGETAG_XPATH=String.format(XPATH_TXT,"Package Tag");
 	String PACKMFGPARTNO_XPATH=String.format(XPATH_TXT,"Mfg Part Number");
+	
+	
+	//SHIP
+	By FROM_LOCATION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter From Location (*) :"));
+	By SHIPMENTMETHOD_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Shipment Method (*) :"));
+	By TRACKINGNUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Tracking Number :"));
+	
+	
+	
+	
+	String TOLOCATION_XPATH=String.format(XPATH_TXT,"To Location");
+	String TOLOCATION_ADDRESS_XPATH=String.format(XPATH_TXT,"To Location Address");
+	String SHIPMENTNUMBER_XPATH=String.format(XPATH_TXT,"Shipment Number");
+	
+	
+	
 	// Other Declarations
 
 	private String folderName = "Dispatch";
@@ -99,7 +115,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		
 		String Itemtype= dispatchTestDataHashmap.get("ITEMTYPE");
 		String Itemcode= dispatchTestDataHashmap.get("ITEMCODE");
-		String Location = dispatchTestDataHashmap.get("LOCATION");
+		String Location = dispatchTestDataHashmap.get("FROM_LOCATION");
 		String LineNo = dispatchTestDataHashmap.get("LINE#");
 		String Container = dispatchTestDataHashmap.get("CONTAINER");
 		String Barcode= dispatchTestDataHashmap.get("BARCODE");
@@ -110,9 +126,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Locator= dispatchTestDataHashmap.get("LOCATOR");
 		String Packageid =dispatchTestDataHashmap.get("PACKAGEID");
 		String Quantity = dispatchTestDataHashmap.get("QUANTITY");
-		String Assetcode = "DUMMYMRR145";//properties.getProperty("ASSETCODE");
-		String SerialNO = "SERIALNUMAUTO1930";//properties.getProperty("SERIALNUMBER");
-		String RequestNo="REQ0000099";//properties.getProperty("REQUESTNUMBER");
+		String Assetcode = properties.getProperty("ASSETCODE");
+		String SerialNO = properties.getProperty("SERIALNUMBER");
+		String RequestNo=properties.getProperty("REQUESTNUMBER");
 		String pickcount;
 		String TRANSFERNO = null;
 		String query = null;
@@ -238,9 +254,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 	
 	public void pack()throws TimeoutException, NoSuchElementException, WebDriverException{
 		
-		String TransferNumber="T000000084";//properties.getProperty("TRANSFERNUMBER");
-		String Location = dispatchTestDataHashmap.get("LOCATION");
-		String NewShipment = dispatchTestDataHashmap.get("NEW_SHIPMENT");;
+		String TransferNumber=properties.getProperty("TRANSFERNUMBER");
+		String Location = dispatchTestDataHashmap.get("FROM_LOCATION");
+		String NewShipment = dispatchTestDataHashmap.get("NEW_SHIPMENT");
 		String confirmmsg="Generate new shipment?";
 		String Alertmsg ="No Shipment exists for the selected Transfer Order. Enter new Shipment Number to proceed";
 		String Barcode= dispatchTestDataHashmap.get("BARCODE");
@@ -251,8 +267,8 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Quantity = dispatchTestDataHashmap.get("QUANTITY"); 
 		String Packageid =dispatchTestDataHashmap.get("PACKAGEID");
 		String ShipmentNo =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
-		String Assetcode = "DUMMYMRR145";//properties.getProperty("ASSETCODE");
-		String SerialNO = "SERIALNUMAUTO1930";//properties.getProperty("SERIALNUMBER");
+		String Assetcode = properties.getProperty("ASSETCODE");
+		String SerialNO = properties.getProperty("SERIALNUMBER");
 		
 		selectRoutine("Pack");
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Pack")) {
@@ -266,9 +282,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 			if(NewShipment.equalsIgnoreCase("Yes")){
 				Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - "+confirmmsg);
 
-				waitCommand(SHIPMENT_XPATH);
+				waitCommand(SHIPMENTNO_XPATH);
 
-				String Shipmentno=GetText(SHIPMENT_XPATH, "Enter Shipment (*) :");
+				String Shipmentno=GetText(SHIPMENTNO_XPATH, "Enter Shipment (*) :");
 
 				properties.setProperty("SHIPMENTNO", Shipmentno);
 
@@ -279,7 +295,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 
 				Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg);
 
-				EnterText(SHIPMENT_XPATH, "Enter Shipment (*) :", ShipmentNo);
+				EnterText(SHIPMENTNO_XPATH, "Enter Shipment (*) :", ShipmentNo);
 
 			}
 			ClickNext();
@@ -331,7 +347,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 			
 		}
 
-		EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Pick Routine");
+		EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Pack Routine");
 		ClickNext();	
 		
 	}	
@@ -339,7 +355,95 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 	}	
 		
 		
+	public void ship()throws TimeoutException, NoSuchElementException, WebDriverException{
 		
+		String TransferNumber=properties.getProperty("TRANSFERNUMBER");
+		String FromLocation = dispatchTestDataHashmap.get("FROM_LOCATION");
+		String ToLocation = dispatchTestDataHashmap.get("TO_LOCATION");
+		String ToLocationAdderss = dispatchTestDataHashmap.get("TO_LOCATION_ADDRESS");
+		String Shipmentmethod = dispatchTestDataHashmap.get("SHIPMENTMETHOD");
+		String Itemtype= dispatchTestDataHashmap.get("ITEMTYPE");
+		
+		
+		String TrackingNumber=dispatchTestDataHashmap.get("TRACKING_NUMBER");
+		String NewShipment = dispatchTestDataHashmap.get("NEW_SHIPMENT");
+		String Itemcode= dispatchTestDataHashmap.get("ITEMCODE");
+		String Shipmentnumber = null ;
+		String Assetcode = properties.getProperty("ASSETCODE");
+		
+		
+		selectRoutine("Ship");
+		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Ship")) {
+			
+		EnterText(FROM_LOCATION_XPATH, "FROM_LOCATION_XPATH", FromLocation);
+		ClickNext();
+		
+		EnterText(TRANSFERORDER_XPATH, "Enter Transfer Order (*) :", TransferNumber);
+		ClickNext();
+
+		VerfiyAutopopulatefieldvalues(TOLOCATION_XPATH,"To Location",ToLocation);
+		
+		VerfiyAutopopulatefieldvalues(TOLOCATION_ADDRESS_XPATH,"To Location Address",ToLocationAdderss);
+		
+		EnterText(SHIPMENTMETHOD_XPATH, "Enter Shipment Method (*) :", Shipmentmethod);
+		ClickNext();
+		
+		EnterText(TRACKINGNUMBER_XPATH, "Enter Tracking Number :", TrackingNumber);
+		ClickNext();
+		
+		if(NewShipment.equalsIgnoreCase("Yes")){
+		Shipmentnumber = properties.getProperty("SHIPMENTNO");
+		}else{
+		Shipmentnumber =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
+		}
+		VerfiyAutopopulatefieldvalues(SHIPMENTNUMBER_XPATH,"Shipment Number",Shipmentnumber);
+		
+		waitCommand(By.xpath(".//android.view.View[@index='15']/android.view.View[@index='2']/android.view.View[@index='0']/android.view.View[@index='0']"));
+
+		driver.findElement(By.xpath(".//android.view.View[@index='15']/android.view.View[@index='2']/android.view.View[@index='0']/android.view.View[@index='0']")).click();
+		
+		
+
+		if(Itemtype.equalsIgnoreCase("NONSERIALIZED")){
+		String Itemcode1 = GetPickListValue(1);
+		if (Itemcode.equalsIgnoreCase(Itemcode1)){
+			test.log(LogStatus.PASS, "<b>" + Itemcode1 + "</b> matches the given Testdata <b>"+Itemcode+"</b>", "");	
+		}
+		else{
+			test.log(LogStatus.FAIL, "<font color=red><b>" + Itemcode1 + "</b></font>-not matches the given Testdata- <b> <font color=red>"+Itemcode1+"</b></font>", "");
+		}
+		}
+		
+		if(Itemtype.equalsIgnoreCase("SERIALIZED")){
+		
+		String Assetcode1 = GetPickListValue(1);
+		if (Assetcode1.equalsIgnoreCase(Assetcode)){
+			test.log(LogStatus.PASS, "<b>" + Assetcode1 + "</b> matches the given Testdata <b>"+Assetcode+"</b>", "");	
+		}
+		else{
+			test.log(LogStatus.FAIL, "<font color=red><b>" + Assetcode1 + "</b></font>-not matches the given Testdata- <b> <font color=red>"+Assetcode+"</b></font>", "");
+		}
+		}
+		
+		if(Itemtype.equalsIgnoreCase("CONTAINER")){
+			
+			String Assetcode1 = GetPickListValue(1);
+			if (Assetcode1.equalsIgnoreCase(Assetcode)){
+				test.log(LogStatus.PASS, "<b>" + Assetcode1 + "</b> matches the given Testdata <b>"+Assetcode+"</b>", "");	
+			}
+			else{
+				test.log(LogStatus.FAIL, "<font color=red><b>" + Assetcode1 + "</b></font>-not matches the given Testdata- <b> <font color=red>"+Assetcode+"</b></font>", "");
+			}
+		}
+		ClickNext();
+		ClickNext();
+		
+		EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Ship Routine");
+		ClickNext();	
+		
+		}
+	
+	}
 		
 }
 	

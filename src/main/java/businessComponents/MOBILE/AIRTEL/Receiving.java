@@ -21,31 +21,21 @@ import main.java.utils.Utility;
 public class Receiving extends Utility implements RoutineObjectRepository {
 	
 	
-
-	// Common Xpath
-	
-	final By LOCATION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter To Location (*) :"));
-	final By MRR_NUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter MRR Number (*) :"));
-	final By SUB_INVENTORY_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Sub-Inventory :"));
-	final By CONTAINERC0DE_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Container Code (*) :"));
-	final By ITEMCODE_MFGPARTNUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Item Code or Mfg. Part # (*) :"));
-	final By MFGPARTNUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Mfg. Part # :"));	
-	final By MFG_SERIALNUM_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Mfg. Serial Number (*) :"));
-	final By PACKAGEID_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Package ID (*) :"));	
-	final By HARDWARE_VERSION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Hardware Version :"));
-	final By QTY_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Quantity (*) :"));
-	final By CONDITION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Condition (*) :"));
-	final By NOTES_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Notes :"));
-	final By PARENT_RECEIVED_COUNT = By.xpath(String.format(XPATH_TXT_CONTAINS, "/"));
-	
-	//MRR SITE RECEIVE
-	
-	final By MRR_SITE_RECEIVE_SITEID_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Site ID :"));
-	final By MRR_SITE_RECEIVE_PACKAGEID_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Package ID :"));
-
 	// MRR
-
 	
+	By LOCATION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter To Location (*) :"));
+	By MRR_NUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter MRR Number (*) :"));
+	By SUB_INVENTORY_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Sub-Inventory :"));
+	By CONTAINERC0DE_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Container Code (*) :"));
+	By ITEMCODE_MFGPARTNUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Item Code or Mfg. Part # (*) :"));
+	By MFGPARTNUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Mfg. Part # :"));	
+	By MFG_SERIALNUM_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Mfg. Serial Number (*) :"));
+	By PACKAGEID_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Package ID (*) :"));	
+	By HARDWARE_VERSION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Hardware Version :"));
+	By QTY_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Quantity (*) :"));
+	By CONDITION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Condition (*) :"));
+	By NOTES_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Notes :"));
+	By PARENT_RECEIVED_COUNT = By.xpath(String.format(XPATH_TXT_CONTAINS, "/"));
 	
 	
 	
@@ -79,7 +69,6 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		add("Item Type");
 		add("Serialized");
 		add("Parent Received Count");	
-		add("To Status");
 	}};	
 	
 	// Confirm Messages
@@ -96,7 +85,6 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	// Routine Names
 
 	String MMR_RECEIVE = "MRR Receive";
-	String MMR_SITE_RECEIVE = "MRR Site Receive";
 
 
 	// Other Declarations
@@ -158,6 +146,18 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		int mfgPartNumberIndex = 0;
 		
 		
+		// Looping based on the number of line item to be received
+		for(int i=1; i<= Integer.parseInt(noOfLineItem); i++){
+			
+		String receiveAllQty = receivingTestDataHashmap.get("RECEIVE_ALL_QUANTITY_"+i);
+		String barcodeType = receivingTestDataHashmap.get("BARCODE_TYPE_"+i);
+		String isAssembly = receivingTestDataHashmap.get("IS_ASSEMBLY_"+i);
+		String barcode = receivingTestDataHashmap.get("BARCODE_"+i);
+		String serialNumber = receivingTestDataHashmap.get("SERIAL_NUMBER_"+i);
+		String qty = receivingTestDataHashmap.get("QUANTITY_"+i);
+		String packageId = receivingTestDataHashmap.get("PACKAGE_ID_"+i);
+		String hardwareVersion = receivingTestDataHashmap.get("HARDWARE_VERSION_"+i);
+		String condition = receivingTestDataHashmap.get("CONDITION_"+i);
 		
 			
 			
@@ -184,29 +184,13 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				}
 			}
 			
-			
-			// Looping based on the number of line item to be received
-			for(int i=1; i<= Integer.parseInt(noOfLineItem); i++){
-			
-			int receivedCount = 0;
-			int totalCount = 0;	
-			String parentReceiveCount[] = new String[2];
-				
-			String receiveAllQty = receivingTestDataHashmap.get("RECEIVE_ALL_QUANTITY_"+i);
-			String barcodeType = receivingTestDataHashmap.get("BARCODE_TYPE_"+i);
-			String isAssembly = receivingTestDataHashmap.get("IS_ASSEMBLY_"+i);
-			String barcode = receivingTestDataHashmap.get("BARCODE_"+i);
-			String serialNumber = receivingTestDataHashmap.get("SERIAL_NUMBER_"+i);
-			String qty = receivingTestDataHashmap.get("QUANTITY_"+i);
-			String packageId = receivingTestDataHashmap.get("PACKAGE_ID_"+i);
-			String hardwareVersion = receivingTestDataHashmap.get("HARDWARE_VERSION_"+i);
-			String condition = receivingTestDataHashmap.get("CONDITION_"+i);
-			
-			
 			// Check the barcode type and perform actions accordingly
 			switch(barcodeType){
 			
-			case "SERIALIZED_ITEMCODE":					
+			case "SERIALIZED_ITEMCODE":	
+				int receivedCount = 0;
+				int totalCount = 0;	
+				String parentReceiveCount[] = new String[2];
 				
 				EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 				ClickNext();
@@ -345,14 +329,13 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
 					ClickNext();			
 				}
-				// Click next from attachment field - Displayed only when the MRR is about to fully received
-				if ((!receiveAllQty.equalsIgnoreCase("Yes")) && (totalCount-receivedCount) == Integer.parseInt(qty)) {
-					EnterText(QTY_XPATH, "Enter Quantity (*) :", qty);
-					ClickNext();
-					}else{
-					waitCommand(QTY_XPATH);
-					ClickNext();
-					}
+				if(!receiveAllQty.equalsIgnoreCase("Yes")){
+				EnterText(QTY_XPATH, "Enter Quantity (*) :", qty);
+				ClickNext();
+				}else{
+				waitCommand(QTY_XPATH);
+				ClickNext();
+				}
 				EnterText(PACKAGEID_XPATH, "Enter Package ID (*) :", (packageId = (packageId.contains("#")) ?  getGeneratedTestdata("RECEIVING",packageId) : generateTestData("RECEIVING", "PACKAGE_ID", packageId)));
 				ClickNext();								
 				EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
@@ -402,262 +385,10 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			}		
 	}
 					
-		}else{
-			test.log(LogStatus.FAIL, "Routine name - "+MMR_RECEIVE+" is not selected");
 		}	
 	
 	
 	}
-	
-	
-	
-	public void mrrSiteReceive() throws TimeoutException, NoSuchElementException, WebDriverException {
-
-		String location = receivingTestDataHashmap.get("LOCATION_NAME");
-		String mrrNumber = receivingTestDataHashmap.get("MRR_NUMBER");
-		String subInventory = receivingTestDataHashmap.get("SUB_INVENTORY");
-		String noOfLineItem = receivingTestDataHashmap.get("NO_OF_LINE_ITEM");
-		String notes = receivingTestDataHashmap.get("NOTES");
-
-		selectRoutine(MMR_SITE_RECEIVE);
-		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(MMR_SITE_RECEIVE)) {
-
-			// Entering header level details
-			EnterText(LOCATION_XPATH, "Enter Location Name (*) :", location);
-			ClickNext();
-						
-			if (isElementPresent(MRR_SITE_RECEIVE_SITEID_XPATH, "Enter Site ID :")) {
-				ClickSpyGlass("Enter Site ID :", 4);
-				String siteId = GetPickListValue(1);
-				addRuntimeTestData("RECEIVING", "SITE_ID", siteId);
-				EnterText(MRR_SITE_RECEIVE_SITEID_XPATH, "Enter Site ID :", siteId);
-				ClickNext();
-			}
-
-			EnterText(MRR_NUMBER_XPATH, "Enter MRR Number (*) :", mrrNumber);
-			ClickNext();
-			EnterText(SUB_INVENTORY_XPATH, "Enter Sub-Inventory :", subInventory);
-			ClickNext();
-
-			// Looping based on the number of line item to be received
-			for (int i = 1; i <= Integer.parseInt(noOfLineItem); i++) {
-				
-				int receivedCount = 0;
-				int totalCount = 0;
-				String parentReceiveCount[] = new String[2];
-
-				String receiveAllQty = receivingTestDataHashmap.get("RECEIVE_ALL_QUANTITY_" + i);
-				String barcodeType = receivingTestDataHashmap.get("BARCODE_TYPE_" + i);
-				String isAssembly = receivingTestDataHashmap.get("IS_ASSEMBLY_" + i);
-				String barcode = receivingTestDataHashmap.get("BARCODE_" + i);
-				String serialNumber = receivingTestDataHashmap.get("SERIAL_NUMBER_" + i);
-				String qty = receivingTestDataHashmap.get("QUANTITY_" + i);
-				String packageId = receivingTestDataHashmap.get("PACKAGE_ID_" + i);
-				String hardwareVersion = receivingTestDataHashmap.get("HARDWARE_VERSION_" + i);
-				String condition = receivingTestDataHashmap.get("CONDITION_" + i);
-
-				// Check the barcode type and perform actions accordingly
-				switch (barcodeType) {
-
-				case "SERIALIZED_ITEMCODE":
-					
-					EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
-					ClickNext();
-					if (isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
-						ClickSpyGlass("Enter Mfg. Part Number :", 28);
-						String mfgPartNumber = GetPickListValue(1);
-						addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
-						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
-						ClickNext();
-					}
-
-					waitCommand(PARENT_RECEIVED_COUNT);
-					// Checks Parent Received Count
-					if (isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")) {
-						parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count")
-								.split("/");
-						receivedCount = Integer.parseInt(parentReceiveCount[0]);
-						totalCount = Integer.parseInt(parentReceiveCount[1]);
-
-						// Checks if users wants to receive all the quantity
-						// If Yes - Loops till it receives remaining count
-						// If No - Receives one asset
-						if (receiveAllQty.equalsIgnoreCase("Yes")) {
-
-							for (int j = 1; j <= (totalCount - receivedCount); j++) {
-
-								// Checks received count on each iteration to
-								// ensure when to perform certain actions like
-								// Close Container Prompt, Attachment field and
-								// Transaction complete message
-								parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name",
-										"Parent Received Count").split("/");
-								receivedCount = Integer.parseInt(parentReceiveCount[0]);
-
-								// Checks if the item code type is Assembly
-								// If Yes - Skips Serial #
-								// If No - Enters Serial #
-								if (!isAssembly.equalsIgnoreCase("Yes")) {
-									EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :",
-											(serialNumber = (serialNumber.contains("#"))
-													? getGeneratedTestdata("RECEIVING", serialNumber)
-													: generateTestData("RECEIVING", "SERIAL_NUMBER_" + j,
-															serialNumber)));
-									ClickNext();
-								}
-								EnterText(MRR_SITE_RECEIVE_PACKAGEID_XPATH, "Enter Package ID (*) :",
-										(packageId = (packageId.contains("#"))
-												? getGeneratedTestdata("RECEIVING", packageId)
-												: generateTestData("RECEIVING", "PACKAGE_ID_" + j, packageId)));
-								ClickNext();
-								EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
-								ClickNext();
-								EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
-								ClickNext();
-								
-								// Click next from attachment field - Displayed only when the MRR is about to fully received
-								if (receivedCount == (totalCount - 1)) {
-									ClickNext();	
-								}
-
-								// Checks list of fields to be auto-populated is
-								// correct
-								validateAutoPopulatedFields(mrrReceiveAutoPopulatingFields);
-								EnterText(NOTES_XPATH, "Enter Notes :", notes);
-								ClickNext();
-
-								// Checks when to click 'Ok' for the transaction
-								// complete message
-								if (receivedCount == (totalCount - 1)) {
-									if (validateMessage(transactionCompleteMsg)) {
-										Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
-										validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
-										deliveryConfirmation();
-									}
-								} else {
-									validateTransaction(MMR_RECEIVE, "Enter Mfg. Serial Number (*) :");
-									deliveryConfirmation();
-								}
-							}
-
-						} else {
-
-							if (!isAssembly.equalsIgnoreCase("Yes")) {
-								waitCommand(MFG_SERIALNUM_XPATH);
-								EnterText(MFG_SERIALNUM_XPATH, "Enter Mfg. Serial Number (*) :",
-										(serialNumber = (serialNumber.contains("#"))
-												? getGeneratedTestdata("RECEIVING", serialNumber)
-												: generateTestData("RECEIVING", "SERIAL_NUMBER_1", serialNumber)));
-								ClickNext();
-							}
-							EnterText(MRR_SITE_RECEIVE_PACKAGEID_XPATH, "Enter Package ID (*) :",
-									(packageId = (packageId.contains("#"))
-											? getGeneratedTestdata("RECEIVING", packageId)
-											: generateTestData("RECEIVING", "PACKAGE_ID_1", packageId)));
-							ClickNext();
-							EnterText(HARDWARE_VERSION_XPATH, "Enter Hardware Version :", hardwareVersion);
-							ClickNext();
-							EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
-							ClickNext();
-							
-							// Click next from attachment field - Displayed only when the MRR is about to fully received
-							if (receivedCount == (totalCount - 1)) {
-								ClickNext();	
-							}
-
-							validateAutoPopulatedFields(mrrReceiveAutoPopulatingFields);
-							EnterText(NOTES_XPATH, "Enter Notes :", notes);
-							ClickNext();
-
-							if (receivedCount == (totalCount - 1)) {
-								if (validateMessage(transactionCompleteMsg)) {
-									Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
-									validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
-									deliveryConfirmation();
-								}
-							} else {
-								validateTransaction(MMR_RECEIVE, "Enter Mfg. Serial Number (*) :");
-								deliveryConfirmation();
-							}
-						}
-					}
-					
-					break;
-					
-				case "NON_SERIALIZED_ITEMCODE":
-					EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
-					ClickNext();
-					if (isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
-						ClickSpyGlass("Enter Mfg. Part Number :", 28);
-						String mfgPartNumber = GetPickListValue(1);
-						addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
-						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
-						ClickNext();
-					}
-					
-					
-					waitCommand(PARENT_RECEIVED_COUNT);
-					// Checks Parent Received Count
-					if (isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")) {
-						parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count")
-								.split("/");
-						receivedCount = Integer.parseInt(parentReceiveCount[0]);
-						totalCount = Integer.parseInt(parentReceiveCount[1]);
-					}
-					
-					if ((!receiveAllQty.equalsIgnoreCase("Yes")) && (totalCount-receivedCount) == Integer.parseInt(qty)) {
-						EnterText(QTY_XPATH, "Enter Quantity (*) :", qty);
-						ClickNext();
-						}else{
-						waitCommand(QTY_XPATH);
-						ClickNext();
-						}	
-					EnterText(MRR_SITE_RECEIVE_PACKAGEID_XPATH, "Enter Package ID (*) :",
-							(packageId = (packageId.contains("#"))
-									? getGeneratedTestdata("RECEIVING", packageId)
-									: generateTestData("RECEIVING", "PACKAGE_ID_1", packageId)));	
-					
-					ClickNext();
-					EnterText(CONDITION_XPATH, "Enter Condition (*) :", condition);
-					ClickNext();
-					
-					// Click next from attachment field - Displayed only when the MRR is about to fully received
-						
-					if ((!receiveAllQty.equalsIgnoreCase("Yes")) && (totalCount-receivedCount) == Integer.parseInt(qty)) {
-						ClickNext();
-					}
-					
-					validateAutoPopulatedFields(mrrReceiveAutoPopulatingFields);
-					
-					EnterText(NOTES_XPATH, "Enter Notes :", notes);
-					ClickNext();
-					
-					if (receiveAllQty.equalsIgnoreCase("Yes")) {
-						if (validateMessage(transactionCompleteMsg)) {
-							Click(ID_MESSAGE_OK, "Clicked 'Ok' for Transaction complete message");
-							validateTransaction(MMR_RECEIVE, "Enter MRR Number (*) :");
-							deliveryConfirmation();
-						}
-					}else{
-						validateTransaction(MMR_RECEIVE, "Enter Quantity (*) :");
-						deliveryConfirmation();
-					}
-					
-					
-				break;
-
-				}
-
-			}
-
-		}else{
-			test.log(LogStatus.FAIL, "Routine name - "+MMR_SITE_RECEIVE+" is not selected");
-		}
-	}
-	
-	
-	
-	
 		
 	private void deliveryConfirmation(){
 		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";

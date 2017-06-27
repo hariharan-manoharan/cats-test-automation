@@ -242,7 +242,7 @@ public class Utility {
 	public boolean isElementPresent(final By by, final String objectName) {
 		
 		try{
-		
+		waitCommand(by);
 		this.driver.findElement(by).isDisplayed();		
 		test.log(LogStatus.PASS, "Element - " + objectName + " is present", "");
 		return true;				

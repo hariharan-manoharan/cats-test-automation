@@ -1949,5 +1949,20 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		return value;
 
 	}
+	
+	public void VerfiyAutopopulatefieldvalues(String labelxpath ,String objectName , String values ){
+		
+
+		String value1 = driver.findElement(By.xpath(labelxpath+"/following-sibling::android.view.View")).getAttribute("name");	
+		String value2 = values;
+		
+		if (value1.equalsIgnoreCase(value2)){
+			test.log(LogStatus.PASS, "<b>" + objectName + "</b> matches the given Testdata <b>"+value2+"</b>", "");	
+		}
+		else{
+			test.log(LogStatus.FAIL, "<font color=red><b>" + objectName + "</b></font>-not matches the given Testdata- <b> <font color=red>"+value2+"</b></font>", "");
+		}
+		
+	}
 
 }

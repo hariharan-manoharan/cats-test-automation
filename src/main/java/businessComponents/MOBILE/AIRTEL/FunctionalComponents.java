@@ -73,6 +73,13 @@ public class FunctionalComponents extends Utility {
 		Receiving.mrrReceive();
 	}
 	
+	//Receiving Routines
+	
+	public void internalReceipt() throws TimeoutException, NoSuchElementException {
+		Receiving Receiving = new Receiving(test, driver, dataTable,testParameters);
+		Receiving.internalreceipt();
+	}
+	
 	
 	public void mrrSiteReceive() throws TimeoutException, NoSuchElementException {
 		Receiving Receiving = new Receiving(test, driver, dataTable,testParameters);
@@ -157,7 +164,8 @@ public class FunctionalComponents extends Utility {
 	//Ship Routines
 	public void ship() throws TimeoutException , NoSuchElementException{
 		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
-		dispatch.ship();
+		dispatch.ship(); 
+
 	}
 	
 	public void itemInquiry() throws TimeoutException, NoSuchElementException{

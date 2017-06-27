@@ -21,7 +21,7 @@ import main.java.utils.Utility;
 public class Receiving extends Utility implements RoutineObjectRepository {
 	
 	
-	// Xpath
+	// MRR
 	
 	By LOCATION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter To Location (*) :"));
 	By MRR_NUMBER_XPATH = By.xpath(String.format(XPATH_TXT, "Enter MRR Number (*) :"));
@@ -36,6 +36,24 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	By CONDITION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Condition (*) :"));
 	By NOTES_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Notes :"));
 	By PARENT_RECEIVED_COUNT = By.xpath(String.format(XPATH_TXT_CONTAINS, "/"));
+	
+	
+	
+	// Internal Receipt
+	By TO_LOCATION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Location :"));
+	By SHIPMENTNO_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Shipment # (*) :"));
+	By RECEIVING_LOCATION_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Receiving Location (*) :"));
+	By BARCODE_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Barcode (*) :"));
+	By TOSTATUS_XPATH = By.xpath(String.format(XPATH_TXT, "Enter To Status :"));
+	
+	
+	String FROMLOCATION_XPATH=String.format(XPATH_TXT,"From Location");
+	String ITEMCODE_XPATH=String.format(XPATH_TXT,"Item Code");
+	String ITEMDESCRIPTION_XPATH=String.format(XPATH_TXT,"Item Description");
+	String PACKAGETAG_XPATH=String.format(XPATH_TXT,"Package Tag");
+	String ASSETCODE_XPATH=String.format(XPATH_TXT,"Asset Code (UIN)");
+	String SERIALNUMBER_XPATH=String.format(XPATH_TXT,"Serial Number");
+	String MFGPARTNO_XPATH=String.format(XPATH_TXT,"Mfg Part Number");
 	
 	@SuppressWarnings("serial")
 	//List of Fields to be displayed
@@ -392,6 +410,97 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		}
 		
 		test.log(LogStatus.INFO, "<b>End: Validating Auto-Populated fields.</b>");
+	}
+	
+	
+	public void internalreceipt(){
+		
+		
+		String Itemtype = receivingTestDataHashmap.get("BARCODE_TYPE_1");
+		String ToLocation = receivingTestDataHashmap.get("IR_TO_LOCATION");
+		String NewShipment = receivingTestDataHashmap.get("NEW_SHIPMENT");
+		String FromLocation = receivingTestDataHashmap.get("IR_FROM_LOCATION");
+		String ReceivingLocation = receivingTestDataHashmap.get("IR_RECEIVING_LOCATION");		
+		String Barcode = receivingTestDataHashmap.get("IR_BARCODE");		
+		String Itemcode =receivingTestDataHashmap.get("IR_ITEMCODE");
+		String ItemDescription = receivingTestDataHashmap.get("IR_ITEMDESCRIPTION");
+		String Quantity = receivingTestDataHashmap.get("IR_QUANTITY");		
+		String Condition = receivingTestDataHashmap.get("IR_CONDITION");		
+		String ToStatus = receivingTestDataHashmap.get("IR_TOSTATUS");
+		String Assetcode = properties.getProperty("ASSETCODE");
+		String SerialNO = properties.getProperty("SERIALNUMBER");		
+		String MFGpartno = receivingTestDataHashmap.get("IR_MFGPARTNO");
+		String packagetag =properties.getProperty("PACKAGETAG");
+		String Shipmentno = null;
+		
+		selectRoutine("Internal Receipt");
+			
+		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Internal Receipt")) {
+			
+			EnterText(TO_LOCATION_XPATH, "Enter Location :", ToLocation);
+			ClickNext();
+			if(NewShipment.equalsIgnoreCase("Yes")){
+			Shipmentno = receivingTestDataHashmap.get("IR_SHIPMENT_NO");
+			EnterText(SHIPMENTNO_XPATH, "Enter Shipment # (*) :", Shipmentno);
+			ClickNext();
+			}
+			else{
+				
+			Shipmentno =properties.getProperty("SHIPMENTNO");
+					
+			EnterText(SHIPMENTNO_XPATH, "Enter Shipment # (*) :", Shipmentno);
+			ClickNext();	
+			}
+			
+			
+			VerfiyAutopopulatefieldvalues(FROMLOCATION_XPATH,"From Location",FromLocation);
+			
+			EnterText(RECEIVING_LOCATION_XPATH, "Enter Receiving Location (*) :", ReceivingLocation);
+			ClickNext();
+			
+			EnterText(BARCODE_XPATH, "Enter Barcode (*) :", Barcode);
+			ClickNext();
+			
+			
+			
+			VerfiyAutopopulatefieldvalues(ITEMCODE_XPATH,"Item Code",Itemcode);
+			//VerfiyAutopopulatefieldvalues(ITEMDESCRIPTION_XPATH,"Item Description",ItemDescription);	
+			
+
+			
+			if(Itemtype.equalsIgnoreCase("NON_SERIALIZED")){
+				
+				VerfiyAutopopulatefieldvalues(MFGPARTNO_XPATH,"Mfg Part Number",MFGpartno);	
+				
+				EnterText(QTY_XPATH, "Enter Quantity (*) :", Quantity);
+				ClickNext();
+				
+			}
+			if(Itemtype.equalsIgnoreCase("SERIALIZED")){
+				
+				VerfiyAutopopulatefieldvalues(PACKAGETAG_XPATH,"Package Tag",packagetag);	
+				VerfiyAutopopulatefieldvalues(ASSETCODE_XPATH,"Asset Code (UIN)",Assetcode);	
+				VerfiyAutopopulatefieldvalues(SERIALNUMBER_XPATH,"Serial Number",SerialNO);	
+				VerfiyAutopopulatefieldvalues(MFGPARTNO_XPATH,"Mfg Part Number",MFGpartno);	
+			}
+			
+			EnterText(CONDITION_XPATH, "Enter Condition (*) :", Condition);
+			ClickNext();
+			
+			EnterText(TOSTATUS_XPATH, "Enter To Status :", ToStatus);
+			ClickNext();			
+			ClickNext();
+			
+			EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Internal Receipt Routine");
+			ClickNext();
+			
+			
+			
+		}
+		
+		
+			
+		
 	}
 	
 	

@@ -1,9 +1,11 @@
 package main.java.businessComponents.MOBILE.AIRTEL;
 
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -69,6 +71,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 
 	private String folderName = "Dispatch";
 	private HashMap<String, String> dispatchTestDataHashmap = new HashMap<String, String>();
+	CallableStatement stproc_stmt;
 
 	@SuppressWarnings("rawtypes")
 	public Dispatch(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
@@ -237,20 +240,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 	}
 	
 
-	private void VerfiyAutopopulatefieldvalues(String labelxpath ,String objectName , String values ){
-		
 
-		String value1 = driver.findElement(By.xpath(labelxpath+"/following-sibling::android.view.View")).getAttribute("name");	
-		String value2 = values;
-		
-		if (value1.equalsIgnoreCase(value2)){
-			test.log(LogStatus.PASS, "<b>" + objectName + "</b> matches the given Testdata <b>"+value2+"</b>", "");	
-		}
-		else{
-			test.log(LogStatus.FAIL, "<font color=red><b>" + objectName + "</b></font>-not matches the given Testdata- <b> <font color=red>"+value2+"</b></font>", "");
-		}
-		
-	}
 	
 	public void pack()throws TimeoutException, NoSuchElementException, WebDriverException{
 		
@@ -357,7 +347,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		
 	public void ship()throws TimeoutException, NoSuchElementException, WebDriverException{
 		
-		String TransferNumber=properties.getProperty("TRANSFERNUMBER");
+		/*String TransferNumber="T000000051";//;properties.getProperty("TRANSFERNUMBER");
 		String FromLocation = dispatchTestDataHashmap.get("FROM_LOCATION");
 		String ToLocation = dispatchTestDataHashmap.get("TO_LOCATION");
 		String ToLocationAdderss = dispatchTestDataHashmap.get("TO_LOCATION_ADDRESS");
@@ -367,10 +357,10 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		
 		String TrackingNumber=dispatchTestDataHashmap.get("TRACKING_NUMBER");
 		String NewShipment = dispatchTestDataHashmap.get("NEW_SHIPMENT");
-		String Itemcode= dispatchTestDataHashmap.get("ITEMCODE");
+		String Itemcode="AUTOSARS01"; //dispatchTestDataHashmap.get("ITEMCODE");
 		String Shipmentnumber = null ;
-		String Assetcode = properties.getProperty("ASSETCODE");
-		
+		String Assetcode = "DUMMYMRR86";//properties.getProperty("ASSETCODE");
+		String Deliveryinfocomplete = dispatchTestDataHashmap.get("DELIVERYINFO");
 		
 		selectRoutine("Ship");
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Ship")) {
@@ -394,7 +384,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		if(NewShipment.equalsIgnoreCase("Yes")){
 		Shipmentnumber = properties.getProperty("SHIPMENTNO");
 		}else{
-		Shipmentnumber =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
+		Shipmentnumber ="00000000020170623-231";//dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
 		}
 		VerfiyAutopopulatefieldvalues(SHIPMENTNUMBER_XPATH,"Shipment Number",Shipmentnumber);
 		
@@ -441,9 +431,111 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Ship Routine");
 		ClickNext();	
 		
+		}*/
+		String Deliveryinfocomplete = dispatchTestDataHashmap.get("DELIVERYINFO");
+		if(Deliveryinfocomplete.equalsIgnoreCase("Y")){
+		deliveryinfocomplete();
 		}
+	}
+	
+	public void deliveryinfocomplete(){
+
+
+		String SHIPMENTID;
+		String query;
+		String query1;
+		String Shipmentnumber= null;
+		int SHIPMENT_UDFDATAID 		= generateRandomNum(10000);
+		String VEHICLENUMBER 		= dispatchTestDataHashmap.get("VEHICLENUMBER");
+		String COMPLETE 			= dispatchTestDataHashmap.get("DELIVERYINFO");
+		String NewShipment 			= dispatchTestDataHashmap.get("NEW_SHIPMENT");
+		
+		
+		String RECEIVERNAME       	=((dispatchTestDataHashmap.get("RECEIVERNAME") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("RECEIVERNAME") +"'");
+		String RECEIVERCONTACT 		=((dispatchTestDataHashmap.get("RECEIVERCONTACT") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("RECEIVERCONTACT") +"'");		
+		String FROM_ROADPERMIT 		=((dispatchTestDataHashmap.get("FROM_ROADPERMIT") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("FROM_ROADPERMIT") +"'");
+		String TO_ROADPERMIT 		=((dispatchTestDataHashmap.get("TO_ROADPERMIT") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("TO_ROADPERMIT") +"'");
+		String DIMENSIONS 			=((dispatchTestDataHashmap.get("DIMENSIONS") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("DIMENSIONS") +"'");
+		String DELIVERFLOOR 		=((dispatchTestDataHashmap.get("DELIVERFLOOR") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("DELIVERFLOOR") +"'");
+		String VEHICLETYPE 			=((dispatchTestDataHashmap.get("VEHICLETYPE") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("VEHICLETYPE") +"'");
+		String VEHICLECAPACITY 		=((dispatchTestDataHashmap.get("VEHICLECAPACITY") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("VEHICLECAPACITY") +"'");
+		String SMS_MESSAGE 			=((dispatchTestDataHashmap.get("SMS_MESSAGE") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("SMS_MESSAGE") +"'");
+		String PACKAGETYPE 			=((dispatchTestDataHashmap.get("PACKAGETYPE") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("PACKAGETYPE") +"'");
+		String COPYFROM 			=((dispatchTestDataHashmap.get("COPYFROM") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("COPYFROM") +"'");
+		String DRIVER 				=((dispatchTestDataHashmap.get("DRIVER") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("DRIVER") +"'");
+		String DRIVERCONTACT 		=((dispatchTestDataHashmap.get("DRIVERCONTACT") == null) ? "NULL" : "'"+dispatchTestDataHashmap.get("DRIVERCONTACT") +"'");
+		
+		
+
+		if(NewShipment.equalsIgnoreCase("Yes")){
+			Shipmentnumber ="0000000020170623-231";//properties.getProperty("SHIPMENTNO");
+		}else{
+			Shipmentnumber ="0000000020170623-231";//dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
+
+		}
+		try{
+		query = "select * FROM CATS_SHIPMENT where SHIPMENTNUMBER ="+"'"+Shipmentnumber+"'";
+
+		SHIPMENTID = selectQuerySingleValue(query, "SHIPMENTID");
+
+		query1 = "INSERT " 
+				+"INTO CATS_SHIPMENT_UDFDATA"
+				+"("
+				+ "SHIPMENT_UDFDATAID,"
+				+ "SHIPMENTID,"
+				+"VALUE1,"
+				+"VALUE2,"
+				+"VALUE3,"
+				+"VALUE4,"
+				+"VALUE5,"
+				+"VALUE6,"
+				+"VALUE7,"
+				+"VALUE8,"
+				+"VALUE9,"
+				+"VALUE10,"
+				+"VALUE11,"
+				+"VALUE12,"
+				+"VALUE13,"
+				+"VALUE14,"
+				+"VALUE15"
+				+")" 
+				+"VALUES"
+				+"("
+				+ SHIPMENT_UDFDATAID+","
+				+ SHIPMENTID+","
+				+RECEIVERNAME+","
+				+RECEIVERCONTACT+","
+				+"'"+VEHICLENUMBER+"',"
+				+FROM_ROADPERMIT+","
+				+TO_ROADPERMIT+","
+				+DIMENSIONS+","
+				+DELIVERFLOOR+","
+				+VEHICLETYPE+","
+				+VEHICLECAPACITY+","
+				+SMS_MESSAGE+","
+				+PACKAGETYPE+","
+				+COPYFROM+","
+				+DRIVER+","
+				+DRIVERCONTACT+","
+				+"'"+COMPLETE+"'"
+				+")";
+		
+		executeUpdateQuery(query1, "Shipment  # <b>"+Shipmentnumber+"</b> with Delivery info completed is inserted in CATS_SHIPMENT_UDFDATA");	
+
+		connection.commit();
+		stproc_stmt = connection.prepareCall ("{call CATS_P_SHIPMENTS.SP_SHIP}");	
+		stproc_stmt.executeUpdate();
+		stproc_stmt.close();	
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		test.log(LogStatus.FAIL, "SHIPMENT # <b>"+Shipmentnumber+"</b> is not delivery info completed");
+	}
+		
 	
 	}
+		
+
 		
 }
 	

@@ -95,6 +95,8 @@ public class Utility {
 
 	public void takeScreenshot(String reportName) {
 
+		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")){
+		
 		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
 		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
@@ -104,8 +106,14 @@ public class Utility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
+		
 		test.log(LogStatus.PASS, reportName,
 				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
+		}else{
+			test.log(LogStatus.PASS, reportName);	
+		}
 
 	}
 	
@@ -121,18 +129,21 @@ public class Utility {
 	 */
 
 	public void takeScreenshotStatus(String reportName, LogStatus status) {
+		if (properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")) {
 
-		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+			String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
-		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
-		try {
-			FileUtils.copyFile(scrFile,
-					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
-		} catch (IOException e) {
-			e.printStackTrace();
+			File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
+			try {
+				FileUtils.copyFile(scrFile,
+						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
+		} else {
+			test.log(LogStatus.PASS, reportName);
 		}
-		test.log(status, reportName,
-				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
 
 	}
 	/**

@@ -8,6 +8,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriverException;
 
 import com.relevantcodes.extentreports.ExtentTest;
+import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
 import main.java.executionSetup.TestParameters;
@@ -19,7 +20,7 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 	   //Item Inquiry
 	
 		By ITEMINQ_BARCODE1_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Manufacturer or Item Code or Mfg Part Code (*) :"));	
-		By SUBMITTOCLEAR_XPATH = By.xpath(String.format(XPATH_TXT, "Submit to Clear Part"));
+		By SUBMITTOCLEAR_PART_XPATH = By.xpath(String.format(XPATH_TXT, "Submit to Clear Part"));
 		
 		
 		String MANUFACTURER_XPATH=String.format(XPATH_TXT,"Manufacturer");
@@ -34,7 +35,7 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 		//Asset Inquiry
 		By ASSETINQ_BARCODE1_XPATH = By.xpath(String.format(XPATH_TXT, "Enter Mfg Part Code or Item Code or SNO or UIN (*) :"));
 		By SNO_UIN_XPATH = By.xpath(String.format(XPATH_TXT, "Enter SNO or UIN :"));
-		
+		By SUBMITTOCLEAR_ASSET_XPATH = By.xpath(String.format(XPATH_TXT, "Submit to Clear Asset"));
 		
 		
 		String SERIALNO_XPATH=String.format(XPATH_TXT,"Serial Number");
@@ -113,7 +114,7 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 				VerfiyAutopopulatefieldvalues(UOM_XPATH,"Unit of Measure",UOM);
 				
 				
-				Click(SUBMITTOCLEAR_XPATH,"Submit to Clear Part");
+				Click(SUBMITTOCLEAR_PART_XPATH,"Submit to Clear Part");
 			}
 			}
 			
@@ -126,10 +127,28 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 			String Itemcode= inquiryTestDataHashmap.get("ITEMCODE");
 			String ItemDescription = inquiryTestDataHashmap.get("ITEMDESCRIPTION");
 			String MFGPartno = inquiryTestDataHashmap.get("MFGPARTNUMBER");
-			String Serialized = inquiryTestDataHashmap.get("SERIALIZED");
-			String Itemtype= inquiryTestDataHashmap.get("ITEMTYPE");
-			String Active = inquiryTestDataHashmap.get("ACTIVE");
-			String UOM= inquiryTestDataHashmap.get("UNITOFMEASURE");
+			String Barcode2 = inquiryTestDataHashmap.get("BARCODE2");
+			String Itemtype= inquiryTestDataHashmap.get("ITEMTYPE");	
+			String Serialno =inquiryTestDataHashmap.get("SERIALNO");
+			String Assetcode =inquiryTestDataHashmap.get("ASSETCODE");
+			String Packagetag =inquiryTestDataHashmap.get("PACKAGETAG");
+			String Lotno =inquiryTestDataHashmap.get("LOTNO");		
+			String FAnumber =((inquiryTestDataHashmap.get("FANUMBER") == null) ? "" : "'"+inquiryTestDataHashmap.get("FANUMBER") +"'");
+			String HardwareRevision =inquiryTestDataHashmap.get("HARDWAREREVISION");
+			String Warranty =inquiryTestDataHashmap.get("WARRANTY");
+			String Assembly =inquiryTestDataHashmap.get("ASSEMBLY");
+			String Location =inquiryTestDataHashmap.get("LOCATION");
+			String Locatorcode =((inquiryTestDataHashmap.get("LOCATORCODE") == null) ? "" : "'"+inquiryTestDataHashmap.get("LOCATORCODE") +"'");
+			String Status =inquiryTestDataHashmap.get("STATUS");
+			String InventoryOrg =inquiryTestDataHashmap.get("INVENTORYORG");
+			String Container =((inquiryTestDataHashmap.get("CONTAINER") == null) ? "" : "'"+inquiryTestDataHashmap.get("CONTAINER") +"'");
+			String SubInventory =inquiryTestDataHashmap.get("SUBINVENTORY");
+			String Node =((inquiryTestDataHashmap.get("NODE") == null) ? "" : "'"+inquiryTestDataHashmap.get("NODE") +"'");
+			String LastMODON ="";
+			String LastMODBY ="";
+			String TransferNo =inquiryTestDataHashmap.get("TRANSFERNO");
+			String ShipmentNo =inquiryTestDataHashmap.get("SHIPMENTNO");
+			String Alertmsg = "BARCODE SCANNED IS A NON-SERIALIZED ITEM CODE.  PLEASE USE ITEM INQUIRY FOR THIS BARCODE";
 			
 			selectRoutine("Asset Inquiry");	
 			if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equalsIgnoreCase("Asset Inquiry")) {
@@ -137,39 +156,16 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 				EnterText(ASSETINQ_BARCODE1_XPATH, "Enter Mfg Part Code or Item Code or SNO or UIN (*) :", Barcode1);
 				ClickNext();
 				
+
+				
+				if(Barcodetype.equalsIgnoreCase("SERIALIZED")){
+					
+				EnterText(SNO_UIN_XPATH, "Enter SNO or UIN :", Barcode2);
+				ClickNext(); 
 				VerfiyAutopopulatefieldvalues(MANUFACTURER_XPATH,"Manufacturer", Manufacturer);
 				VerfiyAutopopulatefieldvalues(ITEMCODE_XPATH,"Item Code",Itemcode);
 				VerfiyAutopopulatefieldvalues(ITEMDESCRIPTION_XPATH,"Item Description",ItemDescription);	
 				VerfiyAutopopulatefieldvalues(MFGPARTNO_XPATH,"Mfg. Part Number",MFGPartno);
-				
-				if(Barcodetype.equalsIgnoreCase("NONSERIALIZED_ITEMCODE")){
-					
-					EnterText(SNO_UIN_XPATH, "Enter SNO or UIN :", Barcode1);
-					ClickNext(); 
-						
-					
-				}
-				String Serialno ="";
-				String Assetcode ="";
-				String Packagetag ="";
-				String Lotno ="";
-				
-				String FAnumber ="";
-				String HardwareRevision ="";
-				String Warranty ="";
-				String Assembly ="";
-				String Location ="";
-				String Locatorcode ="";
-				String Status ="";
-				String InventoryOrg ="";
-				String Container ="";
-				String SubInventory ="";
-				String Node ="";
-				String LastMODON ="";
-				String LastMODBY ="";
-				String TransferNo ="";
-				String ShipmentNo ="";
-				
 				VerfiyAutopopulatefieldvalues(SERIALNO_XPATH,"Serial Number",Serialno);
 				VerfiyAutopopulatefieldvalues(UIN_XPATH,"UIN",Assetcode);
 				VerfiyAutopopulatefieldvalues(PACKAGETAG_XPATH,"Package Tag",Packagetag);
@@ -186,13 +182,32 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 				VerfiyAutopopulatefieldvalues(CONTAINER_XPATH,"Container",Container);
 				VerfiyAutopopulatefieldvalues(SUBINVENTORY_XPATH,"Sub Inventory",SubInventory);
 				VerfiyAutopopulatefieldvalues(NODE_XPATH,"Node",Node);
-				VerfiyAutopopulatefieldvalues(LASTMODIFIED_ON_XPATH,"Last Modified On",LastMODON);
-				VerfiyAutopopulatefieldvalues(LASTMODIFIED_BY_XPATH,"Last Modified By",LastMODBY);
-				VerfiyAutopopulatefieldvalues(TRANSFERORDER_XPATH,"Transfer Order",TransferNo);
-				VerfiyAutopopulatefieldvalues(SHIPMENTNO_XPATH,"Shipment #",ShipmentNo);
+				//VerfiyAutopopulatefieldvalues(LASTMODIFIED_ON_XPATH,"Last Modified On",LastMODON);
+				//VerfiyAutopopulatefieldvalues(LASTMODIFIED_BY_XPATH,"Last Modified By",LastMODBY);
+				//VerfiyAutopopulatefieldvalues(TRANSFERORDER_XPATH,"Transfer Order",TransferNo);
+				//VerfiyAutopopulatefieldvalues(SHIPMENTNO_XPATH,"Shipment #",ShipmentNo);
 				
 				
-				Click(SUBMITTOCLEAR_XPATH,"Submit to Clear Part");
+				Click(SUBMITTOCLEAR_ASSET_XPATH,"Submit to Clear Part");
+				}
+				
+				if(Barcodetype.equalsIgnoreCase("NONSERIALIZED")){
+					
+					
+					verifyMessage(Alertmsg);
+					
+					Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg);
+					
+					if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equalsIgnoreCase("Item Inquiry")) {
+						
+						test.log(LogStatus.PASS, "<b>" + Itemcode + " is Non Serialized.Therefore redirected to Item Inquiry", "");	
+						
+					}else{
+						test.log(LogStatus.FAIL, "<b>" + Itemcode + "<is Non Serialized but not redirected to Item Inquiry", "");	
+					}
+					
+					
+				}
 			}
 			}
 }

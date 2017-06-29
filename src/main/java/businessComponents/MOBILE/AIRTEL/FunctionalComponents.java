@@ -174,7 +174,12 @@ public class FunctionalComponents extends Utility {
 		Inquiry.itemInquiry();
 		
 	}
-	
+	public void assetInquiry() throws TimeoutException, NoSuchElementException{
+		
+		Inquiry Inquiry = new Inquiry(test, driver , dataTable,testParameters);
+		Inquiry.assetInquiry();
+		
+	}
 	
 	//Performance Testing
 

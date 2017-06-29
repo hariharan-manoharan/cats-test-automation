@@ -83,16 +83,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			report(routineName+" Transaction is not successfull", LogStatus.FAIL);			
 		}
 	}
-	
-	
-	public void validateMessage(String msg) {		
-		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);			
-		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);			
-		}
-	}
-	
+
 	public boolean validateMessageContains(String msgContains) {
 		if(isElementPresent(ID_MESSAGE, "Prompt")){
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).contains(msgContains)) {

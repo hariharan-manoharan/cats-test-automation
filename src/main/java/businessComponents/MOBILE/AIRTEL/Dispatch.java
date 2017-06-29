@@ -94,16 +94,6 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 	}
 
 
-	public boolean validateMessage(String msg) {		
-		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);	
-			return true;
-		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);	
-			return false;
-		}
-	}
-
 
 	public void validateTransaction(String routineName ,String loopField) {		
 		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
@@ -281,7 +271,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 			}else{
 				Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - "+confirmmsg);	
 
-				validateMessage(Alertmsg);
+				verifyMessage(Alertmsg);
 
 				Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg);
 
@@ -347,7 +337,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		
 	public void ship()throws TimeoutException, NoSuchElementException, WebDriverException{
 		
-		/*String TransferNumber="T000000051";//;properties.getProperty("TRANSFERNUMBER");
+		String TransferNumber=properties.getProperty("TRANSFERNUMBER");
 		String FromLocation = dispatchTestDataHashmap.get("FROM_LOCATION");
 		String ToLocation = dispatchTestDataHashmap.get("TO_LOCATION");
 		String ToLocationAdderss = dispatchTestDataHashmap.get("TO_LOCATION_ADDRESS");
@@ -357,9 +347,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		
 		String TrackingNumber=dispatchTestDataHashmap.get("TRACKING_NUMBER");
 		String NewShipment = dispatchTestDataHashmap.get("NEW_SHIPMENT");
-		String Itemcode="AUTOSARS01"; //dispatchTestDataHashmap.get("ITEMCODE");
+		String Itemcode=dispatchTestDataHashmap.get("ITEMCODE");
 		String Shipmentnumber = null ;
-		String Assetcode = "DUMMYMRR86";//properties.getProperty("ASSETCODE");
+		String Assetcode = properties.getProperty("ASSETCODE");
 		String Deliveryinfocomplete = dispatchTestDataHashmap.get("DELIVERYINFO");
 		
 		selectRoutine("Ship");
@@ -431,8 +421,8 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Ship Routine");
 		ClickNext();	
 		
-		}*/
-		String Deliveryinfocomplete = dispatchTestDataHashmap.get("DELIVERYINFO");
+		}
+		
 		if(Deliveryinfocomplete.equalsIgnoreCase("Y")){
 		deliveryinfocomplete();
 		}
@@ -468,9 +458,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		
 
 		if(NewShipment.equalsIgnoreCase("Yes")){
-			Shipmentnumber ="0000000020170623-231";//properties.getProperty("SHIPMENTNO");
+			Shipmentnumber =properties.getProperty("SHIPMENTNO");
 		}else{
-			Shipmentnumber ="0000000020170623-231";//dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
+			Shipmentnumber =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
 
 		}
 		try{

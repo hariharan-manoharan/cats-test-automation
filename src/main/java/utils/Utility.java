@@ -1811,8 +1811,10 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		try{
 		stmt = connection.createStatement();
 		rs = stmt.executeQuery(String.format(query));
+		if(rs!=null){
 		while (rs.next()) {
 			lastTransactionId = Integer.parseInt(rs.getString(columnName));
+		}
 		}
 		} catch (SQLException e) {			
 			e.printStackTrace();
@@ -1964,5 +1966,30 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		}
 		
 	}
+	
+	public void verifyMessage(String msg) {
+		
+		By ID_MESSAGE= By.id("message");
+		By ID_ALERT_TITLE= By.id("alertTitle");
+		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
+			report(msg + " is displayed", LogStatus.PASS);	
 
+		} else {
+			report(msg + " is not displayed", LogStatus.FAIL);	
+	
+		}
+	}
+
+	public boolean validateMessage(String msg) {	
+		By ID_MESSAGE= By.id("message");
+		By ID_ALERT_TITLE= By.id("alertTitle");
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
+			report(msg + " is displayed", LogStatus.PASS);	
+			return true;
+		} else {
+			report(msg + " is not displayed", LogStatus.FAIL);	
+			return false;
+		}
+	}
 }

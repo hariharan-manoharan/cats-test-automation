@@ -1979,10 +1979,10 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		By ID_ALERT_TITLE= By.id("alertTitle");
 		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);	
+			report(driver,test,msg + " is displayed", LogStatus.PASS);	
 
 		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);	
+			report(driver,test,msg + " is not displayed", LogStatus.FAIL);	
 	
 		}
 	}
@@ -1991,10 +1991,10 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		By ID_MESSAGE= By.id("message");
 		By ID_ALERT_TITLE= By.id("alertTitle");
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);	
+			report(driver,test,msg + " is displayed", LogStatus.PASS);	
 			return true;
 		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);	
+			report(driver,test,msg + " is not displayed", LogStatus.FAIL);	
 			return false;
 		}
 	}

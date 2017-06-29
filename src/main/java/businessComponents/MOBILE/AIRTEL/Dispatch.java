@@ -97,9 +97,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 
 	public void validateTransaction(String routineName ,String loopField) {		
 		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
-			report(routineName+" Transaction is successfull", LogStatus.PASS);			
+			report(driver,test,routineName+" Transaction is successfull", LogStatus.PASS);			
 		} else {
-			report(routineName+" Transaction is not successfull", LogStatus.FAIL);			
+			report(driver,test,routineName+" Transaction is not successfull", LogStatus.FAIL);			
 		}
 	}
 

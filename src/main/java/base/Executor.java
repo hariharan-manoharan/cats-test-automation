@@ -44,6 +44,13 @@ public class Executor extends Utility implements Runnable {
 	private TestRailListener testRailListenter;
 	String testRailEnabled = properties.getProperty("testRail.enabled");
 	int projectId = Integer.parseInt(properties.getProperty("testRail.projectId"));
+	
+	
+
+
+	
+	LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
+	LinkedHashMap<String, String> dataMap = new LinkedHashMap<String, String>();
 
 	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, TestRailListener testRailListenter) {
 		this.testParameters = testParameters;
@@ -92,23 +99,26 @@ public class Executor extends Utility implements Runnable {
 			}
 		} catch (SessionNotCreatedException e) {
 			test.log(LogStatus.FAIL, "Android Driver and Appium server setup not done Successfully", "");
-			test.log(LogStatus.FAIL, e);
+			test.log(LogStatus.FAIL, e);			
 			return;
 		} catch (ExecuteException | ClassNotFoundException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			test.log(LogStatus.FAIL, e);
+			test.log(LogStatus.FAIL, e);			
 			return;
 		} catch (IOException | InterruptedException | TimeoutException | NoSuchElementException e) {
 			test.log(LogStatus.FAIL, e);
+			report("Exception occured", LogStatus.FAIL);
 			return;
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
+			report("Exception occured", LogStatus.FAIL);
 			return;
 		} finally {
 			end();
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void executeKeywords(LinkedHashMap<String, String> keywords)
 			throws ExecuteException, IOException, InterruptedException, ClassNotFoundException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
@@ -117,27 +127,68 @@ public class Executor extends Utility implements Runnable {
 		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA")){
 		driverSetUp();
 		}
+		
+		if(testParameters.getBusinessFlowClass().equalsIgnoreCase("ReusableLibrary")){
+		getFields();
+		getData();		
+		}
+		
+		int keywordCounter = 0;
+		Method method;		
 
 		Class<?> className = Class.forName("main.java.businessComponents." + execMode + "."
-				+ properties.getProperty("Project") + ".FunctionalComponents");
+				+ properties.getProperty("Project") + "."+testParameters.getBusinessFlowClass());
 		Constructor<?> constructor = className.getDeclaredConstructors()[0];
 		Object classInstance = constructor.newInstance(test, driver, dataTable, testParameters);
 
 		for (Entry<String, String> map : keywords.entrySet()) {
 			if (!map.getKey().equals("TC_ID")) {
+				keywordCounter++;
 				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
 				test.log(LogStatus.INFO, "Current Keyword - " + currentKeyword, "");
-				Method method = className.getMethod(currentKeyword);
-				method.invoke(classInstance);
+				
+				
+				switch(currentKeyword){
+				
+				case "enterText":
+				case "enterTextFormattedData":
+					method = className.getDeclaredMethod(currentKeyword, String.class, String.class);
+					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), dataMap.get("KEYWORD_"+keywordCounter));	
+					break;
+					
+				case "clickRoutineFolder":
+				case "clickRoutine":
+				case "selectPickListValue":
+				case "validateTransactionComplete":
+					method = className.getDeclaredMethod(currentKeyword, String.class);
+					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
+					break;					
+				
+				case "clickSpyGlass":	
+					method = className.getDeclaredMethod(currentKeyword, String.class, Integer.TYPE);
+					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), Integer.parseInt(dataMap.get("KEYWORD_"+keywordCounter)));
+					break;				
+					
+				default:
+					method = className.getDeclaredMethod(currentKeyword);
+					method.invoke(classInstance);
+					break;
+					
+					
+				}
+			
+				
 			}
 		}
+		
+		keywordCounter = 0;
 
 		end();
 	}
 
 	
 	/**
-	 * Function to Business Keywords
+	 * Function to get Business Keywords
 	 * 
 	 * @param1 nil
 	 * @return LinkedHashMap<String, String>
@@ -149,8 +200,46 @@ public class Executor extends Utility implements Runnable {
 	public LinkedHashMap<String, String> getKeywords() {
 
 		LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
-		keywordMap = dataTable.getRowData("BusinessFlow");
+		keywordMap = dataTable.getRowData("BusinessFlow",testParameters.getCurrentTestCase());
 		return keywordMap;
+
+	}
+	
+	
+	/**
+	 * Function to get Fields
+	 * 
+	 * @param1 nil
+	 * @return LinkedHashMap<String, String>
+	 * @author Hari
+	 * @since 01/05/2017
+	 * 
+	 */
+	
+	public LinkedHashMap<String, String> getFields() {
+	
+		fieldMap = dataTable.getRowData("BusinessFlow",testParameters.getCurrentTestCase()+"_FIELD");
+		fieldMap.remove("TC_ID");
+		return fieldMap;
+
+	}
+	
+	
+	/**
+	 * Function to get Data
+	 * 
+	 * @param1 nil
+	 * @return LinkedHashMap<String, String>
+	 * @author Hari
+	 * @since 01/05/2017
+	 * 
+	 */
+	
+	public LinkedHashMap<String, String> getData() {
+		
+		dataMap = dataTable.getRowData("BusinessFlow",testParameters.getCurrentTestCase()+"_DATA");
+		dataMap.remove("TC_ID");
+		return dataMap;
 
 	}
 

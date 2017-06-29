@@ -6,6 +6,7 @@ public class TestParameters {
 	private String currentTestCase;
 	private String description;
 	private String connectDB;
+	private String businessFlowClass;
 	private String executeCurrentTestCase;
 	private String port;
 	private String bootstrapPort;
@@ -56,6 +57,15 @@ public class TestParameters {
 
 	public void setConnectDB(String connectDB) {
 		this.connectDB = connectDB;
+	}
+	
+	
+	public String getBusinessFlowClass() {
+		return businessFlowClass;
+	}
+
+	public void setBusinessFlowClass(String businessFlowClass) {
+		this.businessFlowClass = businessFlowClass;
 	}
 
 	public String getPort() {

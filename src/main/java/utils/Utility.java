@@ -95,6 +95,8 @@ public class Utility {
 
 	public void takeScreenshot(String reportName) {
 
+		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")){
+		
 		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
 		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
@@ -104,8 +106,14 @@ public class Utility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
+		
 		test.log(LogStatus.PASS, reportName,
 				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
+		}else{
+			test.log(LogStatus.PASS, reportName);	
+		}
 
 	}
 	
@@ -121,18 +129,21 @@ public class Utility {
 	 */
 
 	public void takeScreenshotStatus(String reportName, LogStatus status) {
+		if (properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")) {
 
-		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+			String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
-		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
-		try {
-			FileUtils.copyFile(scrFile,
-					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
-		} catch (IOException e) {
-			e.printStackTrace();
+			File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
+			try {
+				FileUtils.copyFile(scrFile,
+						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
+		} else {
+			test.log(LogStatus.PASS, reportName);
 		}
-		test.log(status, reportName,
-				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
 
 	}
 	/**
@@ -1811,8 +1822,10 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		try{
 		stmt = connection.createStatement();
 		rs = stmt.executeQuery(String.format(query));
+		if(rs!=null){
 		while (rs.next()) {
 			lastTransactionId = Integer.parseInt(rs.getString(columnName));
+		}
 		}
 		} catch (SQLException e) {			
 			e.printStackTrace();
@@ -1964,5 +1977,30 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		}
 		
 	}
+	
+	public void verifyMessage(String msg) {
+		
+		By ID_MESSAGE= By.id("message");
+		By ID_ALERT_TITLE= By.id("alertTitle");
+		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
+			report(msg + " is displayed", LogStatus.PASS);	
 
+		} else {
+			report(msg + " is not displayed", LogStatus.FAIL);	
+	
+		}
+	}
+
+	public boolean validateMessage(String msg) {	
+		By ID_MESSAGE= By.id("message");
+		By ID_ALERT_TITLE= By.id("alertTitle");
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
+			report(msg + " is displayed", LogStatus.PASS);	
+			return true;
+		} else {
+			report(msg + " is not displayed", LogStatus.FAIL);	
+			return false;
+		}
+	}
 }

@@ -205,7 +205,7 @@ public class MSExcel implements DataTable {
 			Cell value = currentRow.getCell(col, Row.RETURN_BLANK_AS_NULL);
 			if (key == null) {
 				// The spreadsheet is empty in this cell
-			} else {
+			} else if (value != null){
 
 				switch (value.getCellType()) {
 				case Cell.CELL_TYPE_STRING:
@@ -255,6 +255,7 @@ public class MSExcel implements DataTable {
 			testParameter.setDescription(getData("RunInfo", i, "Description"));
 			testParameter.setExecuteCurrentTestCase(getData("RunInfo", i, "Execute"));
 			testParameter.setConnectDB(getData("RunInfo", i, "Connect_DB"));
+			testParameter.setBusinessFlowClass(getData("RunInfo", i, "Business_Flow_Class"));
 			testParameter.setPort(getData("RunInfo", i, "Port"));
 			testParameter.setBootstrapPort(getData("RunInfo", i, "BootstrapPort"));
 			testParameter.setDeviceName(getData("RunInfo", i, "DeviceName"));

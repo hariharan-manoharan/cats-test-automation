@@ -96,10 +96,10 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 
 	public boolean validateMessage(String msg) {		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);	
+			report(driver,test, msg + " is displayed", LogStatus.PASS);	
 			return true;
 		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);	
+			report(driver,test, msg + " is not displayed", LogStatus.FAIL);	
 			return false;
 		}
 	}
@@ -107,9 +107,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 
 	public void validateTransaction(String routineName ,String loopField) {		
 		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
-			report(routineName+" Transaction is successfull", LogStatus.PASS);			
+			report(driver,test, routineName+" Transaction is successfull", LogStatus.PASS);			
 		} else {
-			report(routineName+" Transaction is not successfull", LogStatus.FAIL);			
+			report(driver,test, routineName+" Transaction is not successfull", LogStatus.FAIL);			
 		}
 	}
 

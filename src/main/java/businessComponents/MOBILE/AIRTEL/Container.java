@@ -78,32 +78,32 @@ public class Container extends Utility implements RoutineObjectRepository  {
 	
 	public void validateTransaction(String routineName ,String loopField) {		
 		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
-			report(routineName+" Transaction is successfull", LogStatus.PASS);			
+			report(driver,test, routineName+" Transaction is successfull", LogStatus.PASS);			
 		} else {
-			report(routineName+" Transaction is not successfull", LogStatus.FAIL);			
+			report(driver,test,routineName+" Transaction is not successfull", LogStatus.FAIL);			
 		}
 	}
 	
 	
 	public void validateMessage(String msg) {		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);			
+			report(driver,test,msg + " is displayed", LogStatus.PASS);			
 		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);			
+			report(driver,test,msg + " is not displayed", LogStatus.FAIL);			
 		}
 	}
 	
 	public boolean validateMessageContains(String msgContains) {
 		if(isElementPresent(ID_MESSAGE, "Prompt")){
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).contains(msgContains)) {
-			report("Message contains '" + msgContains + "' is displayed", LogStatus.INFO);			
+			report(driver,test,"Message contains '" + msgContains + "' is displayed", LogStatus.INFO);			
 			return true;
 		} else {
-			report("Message contains '" + msgContains + "' is not displayed", LogStatus.INFO);	
+			report(driver,test,"Message contains '" + msgContains + "' is not displayed", LogStatus.INFO);	
 			return false;
 		}
 		}else {
-			report("Message contains '" + msgContains + "' is not displayed", LogStatus.INFO);	
+			report(driver,test,"Message contains '" + msgContains + "' is not displayed", LogStatus.INFO);	
 			return false;
 		}
 	}
@@ -125,7 +125,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			EnterText(ADD_TO_CONTAINER_LOCATION_XPATH, "Enter Location (*) :", location);			
 			ClickNext();
 			
-			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getGeneratedTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
+			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getRuntimeTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
 			ClickNext();
 			if (containerType.equalsIgnoreCase("NEW") && GetText(ID_MESSAGE, "Confirm Message").equalsIgnoreCase(String.format(confirmMsg_AddToContainer, containerCode))) {
 			Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for message");
@@ -149,7 +149,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			case "ASSETCODE":
 			case "SERIAL_NUMBER":	
 			case "PACKAGE_TAG":
-				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", (barcode = (barcode.contains("#")) ?  getGeneratedTestdata("RECEIVING",barcode) : generateTestData("CONTAINER", "BARCODE_1", barcode)));
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", (barcode = (barcode.contains("#")) ?  getRuntimeTestdata("RECEIVING",barcode) : generateTestData("CONTAINER", "BARCODE_1", barcode)));
 				ClickNext();
 				ClickNext();				
 			break;	
@@ -241,7 +241,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 			case "ASSETCODE":
 			case "SERIAL_NUMBER":	
 			case "PACKAGE_TAG":
-				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", (barcode = (barcode.contains("#")) ?  getGeneratedTestdata("RECEIVING",barcode) : generateTestData("CONTAINER", "BARCODE_1", barcode)));
+				EnterText(BARCODE_XPATH, "Enter Barcode (*) :", (barcode = (barcode.contains("#")) ?  getRuntimeTestdata("RECEIVING",barcode) : generateTestData("CONTAINER", "BARCODE_1", barcode)));
 				ClickNext();	
 				ClickNext();
 				
@@ -272,9 +272,9 @@ public class Container extends Utility implements RoutineObjectRepository  {
 						 * GetPickListValue(1)); ClickNext();
 						 */
 						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :",
-								getGeneratedTestdata("RECEIVING", mfgPartNumber));
+								getRuntimeTestdata("RECEIVING", mfgPartNumber));
 						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :",
-								getGeneratedTestdata("RECEIVING", mfgPartNumber));
+								getRuntimeTestdata("RECEIVING", mfgPartNumber));
 						ClickNext();
 
 					}
@@ -311,7 +311,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(OPEN_CONTAINER)) {
 			EnterText(LOCATION_XPATH, "Enter Location Name (*) :", location);
 			ClickNext();
-			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getGeneratedTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
+			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getRuntimeTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
 			ClickNext();
 			ClickNext();
 			EnterText(NOTES_XPATH, "Enter Notes :", notes);
@@ -334,7 +334,7 @@ public class Container extends Utility implements RoutineObjectRepository  {
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(CLOSE_CONTAINER)) {
 			EnterText(LOCATION_XPATH, "Enter Location Name (*) :", location);
 			ClickNext();
-			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getGeneratedTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
+			EnterText(CONTAINERCODE_XPATH, "Enter Container Code (*) :", (containerCode = (containerCode.contains("#")) ?  getRuntimeTestdata("CONTAINER",containerCode) : generateTestData("CONTAINER", "CONTAINER_CODE", containerCode)));
 			ClickNext();
 			ClickNext();
 			EnterText(NOTES_XPATH, "Enter Notes :", notes);

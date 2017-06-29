@@ -2,6 +2,9 @@ package main.java.businessComponents.MOBILE.AIRTEL;
 
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
+
 import com.relevantcodes.extentreports.ExtentTest;
 
 import io.appium.java_client.android.AndroidDriver;
@@ -16,7 +19,7 @@ public class ProfilesActivity extends Utility implements RoutineObjectRepository
 		super(test,driver,dataTable,testParameters);
 	}
 
-	public void selectProfile() {		
+	public void selectProfile() throws TimeoutException, NoSuchElementException{		
 		
 		waitCommand(By.name("ADMIN"));			
 		Click(NAME_LISTTEXT_ADMIN, "Click - ADMIN Profile is selected");

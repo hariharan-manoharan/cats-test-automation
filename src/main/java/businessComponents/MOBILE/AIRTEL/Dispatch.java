@@ -119,9 +119,10 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Locator= dispatchTestDataHashmap.get("LOCATOR");
 		String Packageid =dispatchTestDataHashmap.get("PACKAGEID");
 		String Quantity = dispatchTestDataHashmap.get("QUANTITY");
-		String Assetcode = properties.getProperty("ASSETCODE");
+		String Assetcode =properties.getProperty("ASSETCODE");
 		String SerialNO = properties.getProperty("SERIALNUMBER");
-		String RequestNo=properties.getProperty("REQUESTNUMBER");
+		String TCID =dispatchTestDataHashmap.get("TC_ID");
+		String RequestNo=properties.getProperty("REQUESTNUMBER"+TCID);
 		String pickcount;
 		String TRANSFERNO = null;
 		String query = null;
@@ -247,8 +248,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Quantity = dispatchTestDataHashmap.get("QUANTITY"); 
 		String Packageid =dispatchTestDataHashmap.get("PACKAGEID");
 		String ShipmentNo =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
-		String Assetcode = properties.getProperty("ASSETCODE");
+		String Assetcode =properties.getProperty("ASSETCODE");
 		String SerialNO = properties.getProperty("SERIALNUMBER");
+
 		
 		selectRoutine("Pack");
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Pack")) {
@@ -374,7 +376,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		if(NewShipment.equalsIgnoreCase("Yes")){
 		Shipmentnumber = properties.getProperty("SHIPMENTNO");
 		}else{
-		Shipmentnumber ="00000000020170623-231";//dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
+		Shipmentnumber =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
 		}
 		VerfiyAutopopulatefieldvalues(SHIPMENTNUMBER_XPATH,"Shipment Number",Shipmentnumber);
 		
@@ -434,6 +436,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String SHIPMENTID;
 		String query;
 		String query1;
+		String query2;
 		String Shipmentnumber= null;
 		int SHIPMENT_UDFDATAID 		= generateRandomNum(10000);
 		String VEHICLENUMBER 		= dispatchTestDataHashmap.get("VEHICLENUMBER");
@@ -513,9 +516,22 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		executeUpdateQuery(query1, "Shipment  # <b>"+Shipmentnumber+"</b> with Delivery info completed is inserted in CATS_SHIPMENT_UDFDATA");	
 
 		connection.commit();
-		stproc_stmt = connection.prepareCall ("{call CATS_P_SHIPMENTS.SP_SHIP}");	
-		stproc_stmt.executeUpdate();
-		stproc_stmt.close();	
+		
+		query2 = "declare "+
+				"strShipmentNumber  "+   "varchar2(50) :='"+Shipmentnumber+ "';" +
+				"strAddContact "+       "varchar2(25) :="+ "'"+"CATSADM"+"'"+";"+
+				"aValues "+             "t_NameValue_tab := t_NameValue_tab()"+";"
+				+"begin "+ 
+				"cats_p_shipments.sp_ship"+
+				"("
+				+"i_ShipmentNumber            => strShipmentNumber"+","
+				+"i_ContactCode               => strAddContact"+","
+				+"i_Values                    => aValues"+
+				")"+";"
+		+"end"+";";
+		executeUpdateQuery(query2, "");
+		connection.commit();
+		
 	} catch (SQLException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

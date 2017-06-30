@@ -202,7 +202,7 @@ public class Inquiry extends Utility implements RoutineObjectRepository   {
 						
 						test.log(LogStatus.PASS, "<b>" + Itemcode + " is Non Serialized.Therefore redirected to Item Inquiry", "");	
 						
-					}else{
+					}else{ 
 						test.log(LogStatus.FAIL, "<b>" + Itemcode + "<is Non Serialized but not redirected to Item Inquiry", "");	
 					}
 					

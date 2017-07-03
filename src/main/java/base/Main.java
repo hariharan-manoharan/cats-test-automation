@@ -20,6 +20,7 @@ import main.java.testDataAccess.DataTableAbstractFactory;
 import main.java.testDataAccess.DataTableFactoryProducer;
 import main.java.utils.CopyLatestResult;
 import main.java.utils.GlobalProperties;
+import main.java.utils.GlobalRuntimeDataProperties;
 import main.java.utils.TestRailListener;
 import main.java.utils.Utility;
 
@@ -37,6 +38,7 @@ public class Main{
 	private static ExtentReports report;
 	private static String absolutePath;
 	private static Properties properties;
+	private static Properties runtimeDataProperties;
 	private static DataTableAbstractFactory runManagerFactory;
 	private static DataTable runManager;
 	private static DataTableAbstractFactory dataTableFactory;
@@ -46,6 +48,8 @@ public class Main{
 	private static ArrayList<TestParameters> testInstancesToRun;	
 	private static ExtentTest test;
 	private static int nThreads;
+	private static GlobalRuntimeDataProperties globalRuntimeDataProperties;
+	private static Utility utility;
 	
 	
 
@@ -77,6 +81,7 @@ public class Main{
 		
 		setAbsolutePath();
 		collectGlobalProperties();
+		initializeGlobalRuntimeDataProperties();
 		
 	}	
 	
@@ -158,6 +163,7 @@ public class Main{
 	private static void tearDown() {
 		
 		report.flush();		
+		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(utility.getRuntimeDataProperties());		
 		
 		try {
 			Desktop.getDesktop().open(new File(HtmlReport.reportPath));
@@ -199,8 +205,25 @@ public class Main{
 		GlobalProperties globalProperties = GlobalProperties.getInstance();
 		properties = globalProperties.loadPropertyFile();
 		
-		Utility utility = new Utility();
+		utility = new Utility();
 		utility.setProperties(properties);
+
+	}
+	
+	/**
+	 * collectGlobalProperties method is used to gather Global properties from user  
+	 * stored in a property file called GlobalProperties.properties.  
+	 * 
+	 * @param nil
+	 * 
+	 */
+	
+	private static void initializeGlobalRuntimeDataProperties() {
+
+		globalRuntimeDataProperties = GlobalRuntimeDataProperties.getInstance();
+		runtimeDataProperties = globalRuntimeDataProperties.loadPropertyFile();
+		
+		utility.setRuntimeDataProperties(runtimeDataProperties);
 
 	}
 	

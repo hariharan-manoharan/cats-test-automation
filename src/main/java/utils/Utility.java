@@ -54,6 +54,7 @@ public class Utility {
 	protected DataTable dataTable;
 	protected TestParameters testParameters;
 	public static Properties properties;
+	public static Properties runtimeDataProperties;
 	public static Connection connection;
 	public static LinkedHashMap<String, String> environmentVariables;
 	private static HashMap<String, String> globalRuntimeRecevingDatamap = new HashMap<String, String>();
@@ -76,6 +77,18 @@ public class Utility {
 	@SuppressWarnings("static-access")
 	public void setProperties(Properties properties) {
 		this.properties = properties;
+	}
+	
+	
+	@SuppressWarnings("static-access")
+	public void setRuntimeDataProperties(Properties runtimeDataProperties) {
+		this.runtimeDataProperties = runtimeDataProperties;
+	}
+	
+	
+	@SuppressWarnings("static-access")
+	public Properties getRuntimeDataProperties() {
+		return this.runtimeDataProperties;
 	}
 
 	@SuppressWarnings("static-access")
@@ -1959,6 +1972,11 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 
 	}
 	
+	
+	
+	
+	
+	
 	public void VerfiyAutopopulatefieldvalues(String labelxpath ,String objectName , String values ){
 		
 
@@ -2011,6 +2029,55 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		}
 	}
 	
+	public void addRuntimeTestData(String columnName, String columnValue) {
+
+		try {
+
+			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+	}
 	
+	
+	public String getRuntimeTestdata(String tescase_ColumnName) {
+
+		String data = null;
+
+		try {
+
+			//data = globalRuntimeDatamap.get(tescase_ColumnName);
+			data = runtimeDataProperties.getProperty(tescase_ColumnName);
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+		return data;
+
+	}
+	
+	
+	public String generateTestData(String columnName, String columnValue) {
+
+		String data = null;
+
+		try {
+			
+			data = columnValue + getCurrentFormattedTime("ddMMhhmmss");
+
+			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+		return data;
+
+	}
 	
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -48,9 +49,11 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	}
 
-	public void clickUserProfile() throws TimeoutException, NoSuchElementException  {
-		ProfilesActivity profilesActivity = new ProfilesActivity(test, driver, dataTable,testParameters);
-		profilesActivity.selectProfile();
+	public void selectUserProfile(String profile) throws TimeoutException, NoSuchElementException{		
+		
+		waitCommand(By.name(profile));			
+		Click(By.name(profile), "Click - "+profile+" Profile is selected");
+
 	}
 	
 	public void clickRoutineFolder(String folderName) throws TimeoutException, NoSuchElementException  {
@@ -290,7 +293,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		try {
 
-			globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
@@ -305,7 +309,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		try {
 
-			data = globalRuntimeDatamap.get(tescase_ColumnName);
+			//data = globalRuntimeDatamap.get(tescase_ColumnName);
+			data = runtimeDataProperties.getProperty(tescase_ColumnName);
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
@@ -324,7 +329,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			
 			data = columnValue + getCurrentFormattedTime("ddMMhhmmss");
 
-			globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);

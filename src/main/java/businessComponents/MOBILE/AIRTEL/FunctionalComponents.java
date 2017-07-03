@@ -141,7 +141,8 @@ public class FunctionalComponents extends Utility {
 		if(successFlag){
 			String RequestNumber = selectQuerySingleValue(String.format(validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"), stageId), "GENERATEDREQNUM");		
 			String TCID = dataMap.get("TC_ID");
-			properties.setProperty("REQUESTNUMBER"+TCID, RequestNumber);
+	
+			runtimeDataProperties.setProperty("REQUESTNUMBER"+TCID, RequestNumber);
 
 		}
 		

@@ -119,10 +119,10 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Locator= dispatchTestDataHashmap.get("LOCATOR");
 		String Packageid =dispatchTestDataHashmap.get("PACKAGEID");
 		String Quantity = dispatchTestDataHashmap.get("QUANTITY");
-		String Assetcode =properties.getProperty("ASSETCODE");
-		String SerialNO = properties.getProperty("SERIALNUMBER");
+		String Assetcode =runtimeDataProperties.getProperty("ASSETCODE");
+		String SerialNO = runtimeDataProperties.getProperty("SERIALNUMBER");
 		String TTCID =dispatchTestDataHashmap.get("TRANSFER_TC_ID");
-		String RequestNo=properties.getProperty("REQUESTNUMBER"+TTCID);
+		String RequestNo=runtimeDataProperties.getProperty("REQUESTNUMBER"+TTCID);
 		String pickcount;
 		String TRANSFERNO = null;
 		String query = null;
@@ -133,7 +133,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Alertmsg1="All items have been picked for line 1";
 		String Alertmsg2="Transfer "+TRANSFERNO+" has been fully picked.";
 		//Transfer T000000084 has been fully picked.
-		properties.setProperty("TRANSFERNUMBER",TRANSFERNO);
+		runtimeDataProperties.setProperty("TRANSFERNUMBER",TRANSFERNO);
 		if(Itemtype.equalsIgnoreCase("NONSERIALIZED")){
 			pickcount = "0/"+Quantity;
 		}else
@@ -257,8 +257,8 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Quantity = dispatchTestDataHashmap.get("QUANTITY"); 
 		String Packageid =dispatchTestDataHashmap.get("PACKAGEID");
 		String ShipmentNo =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
-		String Assetcode =properties.getProperty("ASSETCODE");
-		String SerialNO = properties.getProperty("SERIALNUMBER");
+		String Assetcode =runtimeDataProperties.getProperty("ASSETCODE");
+		String SerialNO = runtimeDataProperties.getProperty("SERIALNUMBER");
 		String Alertmsg1 = "All items picked for this transfer have been packed."	;	
 		selectRoutine("Pack");
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Pack")) {
@@ -365,7 +365,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String NewShipment = dispatchTestDataHashmap.get("NEW_SHIPMENT");
 		String Itemcode=dispatchTestDataHashmap.get("ITEMCODE");
 		String Shipmentnumber = null ;
-		String Assetcode =properties.getProperty("ASSETCODE");
+		String Assetcode =runtimeDataProperties.getProperty("ASSETCODE");
 		String Deliveryinfocomplete = dispatchTestDataHashmap.get("DELIVERYINFO");
 		String Alertmsg1 = "All items have been shipped for this transfer.";
 		

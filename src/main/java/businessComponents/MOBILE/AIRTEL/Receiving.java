@@ -679,7 +679,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		String Assetcode = properties.getProperty("ASSETCODE");
 		String SerialNO = properties.getProperty("SERIALNUMBER");		
 		String MFGpartno = receivingTestDataHashmap.get("IR_MFGPARTNO");
-		String packagetag =properties.getProperty("PACKAGETAG");
+		String packagetag =runtimeDataProperties.getProperty("PACKAGETAG");
 		String Shipmentno = null;
 		
 		

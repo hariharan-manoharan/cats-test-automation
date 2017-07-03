@@ -747,7 +747,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			String Alertmsg1 = "Shipment "+ Shipmentno+" has been fully received.";
 			verifyMessage(Alertmsg1);
 			Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg1);
-			verifyLoopingField("");
+			validateLoopField("");
 			
 		}
 		

@@ -1999,15 +1999,17 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		}
 	}
 	
-	public void verifyLoopingField(String objectname) {
-		
+	// Verification Components
+	
+	public void validateLoopField(String loopField) {	
 		String XPATH_TXT = ".//android.view.View[@content-desc='%s']";
-		
-		By LOOPINGFIELD_XPATH = By.xpath(String.format(XPATH_TXT, objectname));
-		
-		isElementPresent(LOOPINGFIELD_XPATH, objectname);
-
+		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
+			report(driver,test, " Transaction is successfull", LogStatus.PASS);			
+		} else {
+			report(driver,test, " Transaction is not successfull", LogStatus.FAIL);			
+		}
 	}
+	
 	
 	
 }

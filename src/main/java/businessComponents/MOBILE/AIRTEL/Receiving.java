@@ -128,7 +128,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 	
 	
 	public void validateTransaction(String routineName ,String loopField) {		
-		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
+		if (isFieldDisplayed(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
 			report(driver,test, routineName+" Transaction is successfull", LogStatus.PASS);			
 		} else {
 			report(driver,test, routineName+" Transaction is not successfull", LogStatus.FAIL);			
@@ -197,7 +197,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				
 				EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 				ClickNext();
-				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+				if(isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",mfgPartNumberIndex);
 					String mfgPartNumber = GetPickListValue(1);
 					addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
@@ -207,7 +207,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				
 				waitCommand(PARENT_RECEIVED_COUNT);
 				// Checks Parent Received Count 
-				if(isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")){					
+				if(isFieldDisplayed(PARENT_RECEIVED_COUNT, "Parent Received Count")){					
 					parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
 					receivedCount = Integer.parseInt(parentReceiveCount[0]);
 					totalCount = Integer.parseInt(parentReceiveCount[1]);				
@@ -325,7 +325,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			case "NON_SERIALIZED_ITEMCODE":				
 				EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 				ClickNext();
-				if(isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
+				if(isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",25);
 					String mfgPartNumber = GetPickListValue(1);
 					addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
@@ -410,7 +410,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			EnterText(LOCATION_XPATH, "Enter Location Name (*) :", location);
 			ClickNext();
 						
-			if (isElementPresent(MRR_SITE_RECEIVE_SITEID_XPATH, "Enter Site ID :")) {
+			if (isFieldDisplayed(MRR_SITE_RECEIVE_SITEID_XPATH, "Enter Site ID :")) {
 				ClickSpyGlass("Enter Site ID :", 4);
 				String siteId = GetPickListValue(1);
 				addRuntimeTestData("RECEIVING", "SITE_ID", siteId);
@@ -447,7 +447,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					
 					EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 					ClickNext();
-					if (isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
+					if (isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
 						ClickSpyGlass("Enter Mfg. Part Number :", 28);
 						String mfgPartNumber = GetPickListValue(1);
 						addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
@@ -457,7 +457,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 
 					waitCommand(PARENT_RECEIVED_COUNT);
 					// Checks Parent Received Count
-					if (isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")) {
+					if (isFieldDisplayed(PARENT_RECEIVED_COUNT, "Parent Received Count")) {
 						parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count")
 								.split("/");
 						receivedCount = Integer.parseInt(parentReceiveCount[0]);
@@ -571,7 +571,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				case "NON_SERIALIZED_ITEMCODE":
 					EnterText(ITEMCODE_MFGPARTNUMBER_XPATH, "Enter Item Code or Mfg. Part # (*) :", barcode);
 					ClickNext();
-					if (isElementPresent(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
+					if (isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
 						ClickSpyGlass("Enter Mfg. Part Number :", 28);
 						String mfgPartNumber = GetPickListValue(1);
 						addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
@@ -582,7 +582,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					
 					waitCommand(PARENT_RECEIVED_COUNT);
 					// Checks Parent Received Count
-					if (isElementPresent(PARENT_RECEIVED_COUNT, "Parent Received Count")) {
+					if (isFieldDisplayed(PARENT_RECEIVED_COUNT, "Parent Received Count")) {
 						parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count")
 								.split("/");
 						receivedCount = Integer.parseInt(parentReceiveCount[0]);

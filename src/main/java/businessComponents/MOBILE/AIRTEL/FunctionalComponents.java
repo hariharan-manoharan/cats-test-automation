@@ -38,7 +38,7 @@ public class FunctionalComponents extends Utility {
 
 	}
 
-	public void selectUserProfile() {
+	public void selectProfile() {
 		ProfilesActivity profilesActivity = new ProfilesActivity(test, driver, dataTable,testParameters);
 		profilesActivity.selectProfile();
 	}

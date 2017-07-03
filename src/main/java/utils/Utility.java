@@ -1739,7 +1739,8 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+"RECORD_ID,"
 						+"CREATION_DATE,"
 						+"PROCESS_FLAG,"
-						+"ITEM_CODE"
+						+"ITEM_CODE,"
+						+"CREATED_BY"
 						+")"
 						+
 						"VALUES"
@@ -1750,7 +1751,8 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+"'"+RECORD_ID+"',"
 						+inputValueMap.get("VALUE5")+","
 						+"'"+inputValueMap.get("VALUE6")+"',"
-						+"'"+inputValueMap.get("VALUE7")+"'"
+						+"'"+inputValueMap.get("VALUE7")+"',"
+						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
 						+")";
 				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+inputValueMap.get("VALUE7")+"</b>");
 				connection.commit();

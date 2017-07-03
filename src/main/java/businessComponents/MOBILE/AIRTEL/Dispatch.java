@@ -233,7 +233,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 			verifyMessage(Alertmsg2);
 			Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg2);
 			
-			verifyLoopingField("Enter Location(*) :");
+			validateLoopField("Enter Location(*) :");
 
 		}
 			
@@ -343,7 +343,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		verifyMessage(Alertmsg1);
 		Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg1);
 		
-		verifyLoopingField("Enter Transfer Order (*) :");
+		validateLoopField("Enter Transfer Order (*) :");
 
 		
 	}	
@@ -441,7 +441,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		verifyMessage(Alertmsg1);
 		Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg1);
 		
-		verifyLoopingField("Enter Shipment Method (*) :");
+		validateLoopField("Enter Shipment Method (*) :");
 		
 		}
 		

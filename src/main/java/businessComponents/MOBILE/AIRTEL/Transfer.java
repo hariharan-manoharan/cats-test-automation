@@ -84,13 +84,13 @@ public class Transfer extends Utility implements RoutineObjectRepository {
 			String query = "SELECT * from CATSCUST_TRANSFERREASON WHERE REASONCODE ="+"'"+REASONCODE+"'";
 			rs = stmt.executeQuery(query);
 			//if Transfer Reason is present then below code will not run
-			if(rs!=null){
-			while (rs.next()) {
+
+			while (!rs.isBeforeFirst()) {
 
 				createtransferreason(inputValueMap);
 				
 			}
-			}
+			
 		}
 		catch (SQLException e) {
 			test.log(LogStatus.FAIL, e);

@@ -121,14 +121,18 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String Quantity = dispatchTestDataHashmap.get("QUANTITY");
 		String Assetcode =properties.getProperty("ASSETCODE");
 		String SerialNO = properties.getProperty("SERIALNUMBER");
-		String TCID =dispatchTestDataHashmap.get("TC_ID");
-		String RequestNo=properties.getProperty("REQUESTNUMBER"+TCID);
+		String TTCID =dispatchTestDataHashmap.get("TRANSFER_TC_ID");
+		String RequestNo=properties.getProperty("REQUESTNUMBER"+TTCID);
 		String pickcount;
 		String TRANSFERNO = null;
 		String query = null;
 		
 		query = "SELECT * FROM CATS_TRANSFER WHERE REFERENCENUMBER ="+"'"+RequestNo+"'";
 		TRANSFERNO = selectQuerySingleValue(query, "TRANSFERNUMBER");
+		
+		String Alertmsg1="All items have been picked for line 1";
+		String Alertmsg2="Transfer "+TRANSFERNO+" has been fully picked.";
+		//Transfer T000000084 has been fully picked.
 		properties.setProperty("TRANSFERNUMBER",TRANSFERNO);
 		if(Itemtype.equalsIgnoreCase("NONSERIALIZED")){
 			pickcount = "0/"+Quantity;
@@ -220,12 +224,17 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 				}
 
 			}
-			
-			//All items have been picked for line 1
-			//Transfer T000000084 has been fully picked.
-			
+				
 			EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Pick Routine");
 			ClickNext();
+			
+			verifyMessage(Alertmsg1);
+			Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg1);
+			verifyMessage(Alertmsg2);
+			Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg2);
+			
+			verifyLoopingField("Enter Location(*) :");
+
 		}
 			
 	}
@@ -250,8 +259,7 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String ShipmentNo =dispatchTestDataHashmap.get("SHIPMENT_NUMBER");
 		String Assetcode =properties.getProperty("ASSETCODE");
 		String SerialNO = properties.getProperty("SERIALNUMBER");
-
-		
+		String Alertmsg1 = "All items picked for this transfer have been packed."	;	
 		selectRoutine("Pack");
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Pack")) {
 		EnterText(LOCATION_XPATH, "Enter Location (*) :", Location);
@@ -332,6 +340,12 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Pack Routine");
 		ClickNext();	
 		
+		verifyMessage(Alertmsg1);
+		Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg1);
+		
+		verifyLoopingField("Enter Transfer Order (*) :");
+
+		
 	}	
 		
 	}	
@@ -351,8 +365,9 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		String NewShipment = dispatchTestDataHashmap.get("NEW_SHIPMENT");
 		String Itemcode=dispatchTestDataHashmap.get("ITEMCODE");
 		String Shipmentnumber = null ;
-		String Assetcode = properties.getProperty("ASSETCODE");
+		String Assetcode =properties.getProperty("ASSETCODE");
 		String Deliveryinfocomplete = dispatchTestDataHashmap.get("DELIVERYINFO");
+		String Alertmsg1 = "All items have been shipped for this transfer.";
 		
 		selectRoutine("Ship");
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Ship")) {
@@ -421,7 +436,12 @@ public class Dispatch extends Utility implements RoutineObjectRepository{
 		ClickNext();
 		
 		EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Ship Routine");
-		ClickNext();	
+		ClickNext();
+		
+		verifyMessage(Alertmsg1);
+		Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg1);
+		
+		verifyLoopingField("Enter Shipment Method (*) :");
 		
 		}
 		

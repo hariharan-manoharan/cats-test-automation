@@ -682,9 +682,10 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		String packagetag =properties.getProperty("PACKAGETAG");
 		String Shipmentno = null;
 		
-		selectRoutine("Internal Receipt");
+		
+		selectRoutine("Internal Warehouse Receive");
 			
-		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Internal Receipt")) {
+		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals("Internal Warehouse Receive")) {
 			
 			EnterText(TO_LOCATION_XPATH, "Enter Location :", ToLocation);
 			ClickNext();
@@ -743,7 +744,10 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 			EnterText(NOTES_XPATH, "Enter Notes :", "Automation:Internal Receipt Routine");
 			ClickNext();
 			
-			
+			String Alertmsg1 = "Shipment "+ Shipmentno+" has been fully received.";
+			verifyMessage(Alertmsg1);
+			Click(ID_MESSAGE_OK, "Clicked 'OK' for prompt - "+Alertmsg1);
+			verifyLoopingField("");
 			
 		}
 		

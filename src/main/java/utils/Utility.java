@@ -1998,4 +1998,16 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			return false;
 		}
 	}
+	
+	public void verifyLoopingField(String objectname) {
+		
+		String XPATH_TXT = ".//android.view.View[@content-desc='%s']";
+		
+		By LOOPINGFIELD_XPATH = By.xpath(String.format(XPATH_TXT, objectname));
+		
+		isElementPresent(LOOPINGFIELD_XPATH, objectname);
+
+	}
+	
+	
 }

@@ -103,15 +103,16 @@ public class Executor extends Utility implements Runnable {
 			return;
 		} catch (ExecuteException | ClassNotFoundException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			test.log(LogStatus.FAIL, e);			
+			test.log(LogStatus.FAIL, e);	
+			report(driver, test, "Exception occured", LogStatus.FAIL);
 			return;
 		} catch (IOException | InterruptedException | TimeoutException | NoSuchElementException e) {
 			test.log(LogStatus.FAIL, e);
-			report("Exception occured", LogStatus.FAIL);
+			report(driver,test, "Exception occured", LogStatus.FAIL);
 			return;
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
-			report("Exception occured", LogStatus.FAIL);
+			report(driver,test, "Exception occured", LogStatus.FAIL);
 			return;
 		} finally {
 			end();
@@ -150,16 +151,20 @@ public class Executor extends Utility implements Runnable {
 				
 				switch(currentKeyword){
 				
-				case "enterText":
-				case "enterTextFormattedData":
+				case "enterText":				
 					method = className.getDeclaredMethod(currentKeyword, String.class, String.class);
 					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), dataMap.get("KEYWORD_"+keywordCounter));	
 					break;
-					
+				case "enterTextFormattedData":	
+					method = className.getDeclaredMethod(currentKeyword, String.class, String.class, String.class);
+					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), dataMap.get("KEYWORD_"+keywordCounter), map.getKey());	
+					break;					
 				case "clickRoutineFolder":
 				case "clickRoutine":
 				case "selectPickListValue":
-				case "validateTransactionComplete":
+				case "validateLoopField":
+				case "clickYesConfirmPrompt":
+				case "clickNoConfirmPrompt":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;					

@@ -56,8 +56,8 @@ public class Utility {
 	public static Properties properties;
 	public static Connection connection;
 	public static LinkedHashMap<String, String> environmentVariables;
-	private static HashMap<String, String> glodalRuntimeRecevingDatamap = new HashMap<String, String>();
-	private static HashMap<String, String> glodalRuntimeContainerDatamap = new HashMap<String, String>();
+	private static HashMap<String, String> globalRuntimeRecevingDatamap = new HashMap<String, String>();
+	private static HashMap<String, String> globalRuntimeContainerDatamap = new HashMap<String, String>();
 	int verifyCounter = 0;
 	
 
@@ -95,22 +95,9 @@ public class Utility {
 
 	public void takeScreenshot(String reportName) {
 
-		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")){
-		
-		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
-
-		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
-		try {
-			FileUtils.copyFile(scrFile,
-					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
-		
+		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")){	
 		test.log(LogStatus.PASS, reportName,
-				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
+				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot() + ".png"));
 		}else{
 			test.log(LogStatus.PASS, reportName);	
 		}
@@ -128,24 +115,43 @@ public class Utility {
 	 * 
 	 */
 
-	public void takeScreenshotStatus(String reportName, LogStatus status) {
-		if (properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")) {
-
-			String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
-
-			File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
-			try {
-				FileUtils.copyFile(scrFile,
-						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
-		} else {
-			test.log(LogStatus.PASS, reportName);
+	@SuppressWarnings("rawtypes")
+	public void takeScreenshotStatus(AndroidDriver driver,ExtentTest test, String reportName, LogStatus status) {		
+		
+		
+		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True") && status.equals(LogStatus.PASS)){
+			
+			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot() + ".png"));
+			
+		}else if (properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("False") && status.equals(LogStatus.PASS)){
+			
+			test.log(status, reportName);
+			
+		}else{			
+			
+			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot() + ".png"));
 		}
+	}
+	
+	
+	public String screenShot() {
+
+		String screenshotName = null;
+
+		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+
+		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		try {
+			FileUtils.copyFile(scrFile,
+					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return screenshotName;
 
 	}
+	
+	
 	/**
 	 * Function to log test report with screenshot - WEBVIEW
 	 * 
@@ -161,17 +167,8 @@ public class Utility {
 
 		switchContext(contextHandles, "NATIVE");
 
-		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
-
-		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
-		try {
-			FileUtils.copyFile(scrFile,
-					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		test.log(LogStatus.PASS, reportName,
-				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
+				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot() + ".png"));
 
 	}
 
@@ -186,8 +183,8 @@ public class Utility {
 	 * 
 	 */
 
-	public void report(String reportName, LogStatus status) {
-		takeScreenshotStatus(reportName, status);		
+	public void report(AndroidDriver driver, ExtentTest test, String reportName, LogStatus status) {
+		takeScreenshotStatus(driver,test, reportName, status);		
 
 	}
 
@@ -428,15 +425,13 @@ public class Utility {
 	 * 
 	 */
 
-	public void Click(By by, String reportName) {
-		try {
+	public void Click(By by, String reportName) throws TimeoutException, NoSuchElementException{
+		
 			waitCommand(by);
 			this.driver.findElement(by).click();
 			HardDelay(5000L);
 			takeScreenshot(reportName);
-		} catch (Exception ex) {
-			test.log(LogStatus.FAIL, ex);
-		}
+		
 	}
 	
 	
@@ -1891,11 +1886,11 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			switch (routineFolderName) {
 
 			case "CONTAINER":
-				glodalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
+				globalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
 				break;
 			
 			case "RECEIVING":
-				glodalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
+				globalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
 				break;
 				
 			}
@@ -1919,11 +1914,11 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			switch (routineFolderName) {
 
 			case "CONTAINER":
-				glodalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+				globalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
 				break;
 			
 			case "RECEIVING":
-				glodalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+				globalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
 				break;
 				
 			}
@@ -1937,7 +1932,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	}
 	
 	
-	public String getGeneratedTestdata(String routineFolderName, String tescase_ColumnName) {
+	public String getRuntimeTestdata(String routineFolderName, String tescase_ColumnName) {
 
 		String value = null;
 
@@ -1946,11 +1941,11 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			switch (routineFolderName) {
 
 			case "CONTAINER":
-				value = glodalRuntimeContainerDatamap.get(tescase_ColumnName);
+				value = globalRuntimeContainerDatamap.get(tescase_ColumnName);
 				break;
 
 			case "RECEIVING":
-				value = glodalRuntimeRecevingDatamap.get(tescase_ColumnName);
+				value = globalRuntimeRecevingDatamap.get(tescase_ColumnName);
 				break;
 
 			}
@@ -1984,10 +1979,10 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		By ID_ALERT_TITLE= By.id("alertTitle");
 		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);	
+			report(driver,test,msg + " is displayed", LogStatus.PASS);	
 
 		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);	
+			report(driver,test,msg + " is not displayed", LogStatus.FAIL);	
 	
 		}
 	}
@@ -1996,10 +1991,10 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		By ID_MESSAGE= By.id("message");
 		By ID_ALERT_TITLE= By.id("alertTitle");
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(msg + " is displayed", LogStatus.PASS);	
+			report(driver,test,msg + " is displayed", LogStatus.PASS);	
 			return true;
 		} else {
-			report(msg + " is not displayed", LogStatus.FAIL);	
+			report(driver,test,msg + " is not displayed", LogStatus.FAIL);	
 			return false;
 		}
 	}

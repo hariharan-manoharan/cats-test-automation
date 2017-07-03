@@ -1,6 +1,9 @@
 package main.java.businessComponents.MOBILE.AIRTEL;
 
 
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
+
 import com.relevantcodes.extentreports.ExtentTest;
 
 import io.appium.java_client.android.AndroidDriver;
@@ -15,7 +18,7 @@ public class LoginActivity extends Utility implements RoutineObjectRepository {
 		super(test,driver,dataTable,testParameters);
 	}
 
-	public void addConnection() {
+	public void addConnection() throws TimeoutException, NoSuchElementException{
 		Click(NAME_ADD_CONNECTION, "Click - AddConnection");
 		Click(ID_ADD_CONNECTIONS, "Click - AddConnection Symbol");
 		EnterText(NAME_TXT_CONNECTION_NAME, "Enter - Connection Name", environmentVariables.get("EnvironmentName"));
@@ -28,7 +31,7 @@ public class LoginActivity extends Utility implements RoutineObjectRepository {
 		Click(ID_IMG_BACK_BTN, "Click - Back button");
 	}
 
-	public void login() {
+	public void login() throws TimeoutException, NoSuchElementException{
 		//EnterText(ID_TXT_USERNAME, "Enter - Username", "catsadm");
 		//EnterText(ID_TXT_PASSWORD, "Enter - Password", "catscats11");
 		//HideKeyboard();

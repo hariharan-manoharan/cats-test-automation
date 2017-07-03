@@ -2,6 +2,7 @@ package main.java.businessComponents.MOBILE.AIRTEL;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -23,6 +24,9 @@ import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
 
 public class ReusableLibrary extends Utility implements RoutineObjectRepository {
+	
+	
+	private static HashMap<String, String> globalRuntimeDatamap = new HashMap<String, String>();
 
 	@SuppressWarnings("rawtypes")
 	public ReusableLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
@@ -30,30 +34,30 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 		
 	
-	public void createNewConnection() {
+	public void createNewConnection() throws TimeoutException, NoSuchElementException  {
 
 		LoginActivity loginActivity = new LoginActivity(test, driver, dataTable,testParameters);
 		loginActivity.addConnection();
 
 	}
 
-	public void login() {
+	public void login() throws TimeoutException, NoSuchElementException  {
 
 		LoginActivity loginActivity = new LoginActivity(test, driver, dataTable,testParameters);
 		loginActivity.login();
 
 	}
 
-	public void clickUserProfile() {
+	public void clickUserProfile() throws TimeoutException, NoSuchElementException  {
 		ProfilesActivity profilesActivity = new ProfilesActivity(test, driver, dataTable,testParameters);
 		profilesActivity.selectProfile();
 	}
 	
-	public void clickRoutineFolder(String folderName) {
+	public void clickRoutineFolder(String folderName) throws TimeoutException, NoSuchElementException  {
 		Click(By.name(folderName), "Click - Routines Folder - " + folderName + " is selected");
 	}
 	
-	public void clickRoutine(String routineName) {
+	public void clickRoutine(String routineName) throws TimeoutException, NoSuchElementException  {
 		// ScrolltoText(routineName);
 		Click(By.name(routineName), "Click - Routine - " + routineName + " is selected");
 	}
@@ -95,7 +99,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	public void clickNext() throws TimeoutException, NoSuchElementException{
 		 	
-		    waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));			
+		    waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
 			this.driver.findElement(By.id("next")).click();				
 		}
 		
@@ -184,11 +188,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	 * 
 	 */
 
-	public void enterTextFormattedData(String field, String data) throws TimeoutException, NoSuchElementException {
+	public void enterTextFormattedData(String field, String data, String columnName) throws TimeoutException, NoSuchElementException {
 		
-				
-		data = data + getCurrentFormattedTime("ddMMhhmmss");;
-
+		data = (data.contains("#")) ?  getRuntimeTestdata(data) : generateTestData(columnName, data);
+		
 		By by = By.xpath(String.format(XPATH_TXT, field));
 		
 		waitCommand(by);
@@ -196,6 +199,9 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
+		
+		
+		
 
 	}
 	
@@ -213,11 +219,11 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 	// Verification Components
 	
-	public void validateTransactionComplete(String loopField) {		
+	public void validateLoopField(String loopField) {		
 		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
-			report(" Transaction is successfull", LogStatus.PASS);			
+			report(driver,test, " Transaction is successfull", LogStatus.PASS);			
 		} else {
-			report(" Transaction is not successfull", LogStatus.FAIL);			
+			report(driver,test, " Transaction is not successfull", LogStatus.FAIL);			
 		}
 	}
 	
@@ -254,6 +260,77 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}else{
 			test.log(LogStatus.PASS, reportName + data);	
 		}
+
+	}
+	
+	public void clickYesConfirmPrompt(String msg) {		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
+			report(driver,test, msg + " is displayed", LogStatus.PASS);		
+			Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + msg);
+		} else {
+			report(driver,test, msg + " is not displayed", LogStatus.FAIL);			
+		}
+	}
+	
+	public void clickNoConfirmPrompt(String msg) {		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
+			report(driver,test, msg + " is displayed", LogStatus.PASS);		
+			Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + msg);
+		} else {
+			report(driver,test, msg + " is not displayed", LogStatus.FAIL);			
+		}
+	}
+	
+	public void clearField(){
+		this.driver.pressKeyCode(112);
+	}
+	
+	
+	public void addRuntimeTestData(String columnName, String columnValue) {
+
+		try {
+
+			globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+	}
+	
+	
+	public String getRuntimeTestdata(String tescase_ColumnName) {
+
+		String data = null;
+
+		try {
+
+			data = globalRuntimeDatamap.get(tescase_ColumnName);
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+		return data;
+
+	}
+	
+	
+	public String generateTestData(String columnName, String columnValue) {
+
+		String data = null;
+
+		try {
+			
+			data = columnValue + getCurrentFormattedTime("ddMMhhmmss");
+
+			globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+
+		} catch (Exception e) {
+			test.log(LogStatus.FAIL, e);
+		}
+
+		return data;
 
 	}
 

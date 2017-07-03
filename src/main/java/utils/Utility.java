@@ -316,6 +316,7 @@ public class Utility {
 		
 		try{
 		
+		HardDelay(2000L);
 		present = this.driver.findElement(by).isDisplayed();
 		
 		if(present){

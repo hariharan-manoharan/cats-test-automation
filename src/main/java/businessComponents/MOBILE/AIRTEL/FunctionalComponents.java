@@ -152,7 +152,7 @@ public class FunctionalComponents extends Utility {
 	public void pick() throws WebDriverException, SQLException {
 		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
 		dispatch.pick();
-	}
+    }
 	
 	//Pick Routines
 	

@@ -3,6 +3,7 @@ package main.java.businessComponents.MOBILE.AIRTEL;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -377,6 +378,11 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			receivedCount = Integer.parseInt(parentReceiveCount[0]);
 			totalCount = Integer.parseInt(parentReceiveCount[1]);	
 		}
+	}
+	
+	public void deliveryConfirmation(){
+		FunctionalComponents functionalComponents = new FunctionalComponents(test, driver, dataTable,testParameters);
+		functionalComponents.deliveryConfirmation();
 	}
 
 }

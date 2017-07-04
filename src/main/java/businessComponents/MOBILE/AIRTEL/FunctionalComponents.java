@@ -132,7 +132,8 @@ public class FunctionalComponents extends Utility {
 
 
 	public void createBulkTransferRequest(){
-		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";		
+		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";	
+
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Bulk_Transfer_Request");
 		Transfer transfer = new Transfer(test, driver, dataTable,testParameters);
 		int stageId = transfer.createBulkTransferRequest(dataMap);
@@ -140,10 +141,10 @@ public class FunctionalComponents extends Utility {
 		
 		if(successFlag){
 			String RequestNumber = selectQuerySingleValue(String.format(validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"), stageId), "GENERATEDREQNUM");		
-			String TCID = dataMap.get("TC_ID");
-	
-			runtimeDataProperties.setProperty("REQUESTNUMBER"+TCID, RequestNumber);
-
+			String query = "SELECT * FROM CATS_TRANSFER WHERE REFERENCENUMBER ="+"'"+RequestNumber+"'";
+			String TRANSFERNO = selectQuerySingleValue(query, "TRANSFERNUMBER");
+			addRuntimeTestData("REQUESTNUMBER", RequestNumber);
+			addRuntimeTestData("TRANSFERNUMBER", TRANSFERNO);
 		}
 		
 	}

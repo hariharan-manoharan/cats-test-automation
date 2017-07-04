@@ -104,15 +104,21 @@ public class Executor extends Utility implements Runnable {
 		} catch (ExecuteException | ClassNotFoundException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			test.log(LogStatus.FAIL, e);	
+			if(driver!=null){
 			report(driver, test, "Exception occured", LogStatus.FAIL);
+			}
 			return;
 		} catch (IOException | InterruptedException | TimeoutException | NoSuchElementException e) {
 			test.log(LogStatus.FAIL, e);
-			report(driver,test, "Exception occured", LogStatus.FAIL);
+			if(driver!=null){
+				report(driver, test, "Exception occured", LogStatus.FAIL);
+				}
 			return;
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
-			report(driver,test, "Exception occured", LogStatus.FAIL);
+			if(driver!=null){
+				report(driver, test, "Exception occured", LogStatus.FAIL);
+				}
 			return;
 		} finally {
 			end();
@@ -166,6 +172,7 @@ public class Executor extends Utility implements Runnable {
 				case "clickYesConfirmPrompt":
 				case "clickNoConfirmPrompt":
 				case "selectUserProfile":
+				case "clickOkPrompt":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;					

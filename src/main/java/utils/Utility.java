@@ -340,7 +340,7 @@ public class Utility {
 			return false;
 		}	
 		}catch(Exception e){
-			test.log(LogStatus.FAIL, "Field - " + fieldName + " is not present", "");
+			test.log(LogStatus.INFO, "Field - " + fieldName + " is not present", "");
 			return false;
 		}
 		
@@ -1789,7 +1789,8 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+"RECORD_ID,"
 						+"CREATION_DATE,"
 						+"PROCESS_FLAG,"
-						+"ITEM_CODE"
+						+"ITEM_CODE,"
+						+"CREATED_BY"
 						+")"
 						+
 						"VALUES"
@@ -1800,7 +1801,8 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 						+"'"+RECORD_ID+"',"
 						+inputValueMap.get("VALUE5")+","
 						+"'"+inputValueMap.get("VALUE6")+"',"
-						+"'"+inputValueMap.get("VALUE7")+"'"
+						+"'"+inputValueMap.get("VALUE7")+"',"
+						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
 						+")";
 				connection.commit();
 				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+inputValueMap.get("VALUE7")+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
@@ -1875,13 +1877,13 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 					} else {
 						ERROR_MESSAGE = rs.getString(errorFlag);
 						test.log(LogStatus.FAIL,inboundType +" - <b>" + inputValue1 + "</b> is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
-						test.log(LogStatus.INFO,processFlag +" - <b>"+PROCESS_FLAG + "</b> | "  + errorFlag+" - <b>"+ERROR_MESSAGE+"</b>");
+						test.log(LogStatus.FAIL,processFlag +" - <b>"+PROCESS_FLAG + "</b> | "  + errorFlag+" - <b>"+ERROR_MESSAGE+"</b>");
 						verifyCounter=0;						
 					}
 				}else{
 					ERROR_MESSAGE = rs.getString(errorFlag);
 					test.log(LogStatus.FAIL,inboundType +" - <b>" + inputValue1 + "</b> is not processed successfully (RECORD_ID - <b>" + recordId + "</b>)");
-					test.log(LogStatus.INFO,processFlag +" - <b>"+PROCESS_FLAG + "</b> | " + errorFlag+" - <b>"+ERROR_MESSAGE+"</b>");				
+					test.log(LogStatus.FAIL,processFlag +" - <b>"+PROCESS_FLAG + "</b> | " + errorFlag+" - <b>"+ERROR_MESSAGE+"</b>");				
 				}
 			}
 		} catch (SQLException e) {

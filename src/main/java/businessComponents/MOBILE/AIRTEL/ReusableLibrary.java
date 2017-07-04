@@ -28,6 +28,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 	
 	private static HashMap<String, String> globalRuntimeDatamap = new HashMap<String, String>();
+	private boolean attachmentFlag = false;
 
 	@SuppressWarnings("rawtypes")
 	public ReusableLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
@@ -202,10 +203,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
-		
-		
-		
-
+	
 	}
 	
 	public static long generateRandom(int length) {
@@ -284,6 +282,16 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}
 	}
 	
+	
+	public void clickOkPrompt(String msg) {		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
+			report(driver,test, msg + " is displayed", LogStatus.PASS);		
+			Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt - " + msg);
+		} else {
+			report(driver,test, msg + " is not displayed", LogStatus.FAIL);			
+		}
+	}
+	
 	public void clearField(){
 		this.driver.pressKeyCode(112);
 	}
@@ -338,6 +346,37 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		return data;
 
+	}
+	
+	
+	public void VerfiyAutopopulatefieldvalues(String field, String value) {
+
+		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
+	
+		if (value.equalsIgnoreCase(fieldValue)) {
+			test.log(LogStatus.PASS, "<b>" + field + "</b> matches the given Testdata <b>" + value + "</b>", "");
+		} else {
+			test.log(LogStatus.FAIL, "<font color=red><b>" + field + "</b></font>-not matches the given Testdata- <b> <font color=red>" + value + "</b></font>", "");
+		}
+
+	}
+	
+	
+	// Routine specific validations
+	
+	public void parentReceivedCount(){
+		By PARENT_RECEIVED_COUNT = By.xpath(String.format(XPATH_TXT_CONTAINS, "/"));
+		int receivedCount = 0;
+		int totalCount = 0;	
+		String parentReceiveCount[] = new String[2];
+		
+		waitCommand(PARENT_RECEIVED_COUNT);
+		
+		if(isFieldDisplayed(PARENT_RECEIVED_COUNT, "Parent Received Count")){	
+			parentReceiveCount = GetAttributeValue(PARENT_RECEIVED_COUNT, "name", "Parent Received Count").split("/");					
+			receivedCount = Integer.parseInt(parentReceiveCount[0]);
+			totalCount = Integer.parseInt(parentReceiveCount[1]);	
+		}
 	}
 
 }

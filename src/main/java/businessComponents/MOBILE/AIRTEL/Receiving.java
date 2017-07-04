@@ -157,6 +157,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 		String isAssembly = receivingTestDataHashmap.get("IS_ASSEMBLY_"+i);
 		String barcode = receivingTestDataHashmap.get("BARCODE_"+i);
 		String serialNumber = receivingTestDataHashmap.get("SERIAL_NUMBER_"+i);
+		String mfgPartNumber = receivingTestDataHashmap.get("MFG_PART_NUM_"+i);
 		String qty = receivingTestDataHashmap.get("QUANTITY_"+i);
 		String packageId = receivingTestDataHashmap.get("PACKAGE_ID_"+i);
 		String hardwareVersion = receivingTestDataHashmap.get("HARDWARE_VERSION_"+i);
@@ -199,10 +200,11 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				ClickNext();
 				if(isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",mfgPartNumberIndex);
-					String mfgPartNumber = GetPickListValue(1);
+					//String mfgPartNumber = GetPickListValue(1);
+					selectPickListValue(mfgPartNumber);
 					addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
-					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
-					ClickNext();					
+					//EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
+					//ClickNext();					
 				}
 				
 				waitCommand(PARENT_RECEIVED_COUNT);
@@ -327,10 +329,11 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				ClickNext();
 				if(isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")){
 					ClickSpyGlass("Enter Mfg. Part Number :",25);
-					String mfgPartNumber = GetPickListValue(1);
+					//String mfgPartNumber = GetPickListValue(1);
+					selectPickListValue(mfgPartNumber);
 					addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
-					EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
-					ClickNext();			
+					//EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
+					//ClickNext();			
 				}
 				if(!receiveAllQty.equalsIgnoreCase("Yes")){
 				EnterText(QTY_XPATH, "Enter Quantity (*) :", qty);
@@ -435,6 +438,7 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 				String isAssembly = receivingTestDataHashmap.get("IS_ASSEMBLY_" + i);
 				String barcode = receivingTestDataHashmap.get("BARCODE_" + i);
 				String serialNumber = receivingTestDataHashmap.get("SERIAL_NUMBER_" + i);
+				String mfgPartNumber = receivingTestDataHashmap.get("MFG_PART_NUM_"+i);
 				String qty = receivingTestDataHashmap.get("QUANTITY_" + i);
 				String packageId = receivingTestDataHashmap.get("PACKAGE_ID_" + i);
 				String hardwareVersion = receivingTestDataHashmap.get("HARDWARE_VERSION_" + i);
@@ -449,10 +453,11 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					ClickNext();
 					if (isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
 						ClickSpyGlass("Enter Mfg. Part Number :", 28);
-						String mfgPartNumber = GetPickListValue(1);
+						//String mfgPartNumber = GetPickListValue(1);
+						selectPickListValue(mfgPartNumber);
 						addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
-						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
-						ClickNext();
+						//EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
+						//ClickNext();
 					}
 
 					waitCommand(PARENT_RECEIVED_COUNT);
@@ -573,10 +578,11 @@ public class Receiving extends Utility implements RoutineObjectRepository {
 					ClickNext();
 					if (isFieldDisplayed(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :")) {
 						ClickSpyGlass("Enter Mfg. Part Number :", 28);
-						String mfgPartNumber = GetPickListValue(1);
+						//String mfgPartNumber = GetPickListValue(1);
+						selectPickListValue(mfgPartNumber);
 						addRuntimeTestData("RECEIVING", "MFG_PART_NUMBER", mfgPartNumber);
-						EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
-						ClickNext();
+						//EnterText(MFGPARTNUMBER_XPATH, "Enter Mfg. Part # :", mfgPartNumber);
+						//ClickNext();
 					}
 					
 					

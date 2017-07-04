@@ -1,5 +1,6 @@
 package main.java.businessComponents.MOBILE.AIRTEL;
 
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -76,7 +77,7 @@ public class Transfer extends Utility implements RoutineObjectRepository {
 
 		ResultSet rs;
 		Statement stmt;
-
+		CallableStatement stproc_stmt;  
 		String REASONCODE = inputValueMap.get("REASON");
 
 		try {
@@ -188,7 +189,9 @@ public class Transfer extends Utility implements RoutineObjectRepository {
 						+NOTES+")";
 
 				executeUpdateQuery(insertquery, "Bulk Transfer request with REFERENCENUMBER - <b>"+inputValueMap.get("REFERENCENUMBER")+"</b> is <b>"+inputValueMap.get("TRANSACTION_TYPE")+"ED</b> in CATSCON_TRANSFERREQ_STG table (STAGEID - <b>"+currentStageId+"</b>)");
-
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_TRANSFERIMPORT.SP_PROCESS_TRANSFERS}");	
+				stproc_stmt.executeUpdate();	
+				
 			}else {
 				lastStageId = Integer.parseInt(inputValueMap.get("STAGEID"));
 				currentStageId = lastStageId;

@@ -134,7 +134,7 @@ public class Utility {
 		
 		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True") && status.equals(LogStatus.PASS)){
 			
-			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot() + ".png"));
+			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot(driver) + ".png"));
 			
 		}else if (properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("False") && status.equals(LogStatus.PASS)){
 			
@@ -142,10 +142,27 @@ public class Utility {
 			
 		}else{			
 			
-			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot() + ".png"));
+			test.log(status, reportName, "<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot(driver) + ".png"));
 		}
 	}
 	
+	
+	public String screenShot(AndroidDriver driver) {
+
+		String screenshotName = null;
+
+		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+
+		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		try {
+			FileUtils.copyFile(scrFile,
+					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return screenshotName;
+
+	}
 	
 	public String screenShot() {
 
@@ -153,7 +170,7 @@ public class Utility {
 
 		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
-		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
 		try {
 			FileUtils.copyFile(scrFile,
 					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
@@ -1835,10 +1852,13 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		rs = stmt.executeQuery(String.format(query));
 		if(rs!=null){
 		while (rs.next()) {
+			if(rs.getString(columnName)!=null){
 			lastTransactionId = Integer.parseInt(rs.getString(columnName));
+			break;
 		}
 		}
-		} catch (SQLException e) {			
+		}
+		}catch (SQLException e) {			
 			e.printStackTrace();
 		}
 		
@@ -2080,6 +2100,34 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 
 		return data;
 
+	}
+	
+	/**
+	 * Function to get Pick List value
+	 * 	 
+	 * @return void
+	 * @author Hari 
+	 * @since 06/27/2017
+	 * 
+	 */
+
+	@SuppressWarnings("unchecked")
+	public void selectPickListValue(String pickListValue) throws TimeoutException, NoSuchElementException{
+
+				
+		List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
+		
+		for(WebElement element: elements){			
+			
+			if(element.getText().equalsIgnoreCase(pickListValue)){
+				element.click();	
+				break;
+			}
+			}
+		
+			
+			takeScreenshot("Pick List Value - "+pickListValue+" is selected");
+		
 	}
 	
 }

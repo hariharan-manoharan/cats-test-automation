@@ -173,15 +173,11 @@ public class Executor extends Utility implements Runnable {
 				case "clickNoConfirmPrompt":
 				case "selectUserProfile":
 				case "clickOkPrompt":
+				case "clickSpyGlass":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;					
-				
-				case "clickSpyGlass":	
-					method = className.getDeclaredMethod(currentKeyword, String.class, Integer.TYPE);
-					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), Integer.parseInt(dataMap.get("KEYWORD_"+keywordCounter)));
-					break;				
-					
+			
 				default:
 					method = className.getDeclaredMethod(currentKeyword);
 					method.invoke(classInstance);

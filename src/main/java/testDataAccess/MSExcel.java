@@ -65,6 +65,7 @@ public class MSExcel implements DataTable {
 
 		for (Row row : workSheet) {
 			for (Cell cell : row) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
 				if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 					if (cell.getRichStringCellValue().getString().trim().equals(currentTestcase)) {
 						return row.getRowNum();
@@ -84,6 +85,7 @@ public class MSExcel implements DataTable {
 
 		for (Row row : workSheet) {
 			for (Cell cell : row) {
+				cell.setCellType(Cell.CELL_TYPE_STRING);
 				if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 					if (cell.getSheet().getRow(0).getCell(cell.getColumnIndex()).getRichStringCellValue().toString()
 							.equals(columnName)) {
@@ -105,7 +107,8 @@ public class MSExcel implements DataTable {
 		int colNum = getColNum(workSheetName, columnName);
 
 		Cell cell = currentRow.getCell(colNum);
-
+		if(cell!=null){
+			cell.setCellType(Cell.CELL_TYPE_STRING);
 		switch (cell.getCellType()) {
 		case Cell.CELL_TYPE_STRING:
 			data = cell.getStringCellValue();
@@ -117,7 +120,7 @@ public class MSExcel implements DataTable {
 			data = String.valueOf(cell.getNumericCellValue());
 			break;
 		}
-
+		}
 		return data;
 	}
 
@@ -129,7 +132,9 @@ public class MSExcel implements DataTable {
 		int colNum = getColNum(workSheetName, columnName);
 
 		Cell cell = currentRow.getCell(colNum);
-
+		
+		if(cell!=null){
+		cell.setCellType(Cell.CELL_TYPE_STRING);
 		switch (cell.getCellType()) {
 		case Cell.CELL_TYPE_STRING:
 			data = cell.getStringCellValue();
@@ -140,6 +145,7 @@ public class MSExcel implements DataTable {
 		case Cell.CELL_TYPE_NUMERIC:
 			data = String.valueOf(cell.getNumericCellValue());
 			break;
+		}
 		}
 
 		return data;
@@ -158,10 +164,13 @@ public class MSExcel implements DataTable {
 		for (int col = 0; col < lastColNum; col++) {
 			Cell key = colName.getCell(col, Row.RETURN_BLANK_AS_NULL);
 			Cell value = currentRow.getCell(col, Row.RETURN_BLANK_AS_NULL);
+			
+			
+			
 			if (key == null) {
 				// The spreadsheet is empty in this cell
 			} else if (value != null){
-
+				value.setCellType(Cell.CELL_TYPE_STRING);
 				switch (value.getCellType()) {
 				case Cell.CELL_TYPE_STRING:
 					rowData.put(key.getStringCellValue(), value.getStringCellValue());
@@ -203,10 +212,11 @@ public class MSExcel implements DataTable {
 		for (int col = 0; col < lastColNum; col++) {
 			Cell key = colName.getCell(col, Row.RETURN_BLANK_AS_NULL);
 			Cell value = currentRow.getCell(col, Row.RETURN_BLANK_AS_NULL);
+			
 			if (key == null) {
 				// The spreadsheet is empty in this cell
 			} else if (value != null){
-
+				value.setCellType(Cell.CELL_TYPE_STRING);
 				switch (value.getCellType()) {
 				case Cell.CELL_TYPE_STRING:
 					rowData.put(key.getStringCellValue(), value.getStringCellValue());

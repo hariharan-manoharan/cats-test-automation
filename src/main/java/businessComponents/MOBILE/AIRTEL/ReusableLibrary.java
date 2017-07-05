@@ -20,6 +20,8 @@ import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.AndroidElement;
+import io.appium.java_client.pagefactory.AndroidFindBy;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
@@ -30,6 +32,9 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 	private static HashMap<String, String> globalRuntimeDatamap = new HashMap<String, String>();
 	private boolean attachmentFlag = false;
+	
+	@AndroidFindBy(uiAutomator = "new UiSelector().description(\"?\")")
+	private AndroidElement myElement;
 
 	@SuppressWarnings("rawtypes")
 	public ReusableLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
@@ -139,15 +144,13 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	 * 
 	 */
 
-	public void clickSpyGlass(String pickListName, int fieldIndex) throws TimeoutException, NoSuchElementException{
+	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException{
 
-			
-			fieldIndex = fieldIndex+2;
-			By by = By.xpath(".//android.view.View[@index='"+String.valueOf(fieldIndex)+"']/android.view.View[@index='0']/android.view.View[@index='0']");	
-			waitCommand(by);					
-					
-			this.driver.findElement(by).click();
+			WebElement element = driver.findElementByAndroidUIAutomator("new UiSelector().className(\"android.view.View\").index(0).clickable(true)");				
+			element.click();
 			HardDelay(5000L);
+			takeScreenshot("Clicked - "+pickListName+" spyglass");
+
 		
 	}
 	

@@ -144,10 +144,18 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	 * 
 	 */
 
+	@SuppressWarnings("unchecked")
 	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException{
-
-			WebElement element = driver.findElementByAndroidUIAutomator("new UiSelector().className(\"android.view.View\").index(0).clickable(true)");				
-			element.click();
+		
+		    HardDelay(5000L);
+		    List<WebElement> element = driver.findElementsByAndroidUIAutomator("new UiSelector().className(\"android.view.View\").index(0).clickable(true)");	
+		    
+		    if(element.size()>1){
+		    	element.get(1).click();
+		    }else{
+		    	element.get(0).click();
+		    }
+			
 			HardDelay(5000L);
 			takeScreenshot("Clicked - "+pickListName+" spyglass");
 

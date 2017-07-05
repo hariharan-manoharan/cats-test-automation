@@ -10,6 +10,7 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -146,11 +147,16 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException{
 
-			WebElement element = driver.findElementByAndroidUIAutomator("new UiSelector().className(\"android.view.View\").index(0).clickable(true)");				
-			element.click();
+	 	List<WebElement> element = driver.findElementsByAndroidUIAutomator("new UiSelector().className(\"android.view.View\").index(0).clickable(true)");      
+        int size = element.size();
+         if(size>1){
+           element.get(size-1).click();
+         }else{
+           element.get(0).click();
+         }
+
 			HardDelay(5000L);
 			takeScreenshot("Clicked - "+pickListName+" spyglass");
-
 		
 	}
 	

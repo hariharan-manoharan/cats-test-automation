@@ -359,16 +359,17 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void VerfiyAutopopulatefieldvalues(String field, String value) {
-
+	public void verifyAutopopulatefieldvalues(String field, String value) {
+		
+		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
 		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
-	
+	if (!fieldValue.equals("")){
 		if (value.equalsIgnoreCase(fieldValue)) {
 			test.log(LogStatus.PASS, "<b>" + field + "</b> matches the given Testdata <b>" + value + "</b>", "");
 		} else {
 			test.log(LogStatus.FAIL, "<font color=red><b>" + field + "</b></font>-not matches the given Testdata- <b> <font color=red>" + value + "</b></font>", "");
 		}
-
+	}
 	}
 	
 	

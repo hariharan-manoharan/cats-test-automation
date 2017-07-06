@@ -159,6 +159,8 @@ public class Executor extends Utility implements Runnable {
 				
 				case "enterText":	
 				case "verifyAutopopulatefieldvalues":
+				case "clickConfirmPrompt":
+				case "getPutTestdata":	
 					method = className.getDeclaredMethod(currentKeyword, String.class, String.class);
 					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), dataMap.get("KEYWORD_"+keywordCounter));	
 					break;
@@ -170,8 +172,6 @@ public class Executor extends Utility implements Runnable {
 				case "clickRoutine":
 				case "selectPickListValue":
 				case "validateLoopField":
-				case "clickYesConfirmPrompt":
-				case "clickNoConfirmPrompt":
 				case "clickYesConfirmPromptContains":
 				case "clickNoConfirmPromptContains":
 				case "selectUserProfile":

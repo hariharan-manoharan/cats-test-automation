@@ -145,19 +145,21 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	 * 
 	 */
 
-	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException{
+	@SuppressWarnings("unchecked")
+	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException {
+		HardDelay(8000L);
+		List<WebElement> element = driver.findElementsByAndroidUIAutomator(
+				"new UiSelector().className(\"android.view.View\").index(0).clickable(true)");
+		int size = element.size();
+		if (size > 1) {
+			element.get(size - 1).click();
+		} else {
+			element.get(0).click();
+		}
 
-	 	List<WebElement> element = driver.findElementsByAndroidUIAutomator("new UiSelector().className(\"android.view.View\").index(0).clickable(true)");      
-        int size = element.size();
-         if(size>1){
-           element.get(size-1).click();
-         }else{
-           element.get(0).click();
-         }
+		HardDelay(5000L);
+		takeScreenshot("Clicked - " + pickListName + " spyglass");
 
-			HardDelay(5000L);
-			takeScreenshot("Clicked - "+pickListName+" spyglass");
-		
 	}
 	
 	
@@ -172,8 +174,11 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	@SuppressWarnings("unchecked")
 	public void selectPickListValue(String pickListValue) throws TimeoutException, NoSuchElementException{
-
-				
+		
+		if(pickListValue.contains("#")){
+			pickListValue = getRuntimeTestdata(pickListValue);
+		}			
+	
 		List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
 		
 		for(WebElement element: elements){			
@@ -293,6 +298,25 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
+	public void clickYesConfirmPromptContains(String msgContains) {		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).contains(msgContains)) {
+			report(driver,test, msgContains + " is displayed", LogStatus.PASS);		
+			Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + msgContains);
+		} else {
+			report(driver,test, msgContains + " is not displayed", LogStatus.FAIL);			
+		}
+	}
+	
+	public void clickNoConfirmPromptContains(String msgContains) {		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).contains(msgContains)) {
+			report(driver,test, msgContains + " is displayed", LogStatus.PASS);		
+			Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + msgContains);
+		} else {
+			report(driver,test, msgContains + " is not displayed", LogStatus.FAIL);			
+		}
+	}
+	
+	
 	public void clickOkPrompt(String msg) {		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
 			report(driver,test, msg + " is displayed", LogStatus.PASS);		
@@ -372,6 +396,28 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	}
 	
+	/**
+	 * Function implements thread.sleep function 
+	 * 
+	 * @param1 long delayTime	
+	 * @return void
+	 * @author Hari
+	 * @since 12/27/2016
+	 * 
+	 */
+
+	public static void waitForSeconds(String delaySeconds) {
+		
+		delaySeconds = delaySeconds +"000L";
+		
+		try {
+			Thread.sleep(Long.parseLong(delaySeconds));
+		} catch (Exception e) {
+
+		}
+
+	}
+	
 	
 	// Routine specific validations
 	
@@ -393,6 +439,17 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void deliveryConfirmation(){
 		FunctionalComponents functionalComponents = new FunctionalComponents(test, driver, dataTable,testParameters);
 		functionalComponents.deliveryConfirmation();
+	}
+	
+	
+	public void createPurchaseOrder(){
+		FunctionalComponents functionalComponents = new FunctionalComponents(test, driver, dataTable,testParameters);
+		functionalComponents.createPurchaseOrder();
+	}
+	
+	public void createMaterialReceiveReceipt(){
+		FunctionalComponents functionalComponents = new FunctionalComponents(test, driver, dataTable,testParameters);
+		functionalComponents.createPurchaseOrder();
 	}
 
 }

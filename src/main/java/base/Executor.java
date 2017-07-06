@@ -172,9 +172,12 @@ public class Executor extends Utility implements Runnable {
 				case "validateLoopField":
 				case "clickYesConfirmPrompt":
 				case "clickNoConfirmPrompt":
+				case "clickYesConfirmPromptContains":
+				case "clickNoConfirmPromptContains":
 				case "selectUserProfile":
 				case "clickOkPrompt":
 				case "clickSpyGlass":
+				case "waitForSeconds":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;	

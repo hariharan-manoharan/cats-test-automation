@@ -222,6 +222,12 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 	}
 	
+	
+	public void enterTransferOrder(){
+		
+		String NoofTransfer = selectQuerySingleValue(TRANSFERCOUNT_PICK, "BAL-MUNDKA-MDEL");
+		
+	}
 	public static long generateRandom(int length) {
 	    Random random = new Random();
 	    char[] digits = new char[length];
@@ -280,19 +286,16 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	}
 	
-	public void clickYesConfirmPrompt(String msg) {		
+	public void clickConfirmPrompt(String msg , String data) {		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(driver,test, msg + " is displayed", LogStatus.PASS);		
+			report(driver,test, msg + " is displayed", LogStatus.PASS);	
+			
+			if(data.equalsIgnoreCase("Yes")){
 			Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + msg);
-		} else {
-			report(driver,test, msg + " is not displayed", LogStatus.FAIL);			
-		}
-	}
-	
-	public void clickNoConfirmPrompt(String msg) {		
-		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
-			report(driver,test, msg + " is displayed", LogStatus.PASS);		
-			Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + msg);
+			}
+			else{
+			Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + msg);	
+			}
 		} else {
 			report(driver,test, msg + " is not displayed", LogStatus.FAIL);			
 		}
@@ -397,6 +400,18 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		return data;
 
+	}
+	
+	public void getPutTestdata(String field , String name){
+		
+
+		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
+		
+		String Fieldvalue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");	
+		
+		
+		addRuntimeTestData(name, Fieldvalue);
+		
 	}
 	
 	

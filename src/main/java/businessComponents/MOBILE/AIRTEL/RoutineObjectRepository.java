@@ -58,6 +58,8 @@ public interface RoutineObjectRepository {
 	String XPATH_TXT_NAME = ".//android.view.View[@name='%s']";
 	String XPATH_TXT_CONTAINS = ".//android.view.View[contains(@content-desc, '%s')]";
 	
+	By ID_PICKLIST_SEARCHFIELD = By.id("input");
+	
 	By XPATH_SPYGLASS = By.name("?");
 	
 	

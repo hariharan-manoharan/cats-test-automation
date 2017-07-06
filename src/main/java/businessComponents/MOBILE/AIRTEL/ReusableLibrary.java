@@ -152,7 +152,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	@SuppressWarnings("unchecked")
 	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException {
-		HardDelay(8000L);
+		waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, "Enter")));	
 		List<WebElement> element = driver.findElementsByAndroidUIAutomator(
 				"new UiSelector().className(\"android.view.View\").index(0).clickable(true)");
 		int size = element.size();
@@ -180,6 +180,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	@SuppressWarnings("unchecked")
 	public void selectPickListValue(String pickListValue) throws TimeoutException, NoSuchElementException{
 		
+		waitCommand(ID_PICKLIST_SEARCHFIELD);
+		
 		if(pickListValue.contains("#")){
 			pickListValue = getRuntimeTestdata(pickListValue);
 		}			
@@ -195,7 +197,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			}
 		
 			
-			takeScreenshot("Pick List Value - "+pickListValue+" is selected");
+			takeScreenshot("Pick List Value - <b>"+pickListValue+"</b> is selected");
 		
 	}
 	
@@ -276,10 +278,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		
 		
-		test.log(LogStatus.PASS, reportName + data,
+		test.log(LogStatus.PASS, reportName + "<b>"+data+"</b>",
 				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenshotName + ".png"));
 		}else{
-			test.log(LogStatus.PASS, reportName + data);	
+			test.log(LogStatus.PASS, reportName + "<b>"+data+"</b>");	
 		}
 
 	}
@@ -438,7 +440,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	public static void waitForSeconds(String delaySeconds) {
 		
-		delaySeconds = delaySeconds +"000L";
+		delaySeconds = delaySeconds +"000";
 		
 		try {
 			Thread.sleep(Long.parseLong(delaySeconds));
@@ -804,10 +806,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			rs = stmt.executeQuery(query3);	
 			while (rs.next()) {
 				TRANSACTIONID = rs.getString("ASSETTRANSACTIONID");	
-				ASSETCODE = rs.getString("ASSETCODE");
-				SERIALNUMBER = rs.getString("SERIALNUMBER");
-				runtimeDataProperties.setProperty("ASSETCODE", ASSETCODE);
-				runtimeDataProperties.setProperty("SERIALNUMBER", SERIALNUMBER);
+				ASSETCODE = rs.getString("ASSETCODE");				
+				addRuntimeTestData("ASSETCODE", ASSETCODE);				
 				RECORD_ID = generateRandomNum(10000000);
 				query = "INSERT INTO "
 						+"CATS.CATSCON_POREC_STG"

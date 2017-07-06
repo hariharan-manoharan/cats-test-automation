@@ -249,15 +249,15 @@ public class Utility {
 
 		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(this.driver);
 		wait.pollingEvery(5, TimeUnit.SECONDS);
-		wait.withTimeout(100, TimeUnit.SECONDS);
+		wait.withTimeout(60, TimeUnit.SECONDS);
 		wait.ignoring(NoSuchElementException.class);
 
 		Function<WebDriver, Boolean> function = new Function<WebDriver, Boolean>() {
 
 			@Override
 			public Boolean apply(WebDriver arg0) {
-				WebElement element = arg0.findElement(by);
-				if (element != null) {
+				boolean displayed = arg0.findElement(by).isEnabled();
+				if (displayed) {
 					return true;
 				}
 				return false;

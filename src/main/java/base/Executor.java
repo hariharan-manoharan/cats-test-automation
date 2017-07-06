@@ -99,7 +99,8 @@ public class Executor extends Utility implements Runnable {
 			}
 		} catch (SessionNotCreatedException e) {
 			test.log(LogStatus.FAIL, "Android Driver and Appium server setup not done Successfully", "");
-			test.log(LogStatus.FAIL, e);			
+			test.log(LogStatus.FAIL, e);	
+			report.flush();	
 			return;
 		} catch (ExecuteException | ClassNotFoundException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -107,18 +108,21 @@ public class Executor extends Utility implements Runnable {
 			if(driver!=null){
 			report(driver, test, "Exception occured", LogStatus.FAIL);
 			}
+			report.flush();	
 			return;
 		} catch (IOException | InterruptedException | TimeoutException | NoSuchElementException e) {
 			test.log(LogStatus.FAIL, e);
 			if(driver!=null){
 				report(driver, test, "Exception occured", LogStatus.FAIL);
 				}
+			report.flush();	
 			return;
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
 			if(driver!=null){
 				report(driver, test, "Exception occured", LogStatus.FAIL);
 				}
+			report.flush();	
 			return;
 		} finally {
 			end();
@@ -291,7 +295,7 @@ public class Executor extends Utility implements Runnable {
 	}
 
 
-	public void end() {
+	public void end() {		
 
 		if (driver != null) {
 			driver.quit();

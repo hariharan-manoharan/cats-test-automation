@@ -43,49 +43,7 @@ public class FunctionalComponents extends Utility {
 		profilesActivity.selectProfile();
 	}
 	
-	//Container Routines
-	
-	public void openContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable, testParameters);
-		Container.openContainer();
-	}
-	
-	public void closeContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable, testParameters);
-		Container.closeContainer();
-	}
-	
-	public void addToContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable, testParameters);
-		Container.addToContainer();
-	}
-	
-	public void removeFromContainer() throws TimeoutException, NoSuchElementException {
-		Container Container = new Container(test, driver, dataTable, testParameters);
-		Container.removeFromContainer();
-	}
-
-	
-	//Receiving Routines
-	
-	public void mrrReceive() throws TimeoutException, NoSuchElementException {
-		Receiving Receiving = new Receiving(test, driver, dataTable,testParameters);
-		Receiving.mrrReceive();
-	}
-	
-	//Receiving Routines
-	
-	public void internalReceipt() throws TimeoutException, NoSuchElementException {
-		Receiving Receiving = new Receiving(test, driver, dataTable,testParameters);
-		Receiving.internalreceipt();
-	}
-	
-	
-	public void mrrSiteReceive() throws TimeoutException, NoSuchElementException {
-		Receiving Receiving = new Receiving(test, driver, dataTable,testParameters);
-		Receiving.mrrSiteReceive();
-	}
-	
+		
 	
 	//SQL FUNCTIONS
 	

@@ -157,7 +157,8 @@ public class Executor extends Utility implements Runnable {
 				
 				switch(currentKeyword){
 				
-				case "enterText":				
+				case "enterText":	
+				case "verifyAutopopulatefieldvalues":
 					method = className.getDeclaredMethod(currentKeyword, String.class, String.class);
 					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), dataMap.get("KEYWORD_"+keywordCounter));	
 					break;
@@ -179,8 +180,8 @@ public class Executor extends Utility implements Runnable {
 				case "waitForSeconds":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
-					break;					
-			
+					break;	
+
 				default:
 					method = className.getDeclaredMethod(currentKeyword);
 					method.invoke(classInstance);

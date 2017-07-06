@@ -1794,8 +1794,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 				TRANSACTIONID = rs.getString("ASSETTRANSACTIONID");	
 				ASSETCODE = rs.getString("ASSETCODE");
 				SERIALNUMBER = rs.getString("SERIALNUMBER");
-				runtimeDataProperties.setProperty("ASSETCODE", ASSETCODE);
-				runtimeDataProperties.setProperty("SERIALNUMBER", SERIALNUMBER);
+				addRuntimeTestData("ASSETCODE", ASSETCODE);
 				RECORD_ID = generateRandomNum(10000000);
 				query = "INSERT INTO "
 						+"CATS.CATSCON_POREC_STG"

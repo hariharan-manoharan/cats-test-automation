@@ -2,6 +2,10 @@ package main.java.businessComponents.MOBILE.AIRTEL;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -420,7 +424,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 	// Routine specific validations
 	
-	public void parentReceivedCount(){
+/*	public void parentReceivedCount(){
 		By PARENT_RECEIVED_COUNT = By.xpath(String.format(XPATH_TXT_CONTAINS, "/"));
 		int receivedCount = 0;
 		int totalCount = 0;	
@@ -433,22 +437,411 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			receivedCount = Integer.parseInt(parentReceiveCount[0]);
 			totalCount = Integer.parseInt(parentReceiveCount[1]);	
 		}
-	}
+	}*/
 	
 	public void deliveryConfirmation(){
-		FunctionalComponents functionalComponents = new FunctionalComponents(test, driver, dataTable,testParameters);
-		functionalComponents.deliveryConfirmation();
+		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_DC");
+		int recordId = deliveryConfirmationQuery(dataMap);
+		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, dataMap.get("VALUE7"),recordId);
 	}
 	
 	
 	public void createPurchaseOrder(){
-		FunctionalComponents functionalComponents = new FunctionalComponents(test, driver, dataTable,testParameters);
-		functionalComponents.createPurchaseOrder();
+		String validatePO = "SELECT * FROM CATSCON_PO_STG WHERE PHA_PO_NUMBER='%s' AND RECORD_ID=%d";
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_PO");		
+		int recordId = createPurchaseOrderQuery(dataMap);
+		validateInboundTransaction("PO", "PROCESS_FLAG", "ERROR_MESSAGE", validatePO, getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER"),recordId);		
 	}
 	
+	
 	public void createMaterialReceiveReceipt(){
-		FunctionalComponents functionalComponents = new FunctionalComponents(test, driver, dataTable,testParameters);
-		functionalComponents.createPurchaseOrder();
+		String validateMRR = "SELECT * FROM CATSCON_MRR_STG WHERE RECEIPT_NUM='%s' AND RECORD_ID=%d";
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_MRR");
+		int recordId = createMaterialReceiveReceiptQuery(dataMap);
+		validateInboundTransaction("MRR", "PROCESS_FLAG", "ERROR_MESSAGE", validateMRR, getRuntimeTestdata(testParameters.getCurrentTestCase()+"#MRRNUMBER"),recordId);
+		poTaxUpdateQuery(dataMap);
 	}
+	
+	
+	public int createPurchaseOrderQuery(LinkedHashMap<String, String> inputValueMap){
+		String query = null;		
+		int RECORD_ID = 0;
+		CallableStatement stproc_stmt;  
+		try {
+			
+			RECORD_ID = generateRandomNum(10000000);
+			
+			String purchaseOrder = generateTestData("PONUMBER", inputValueMap.get("VALUE2"));
+			
+						
+			query="INSERT "
+					+"INTO CATS.CATSCON_PO_STG"
+					  +"("
+					    +"PHA_OPERATING_UNIT_ID,"
+					    +"PHA_PO_NUMBER,"
+					    +"PHA_REVISION_NUM,"
+					    +"PHA_VENDOR_NUMBER,"
+					    +"PHA_VENDOR_NAME,"
+					    +"PHA_VENDOR_SITE_CODE,"
+					    +"PHA_SHIP_TO_LOCATION_ID,"
+					    +"PHA_COMMENTS,"
+					    +"PHA_AUTHORIZATION_STATUS,"
+					    +"PHA_CANCEL_FLAG,"
+					    +"PHA_CLOSED_CODE,"
+					    +"PHA_CURRENCY_CODE,"
+					    +"PHA_CREATION_DATE,"
+					    +"PHA_APPROVED_DATE,"
+					    +"PHA_LAST_UPDATE_DATE,"
+					    +"PHA_CREATED_BY,"
+					    +"PLA_LINE_NUM,"
+					    +"PLA_ITEM_CODE,"
+					    +"PLA_ITEM_DESCRIPTION,"
+					    +"PLA_ITEM_CATEGORY,"
+					    +"PLA_UNIT_MEASURE_CODE,"
+					    +"PLA_UNIT_PRICE,"
+					    +"PLA_WARRANTY_START_DATE,"
+					    +"PLA_WARRANTY_PERIOD,"
+					    +"PLA_CANCEL_FLAG,"
+					    +"PLA_CLOSED_CODE,"
+					    +"PLA_CREATION_DATE,"
+					    +"PLA_LAST_UPDATE_DATE,"
+					    +"PLLA_SHIPMENT_NUM,"
+					    +"PLLA_SHIP_TO_ORGANIZATION_ID,"
+					    +"PLLA_SHIP_TO_LOCATION_ID,"
+					    +"PLLA_QUANTITY_ORDERED,"
+					    +"PLLA_NEED_BY_DATE,"
+					    +"PLLA_QUANTITY_RECEIVED,"
+					    +"PLLA_QUANTITY_CANCELLED,"
+					    +"PLLA_CLOSED_CODE,"
+					    +"PDA_PO_DISTRIBUTION_ID,"
+					    +"PDA_DISTRIBUTION_NUM,"
+					    +"PDA_DESTINATION_TYPE_CODE,"
+					    +"PDA_CHARGE_ACCOUNT,"
+					    +"PDA_EX_RATE_DATE,"
+					    +"RECORD_ID,"
+					    +"CREATION_DATE,"
+					    +"PROCESS_FLAG"
+					  +")"
+					  +"VALUES"
+					  +"("
+					    +"'"+inputValueMap.get("VALUE1")+"',"
+					    +"'"+purchaseOrder+"',"
+					    +"'"+inputValueMap.get("VALUE3")+"',"
+					    +"'"+inputValueMap.get("VALUE4")+"',"
+					    +"'"+inputValueMap.get("VALUE5")+"',"
+					    +"'"+inputValueMap.get("VALUE6")+"',"
+					    +"'"+inputValueMap.get("VALUE7")+"',"
+					    +"'"+inputValueMap.get("VALUE8")+"',"
+					    +"'"+inputValueMap.get("VALUE9")+"',"
+					    +"'"+inputValueMap.get("VALUE10")+"',"
+					    +"'"+inputValueMap.get("VALUE11")+"',"
+					    +"'"+inputValueMap.get("VALUE12")+"',"
+					    +inputValueMap.get("VALUE13")+","
+					    +inputValueMap.get("VALUE14")+","
+					    +inputValueMap.get("VALUE15")+","
+					    +"'"+inputValueMap.get("VALUE16")+"',"
+					    +"'"+inputValueMap.get("VALUE17")+"',"
+					    +"'"+inputValueMap.get("VALUE18")+"',"
+					    +"'"+inputValueMap.get("VALUE19")+"',"
+					    +"'"+inputValueMap.get("VALUE20")+"',"
+					    +"'"+inputValueMap.get("VALUE21")+"',"
+					    +"'"+inputValueMap.get("VALUE22")+"',"
+					    +"'"+inputValueMap.get("VALUE23")+"',"
+					    +"'"+inputValueMap.get("VALUE24")+"',"
+					    +"'"+inputValueMap.get("VALUE25")+"',"
+					    +"'"+inputValueMap.get("VALUE26")+"',"
+					    +inputValueMap.get("VALUE27")+","
+					    +inputValueMap.get("VALUE28")+","
+					    +"'"+inputValueMap.get("VALUE29")+"',"
+					    +"'"+inputValueMap.get("VALUE30")+"',"
+					    +"'"+inputValueMap.get("VALUE31")+"',"
+					    +"'"+inputValueMap.get("VALUE32")+"',"
+					    +inputValueMap.get("VALUE33")+","
+					    +"'"+inputValueMap.get("VALUE34")+"',"
+					    +"'"+inputValueMap.get("VALUE35")+"',"
+					    +"'"+inputValueMap.get("VALUE36")+"',"
+					    +"'"+inputValueMap.get("VALUE37")+"',"
+					    +"'"+inputValueMap.get("VALUE38")+"',"
+					    +"'"+inputValueMap.get("VALUE39")+"',"
+					    +"'"+inputValueMap.get("VALUE40")+"',"
+					    +inputValueMap.get("VALUE41")+","
+					    +RECORD_ID+","
+					    +inputValueMap.get("VALUE43")+","
+					    +"'"+inputValueMap.get("VALUE44")+"')";
+					 
+			//System.out.println(query);
+			executeUpdateQuery(query, "PO - <b>"+inputValueMap.get("VALUE2")+"</b> for Item <b>"+inputValueMap.get("VALUE18")+"</b> is inserted in to CATSCON_PO_STG table");
+			connection.commit();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_PO}");	
+			stproc_stmt.executeUpdate();		
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_POINTERFACE.SP_INITPOINTERFACE(?)}");
+			stproc_stmt.setString(1, "");
+			stproc_stmt.executeUpdate();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_PO_ERPACK}");	
+			stproc_stmt.executeUpdate();
+			
+			stproc_stmt.close();
+			
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		}
+		return RECORD_ID;
+	}
+	
+	public int createMaterialReceiveReceiptQuery(LinkedHashMap<String, String> inputValueMap){
+		String query = null;
+		int RECORD_ID = 0;
+		CallableStatement stproc_stmt; 
+		try {
+			
+			RECORD_ID = generateRandomNum(10000000);
+			
+			String mrrNumber = generateTestData("MRRNUMBER", inputValueMap.get("VALUE9"));
+			
+			query = "INSERT "
+						+"INTO CATSCON_MRR_STG"
+						  +"("
+						    +"OPERATING_UNIT,"
+						    +"TO_ORGANIZATION_ID,"
+						    +"VENDOR_NUMBER,"
+						    +"VENDOR_NAME,"
+						    +"VENDOR_SITE_CODE,"
+						    +"PO_NUMBER,"
+						    +"PO_LINE_NUM ,"
+						    +"PO_SHIPMENT_NUM,"
+						    +"RECEIPT_NUM,"
+						    +"SHIPMENT_NUM,"
+						    +"SHIPPED_DATE,"
+						    +"TRANSACTION_DATE,"
+						    +"TRANSACTION_ID,"
+						    +"SHIPMENT_HEADER_ID,"
+						    +"SHIPMENT_LINE_ID,"
+						    +"ITEM_CODE ,"
+						    +"QUANTITY,"
+						    +"LOCATION_ID,"
+						    +"PO_UNIT_PRICE,"
+						    +"H_ATTRIBUTE10,"
+						    +"H_ATTRIBUTE11,"
+						    +"H_ATTRIBUTE14,"
+						    +"H_ATTRIBUTE6,"
+						    +"H_ATTRIBUTE7,"
+						    +"H_ATTRIBUTE8,"
+						    +"H_ATTRIBUTE9 ,"
+						    +"L_ATTRIBUTE10,"
+						    +"L_ATTRIBUTE12,"
+						    +"L_ATTRIBUTE13,"
+						    +"DESTINATION_TYPE_CODE,"
+						    +"MRR_CREATED_BY,"
+						    +"INTERFACE_NAME,"
+						    +"RECORD_ID,"
+						    +"PROCESS_FLAG,"
+						    +"CREATION_DATE,"
+						    +"CREATED_BY"
+						  +")"
+						  +"VALUES"
+						  +"("
+						  	+ Integer.parseInt(inputValueMap.get("VALUE1"))+","
+						  	+ Integer.parseInt(inputValueMap.get("VALUE2"))+","
+						    +"'"+inputValueMap.get("VALUE3")+"',"
+						    +"'"+inputValueMap.get("VALUE4")+"',"
+						    +"'"+inputValueMap.get("VALUE5")+"',"
+						    +"'"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER")+"',"
+						    + Integer.parseInt(inputValueMap.get("VALUE7"))+","
+						    + Integer.parseInt(inputValueMap.get("VALUE8"))+","
+						    +"'"+mrrNumber+"',"
+						    +"'"+inputValueMap.get("VALUE10")+"',"
+						    +inputValueMap.get("VALUE11")+","
+						    +inputValueMap.get("VALUE12")+","
+						    +generateRandomNum(10000000)+","
+						    +generateRandomNum(10000000)+","
+						    + Integer.parseInt(inputValueMap.get("VALUE15"))+","
+						    +"'"+inputValueMap.get("VALUE16")+"',"
+						    + Integer.parseInt(inputValueMap.get("VALUE17"))+","
+						    + Integer.parseInt(inputValueMap.get("VALUE18"))+","
+						    + Integer.parseInt(inputValueMap.get("VALUE19"))+","
+						    +"'"+inputValueMap.get("VALUE20")+"',"
+						    +"'"+inputValueMap.get("VALUE21")+"',"
+						    +"'"+inputValueMap.get("VALUE22")+"',"
+						    +"'"+inputValueMap.get("VALUE23")+"',"
+						    +inputValueMap.get("VALUE24")+","
+						    +inputValueMap.get("VALUE25")+","
+						    +inputValueMap.get("VALUE26")+","
+						    +"'"+inputValueMap.get("VALUE27")+"',"
+						    +"'"+inputValueMap.get("VALUE28")+"',"
+						    +"'"+inputValueMap.get("VALUE29")+"',"
+						    +"'"+inputValueMap.get("VALUE30")+"',"
+						    +inputValueMap.get("VALUE31")+","
+						    +"'"+inputValueMap.get("VALUE32")+"',"
+						    +RECORD_ID+","
+						    +"'"+inputValueMap.get("VALUE34")+"',"
+						    +inputValueMap.get("VALUE35")+","
+						    + Integer.parseInt(inputValueMap.get("VALUE36"))+")";
+			
+			//System.out.println(query);
+			
+			executeUpdateQuery(query, "MRR - <b>"+inputValueMap.get("VALUE9")+"</b> is created for PO - <b>"+inputValueMap.get("VALUE6")+"</b>");
+			connection.commit();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_MRR}");	
+			stproc_stmt.executeUpdate();		
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_MRRINTERFACE.SP_INITMRRINTERFACE(?)}");
+			stproc_stmt.setString(1, "");
+			stproc_stmt.executeUpdate();
+			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_MRR_ERPACK}");	
+			stproc_stmt.executeUpdate();
+			
+			stproc_stmt.close();		
+			
+			
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		}
+		return RECORD_ID;
+	}
+	
 
+	
+	@SuppressWarnings("resource")
+	 public int deliveryConfirmationQuery(LinkedHashMap<String, String> inputValueMap) {
+
+		String query = null;
+		String SERIALIZED;
+		String TRANSACTIONID;
+		String ASSETCODE;
+		String SERIALNUMBER;
+		int RECORD_ID = 0;
+		ResultSet rs;
+		Statement stmt;
+		CallableStatement stproc_stmt;
+
+		
+		try {
+			String	query1 =  "SELECT * FROM CATS_PART WHERE PARTCODE =" +"'"+inputValueMap.get("VALUE7")+"'";
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(query1);
+			while (rs.next()) {
+			SERIALIZED = rs.getString("SERIALIZED");
+			
+		if (SERIALIZED.equalsIgnoreCase("N")){
+			
+			String query2 = "SELECT MAX(PARTTRANSACTIONID) AS PARTTRANSACTIONID FROM CATS_PARTTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
+			                +"AND PARTCODE= "+"'"+inputValueMap.get("VALUE7")+"'";
+			stmt = connection.createStatement();
+			
+			rs = stmt.executeQuery(query2);	
+			while (rs.next()) {
+				TRANSACTIONID = rs.getString("PARTTRANSACTIONID");	
+				RECORD_ID = generateRandomNum(10000000);
+				query = "INSERT INTO "
+						+"CATS.CATSCON_POREC_STG"
+						+"("
+						+"CATS_RCPT_LINE_DLVR_TRX_ID,"
+						+"PO_RCPT_LINE_DLVR_ID,"
+						+"LOT_NUMBER,"
+						+"RECORD_ID,"
+						+"CREATION_DATE,"
+						+"PROCESS_FLAG,"
+						+"ITEM_CODE,"
+						+"CREATED_BY"
+						+")"
+						+
+						"VALUES"
+						+ "("
+						+"'"+TRANSACTIONID+"',"
+						+"'"+inputValueMap.get("VALUE2")+"',"
+						+"'"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#MRRNUMBER")+"',"
+						+"'"+RECORD_ID+"',"
+						+inputValueMap.get("VALUE5")+","
+						+"'"+inputValueMap.get("VALUE6")+"',"
+						+"'"+inputValueMap.get("VALUE7")+"',"
+						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
+						+")";
+				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+inputValueMap.get("VALUE7")+"</b>");
+				connection.commit();
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
+				stproc_stmt.executeUpdate();		
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_POCONFINTERFACE.SP_INITPOCONFINTERFACE(?)}");
+				stproc_stmt.setString(1, "");
+				stproc_stmt.executeUpdate();
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_POREC_ERPACK}");	
+				stproc_stmt.executeUpdate();
+				
+				stproc_stmt.close();		
+				
+			}
+			
+		}else{
+			String query3 = "SELECT * FROM CATS_ASSETTRANSACTION WHERE ASSETTRANSACTIONID IN (select MAX(ASSETTRANSACTIONID) AS ASSETTRANSACTIONID  FROM CATS_ASSETTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
+					+"AND PARTCODE= "+"'"+inputValueMap.get("VALUE7")+"')";
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(query3);	
+			while (rs.next()) {
+				TRANSACTIONID = rs.getString("ASSETTRANSACTIONID");	
+				ASSETCODE = rs.getString("ASSETCODE");
+				SERIALNUMBER = rs.getString("SERIALNUMBER");
+				runtimeDataProperties.setProperty("ASSETCODE", ASSETCODE);
+				runtimeDataProperties.setProperty("SERIALNUMBER", SERIALNUMBER);
+				RECORD_ID = generateRandomNum(10000000);
+				query = "INSERT INTO "
+						+"CATS.CATSCON_POREC_STG"
+						+"("
+						+"CATS_RCPT_LINE_DLVR_TRX_ID,"
+						+"PO_RCPT_LINE_DLVR_ID,"
+						+"LOT_NUMBER,"
+						+"RECORD_ID,"
+						+"CREATION_DATE,"
+						+"PROCESS_FLAG,"
+						+"ITEM_CODE,"
+						+"CREATED_BY"
+						+")"
+						+
+						"VALUES"
+						+ "("
+						+"'"+TRANSACTIONID+"',"
+						+"'"+inputValueMap.get("VALUE2")+"',"
+						+"'"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#MRRNUMBER")+"',"
+						+"'"+RECORD_ID+"',"
+						+inputValueMap.get("VALUE5")+","
+						+"'"+inputValueMap.get("VALUE6")+"',"
+						+"'"+inputValueMap.get("VALUE7")+"',"
+						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
+						+")";
+				connection.commit();
+				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+inputValueMap.get("VALUE7")+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
+				stproc_stmt.executeUpdate();		
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_POCONFINTERFACE.SP_INITPOCONFINTERFACE(?)}");
+				stproc_stmt.setString(1, "");
+				stproc_stmt.executeUpdate();
+				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_POREC_ERPACK}");	
+				stproc_stmt.executeUpdate();
+				
+				stproc_stmt.close();		
+			}
+
+		}
+				
+		}
+		}catch (SQLException e) {	
+			test.log(LogStatus.FAIL, "Delivery Confirmation   - "+inputValueMap.get("VALUE7")+" is not done successfully");
+			e.printStackTrace();			
+		}
+		return RECORD_ID;
+	}
+	
+	
+	public void poTaxUpdateQuery(LinkedHashMap<String, String> inputValueMap){
+		String query = null;		
+		try {			
+			query = "UPDATE CATSCUST_MRR "
+					+"SET TAX_UPDATE = 'Y'"
+					+"WHERE MRRID IN (SELECT MRRID FROM CATSCUST_MRR WHERE POCODE='"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER")+"')";
+			executeUpdateQuery(query, "Tax Update for PO - <b>"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER")+"</b>");
+			connection.commit();			
+			
+		} catch (SQLException e) {	
+			test.log(LogStatus.FAIL, "Tax Update for PO - <b>"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER")+"</b>");
+			e.printStackTrace();			
+		}
+	}
 }

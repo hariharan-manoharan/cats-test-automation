@@ -26,6 +26,7 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
+import main.java.utils.GlobalRuntimeDataProperties;
 import main.java.utils.Utility;
 
 public class ReusableLibrary extends Utility implements RoutineObjectRepository {
@@ -317,7 +318,21 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void clickOkPrompt(String msg) {		
+	public void clickOkPrompt(String msg) {
+
+		if (msg.contains("@")){
+			String[] key =msg.split("@");
+			String errormessage1 =  key [0];
+			String errormessage2 =  key[1];
+			String errormessage3 =  key[2];
+
+			String data = runtimeDataProperties.getProperty(errormessage2);
+
+			String errormessage = errormessage1 +data+errormessage3;
+			msg=errormessage;
+
+		}
+
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
 			report(driver,test, msg + " is displayed", LogStatus.PASS);		
 			Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt - " + msg);
@@ -326,6 +341,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}
 	}
 	
+	
+
 	public void clearField(){
 		this.driver.pressKeyCode(112);
 	}
@@ -387,7 +404,16 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
 		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
-	if (!fieldValue.equals("")){
+	
+		if(value.contains("#")){
+			
+			String value1= runtimeDataProperties.getProperty(value);
+			
+			value=value1;
+			
+		}
+	
+		if (!fieldValue.equals("")){
 		if (value.equalsIgnoreCase(fieldValue)) {
 			test.log(LogStatus.PASS, "<b>" + field + "</b> matches the given Testdata <b>" + value + "</b>", "");
 		} else {

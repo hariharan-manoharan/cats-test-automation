@@ -164,7 +164,8 @@ public class Executor extends Utility implements Runnable {
 				case "enterText":	
 				case "verifyAutopopulatefieldvalues":
 				case "clickConfirmPrompt":
-				case "getPutTestdata":	
+				case "getPutTestdata":
+				case "enterTransferOrder":
 					method = className.getDeclaredMethod(currentKeyword, String.class, String.class);
 					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), dataMap.get("KEYWORD_"+keywordCounter));	
 					break;
@@ -182,6 +183,7 @@ public class Executor extends Utility implements Runnable {
 				case "clickOkPrompt":
 				case "clickSpyGlass":
 				case "waitForSeconds":
+				case "deliveryinfocomplete":	
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;	

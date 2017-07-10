@@ -28,7 +28,8 @@ public class AppiumServerHandler extends Utility implements AppiumServer {
 				.withIPAddress(properties.getProperty("IPAddress"))
 				.usingPort(port)
 				.withLogFile(new File("./AppiumServer.log"))
-				.withArgument(AndroidServerFlag.BOOTSTRAP_PORT_NUMBER,bootstrapPort));
+				.withArgument(AndroidServerFlag.BOOTSTRAP_PORT_NUMBER,bootstrapPort)
+				.withArgument(GeneralServerFlag.LOG_LEVEL, properties.getProperty("appiumServer.logLevel")));
 
 		service.start();
 		HardDelay(5000L);

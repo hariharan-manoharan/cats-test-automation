@@ -166,6 +166,7 @@ public class Executor extends Utility implements Runnable {
 				case "clickConfirmPrompt":
 				case "getPutTestdata":
 				case "enterTransferOrder":
+				case "enterShipmentNumber":
 					method = className.getDeclaredMethod(currentKeyword, String.class, String.class);
 					method.invoke(classInstance, fieldMap.get("KEYWORD_"+keywordCounter), dataMap.get("KEYWORD_"+keywordCounter));	
 					break;

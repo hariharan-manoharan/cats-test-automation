@@ -207,6 +207,7 @@ public class Executor extends Utility implements Runnable {
 				case "clickSpyGlass":
 				case "waitForSeconds":
 				case "clickNextMultiple":
+				case "deliveryinfocomplete":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;	

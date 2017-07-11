@@ -132,11 +132,13 @@ public class Main{
 
 		ExecutorService parallelExecutor = Executors.newFixedThreadPool(nThreads);
 		Runnable testRunner = null;
+		int totalTestInstanceToRun = testInstancesToRun.size();
 		for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
+			totalTestInstanceToRun--;
 			if(properties.getProperty("testRail.enabled").equalsIgnoreCase("True")){
-			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable, testRailListenter);
+			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable, testRailListenter, totalTestInstanceToRun);
 			}else{
-			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable);	
+			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable, totalTestInstanceToRun);	
 			}
 			
 			parallelExecutor.execute(testRunner);
@@ -207,6 +209,7 @@ public class Main{
 		
 		utility = new Utility();
 		utility.setProperties(properties);
+		utility.setNewServerSetupForEachTestcase();
 
 	}
 	

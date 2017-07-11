@@ -118,6 +118,16 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		    waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
 			this.driver.findElement(By.id("next")).click();				
 		}
+	
+	
+	public void clickNextMultiple(String times) throws TimeoutException, NoSuchElementException{
+		
+		for(int i=1;i<=Integer.parseInt(times);i++){ 	
+	    waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
+		this.driver.findElement(By.id("next")).click();	
+		HardDelay(3000L);
+		}
+	}
 		
 	
 	
@@ -138,6 +148,15 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			takeScreenshot("Click Previous Button");
 		
 	}
+	
+	
+	public void clickRoutineBackButton() throws TimeoutException, NoSuchElementException{
+		
+		waitCommand(CONTENT_DESC_ROUITNE_BACK_BTN);
+		this.driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
+		takeScreenshot("Click Routine back Button");
+	
+}
 
 	
 	/**
@@ -152,7 +171,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	@SuppressWarnings("unchecked")
 	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException {
-		waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, "Enter")));	
+		
 		List<WebElement> element = driver.findElementsByAndroidUIAutomator(
 				"new UiSelector().className(\"android.view.View\").index(0).clickable(true)");
 		int size = element.size();
@@ -161,8 +180,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		} else {
 			element.get(0).click();
 		}
-
-		HardDelay(5000L);
+		HardDelay(1000L);	
 		takeScreenshot("Clicked - " + pickListName + " spyglass");
 
 	}
@@ -187,17 +205,20 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}			
 	
 		List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
-		
+		int size = elements.size();
 		for(WebElement element: elements){			
-			
+			size--;
 			if(element.getText().equalsIgnoreCase(pickListValue)){
 				element.click();	
+				takeScreenshot("Pick List Value - <b>"+pickListValue+"</b> is selected");
 				break;
+			}else if(size==0){
+				takeScreenshot("Pick List Value - <b>"+pickListValue+"</b> is not selected");
 			}
 			}
 		
 			
-			takeScreenshot("Pick List Value - <b>"+pickListValue+"</b> is selected");
+			
 		
 	}
 	
@@ -292,7 +313,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	}
 	
-	public void clickConfirmPrompt(String msg , String data) {		
+	public void clickConfirmPrompt(String msg , String data) throws TimeoutException, NoSuchElementException{		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(msg)) {
 			report(driver,test, msg + " is displayed", LogStatus.PASS);	
 			
@@ -308,7 +329,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void clickYesConfirmPromptContains(String msgContains) {		
+	public void clickYesConfirmPromptContains(String msgContains) throws TimeoutException, NoSuchElementException{		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).contains(msgContains)) {
 			report(driver,test, msgContains + " is displayed", LogStatus.PASS);		
 			Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + msgContains);
@@ -317,7 +338,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}
 	}
 	
-	public void clickNoConfirmPromptContains(String msgContains) {		
+	public void clickNoConfirmPromptContains(String msgContains) throws TimeoutException, NoSuchElementException{		
 		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).contains(msgContains)) {
 			report(driver,test, msgContains + " is displayed", LogStatus.PASS);		
 			Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + msgContains);
@@ -327,7 +348,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void clickOkPrompt(String msg) {
+	public void clickOkPrompt(String msg) throws TimeoutException, NoSuchElementException{
 
 		if (msg.contains("@")){
 			String[] key =msg.split("@");

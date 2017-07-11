@@ -42,15 +42,16 @@ import com.relevantcodes.extentreports.LogStatus;
 import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidKeyCode;
+import main.java.businessComponents.MOBILE.AIRTEL.RoutineObjectRepository;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
 
-public class Utility {
+public class Utility implements RoutineObjectRepository{
 
 	@SuppressWarnings("rawtypes")
-	protected AndroidDriver driver;
-	protected ExtentTest test;
+	protected static AndroidDriver driver;
+	protected static ExtentTest test;
 	protected DataTable dataTable;
 	protected TestParameters testParameters;
 	public static Properties properties;
@@ -59,13 +60,15 @@ public class Utility {
 	public static LinkedHashMap<String, String> environmentVariables;
 	private static HashMap<String, String> globalRuntimeRecevingDatamap = new HashMap<String, String>();
 	private static HashMap<String, String> globalRuntimeContainerDatamap = new HashMap<String, String>();
+	public static String newServerSetupForEachTestcase;
 	int verifyCounter = 0;
+	
 	
 
 	@SuppressWarnings("rawtypes")
 	public Utility(ExtentTest test, AndroidDriver driver, DataTable dataTable,TestParameters testParameters) {
-		this.test = test;
-		this.driver = driver;
+		Utility.test = test;
+		Utility.driver = driver;
 		this.dataTable = dataTable;
 		this.testParameters = testParameters;
 	}
@@ -83,6 +86,18 @@ public class Utility {
 	@SuppressWarnings("static-access")
 	public void setRuntimeDataProperties(Properties runtimeDataProperties) {
 		this.runtimeDataProperties = runtimeDataProperties;
+	}
+	
+	
+	@SuppressWarnings("static-access")
+	public void setNewServerSetupForEachTestcase() {
+		this.newServerSetupForEachTestcase = properties.getProperty("new.server.setup.for.each.testcase");
+	}
+	
+	
+	@SuppressWarnings("static-access")
+	public String getNewServerSetupForEachTestcase() {
+		return this.newServerSetupForEachTestcase ;
 	}
 	
 	
@@ -170,7 +185,7 @@ public class Utility {
 
 		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
-		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
+		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 		try {
 			FileUtils.copyFile(scrFile,
 					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
@@ -247,7 +262,7 @@ public class Utility {
 	
 	public void waitCommand(final By by) throws TimeoutException, NoSuchElementException {
 
-		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(this.driver);
+		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(driver);
 		wait.pollingEvery(5, TimeUnit.SECONDS);
 		wait.withTimeout(60, TimeUnit.SECONDS);
 		wait.ignoring(NoSuchElementException.class);
@@ -281,7 +296,7 @@ public class Utility {
 		
 		try{
 		waitCommand(by);
-		this.driver.findElement(by).isDisplayed();		
+		driver.findElement(by).isDisplayed();		
 		test.log(LogStatus.PASS, "Element - " + objectName + " is present", "");
 		return true;				
 		
@@ -311,10 +326,10 @@ public class Utility {
 		
 		try{
 		
-		flag = this.driver.findElement(By.xpath(labelXpath)).isDisplayed();
+		flag = driver.findElement(By.xpath(labelXpath)).isDisplayed();
 		
 		if(flag){
-			value = this.driver.findElement(By.xpath(labelXpath+"/following-sibling::android.view.View")).getAttribute("name");	
+			value = driver.findElement(By.xpath(labelXpath+"/following-sibling::android.view.View")).getAttribute("name");	
 		}
 		
 		test.log(LogStatus.PASS, "<b>" + objectName + "</b> - <b>"+value+"</b>", "");
@@ -347,7 +362,7 @@ public class Utility {
 		try{
 		
 		HardDelay(2000L);
-		present = this.driver.findElement(by).isDisplayed();
+		present = driver.findElement(by).isDisplayed();
 		
 		if(present){
 			test.log(LogStatus.PASS, "Field - " + fieldName + " is present", "");
@@ -437,8 +452,8 @@ public class Utility {
 	public void EnterText(By by, String reportName, String text)  throws TimeoutException, NoSuchElementException {
 
 			waitCommand(by);
-			WebElement element = this.driver.findElement(by);
-			this.driver.pressKeyCode(112); // DELETE Key event - // https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
+			WebElement element = driver.findElement(by);
+			driver.pressKeyCode(112); // DELETE Key event - // https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 			element.sendKeys(text);
 			takeScreenshot(reportName);
 		
@@ -459,7 +474,7 @@ public class Utility {
 	public void Click(By by, String reportName) throws TimeoutException, NoSuchElementException{
 		
 			waitCommand(by);
-			this.driver.findElement(by).click();
+			driver.findElement(by).click();
 			HardDelay(5000L);
 			takeScreenshot(reportName);
 		
@@ -482,7 +497,7 @@ public class Utility {
 			//int fieldIndex = Integer.parseInt(driver.findElement(By.xpath(".//android.view.View[@content-desc='"+pickListName+"']")).getAttribute("index"));				
 			fieldIndex = fieldIndex+2;			
 					
-			this.driver.findElement(By.xpath(".//android.view.View[@index='"+String.valueOf(fieldIndex)+"']/android.view.View[@index='0']/android.view.View[@index='0']")).click();
+			driver.findElement(By.xpath(".//android.view.View[@index='"+String.valueOf(fieldIndex)+"']/android.view.View[@index='0']/android.view.View[@index='0']")).click();
 			HardDelay(5000L);
 			takeScreenshot("Clicked - "+pickListName +" Spy glass");
 		} catch (Exception ex) {
@@ -523,12 +538,12 @@ public class Utility {
 	 * 
 	 */
 
-	public String GetText(By by, String fieldName) throws WebDriverException {
+	public String GetText(By by, String fieldName) throws WebDriverException, TimeoutException, NoSuchElementException{
 		String text = null;
 
 		try {
 			waitCommand(by);
-			WebElement element = this.driver.findElement(by);
+			WebElement element = driver.findElement(by);
 			text = element.getText();
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
@@ -557,7 +572,7 @@ public class Utility {
 
 		try {
 			waitCommand(by);
-			WebElement element = this.driver.findElement(by);
+			WebElement element = driver.findElement(by);
 			text = element.getAttribute(attribute);
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
@@ -665,7 +680,7 @@ public class Utility {
 	 */
 
 	public void focusEnterText(WebElement element, String textToEnter) {
-		Actions actions = new Actions(this.driver);
+		Actions actions = new Actions(driver);
 		actions.moveToElement(element);
 		actions.click();
 		actions.sendKeys(Keys.chord(Keys.CONTROL, "a"));
@@ -688,7 +703,7 @@ public class Utility {
 		List<WebElement> webElements = null;
 		try {
 			waitCommand(by);
-			webElements = this.driver.findElements(by);
+			webElements = driver.findElements(by);
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
 		}
@@ -696,7 +711,7 @@ public class Utility {
 	}
 
 	public void HideKeyboard() {
-		this.driver.hideKeyboard();
+		driver.hideKeyboard();
 
 	}
 	
@@ -714,7 +729,7 @@ public class Utility {
 	public void ClickNext() {
 		try {
 			waitCommand(By.id("next"));
-			this.driver.findElement(By.id("next")).click();
+			driver.findElement(By.id("next")).click();
 			HardDelay(2000L);
 			takeScreenshot("Click Next Button");
 		} catch (Exception ex) {
@@ -735,7 +750,7 @@ public class Utility {
 	public void ClickPrevious() {
 		try {
 			waitCommand(By.id("previous"));
-			this.driver.findElement(By.id("previous")).click();
+			driver.findElement(By.id("previous")).click();
 			takeScreenshot("Click Previous Button");
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
@@ -756,7 +771,7 @@ public class Utility {
 	
 	public boolean CompareText(String expected, By by) {
 
-		String actual = this.driver.findElement(by).getText().trim();
+		String actual = driver.findElement(by).getText().trim();
 
 		if (expected.equals(actual)) {
 			test.log(LogStatus.PASS, "Compare Text() - Expected - " + expected + ", Actual - " + actual);
@@ -783,7 +798,7 @@ public class Utility {
 	public void EnterTextCmd(By by, String reportName, String text) {
 		try {
 			waitCommand(by);
-			WebElement element = this.driver.findElement(by);
+			WebElement element = driver.findElement(by);
 			element.click();
 			element.clear();
 			Runtime.getRuntime().exec("adb -s emulator-5554 shell input text " + text);
@@ -943,7 +958,7 @@ public class Utility {
 		
 		try {
 			
-			List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout");
+			List<WebElement> elements = driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout");
 			
 			for(WebElement element: elements){
 				List<WebElement> eles = element.findElements(By.className("android.widget.TextView"));
@@ -976,7 +991,7 @@ public class Utility {
 		
 		try {
 			
-			List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout");
+			List<WebElement> elements = driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout");
 			
 			for(WebElement element: elements){
 				List<WebElement> eles = element.findElements(By.className("android.widget.TextView"));
@@ -1149,16 +1164,16 @@ public boolean checkRecordAvailable(String query) {
 	 * Function :ScrolltoText() Decsription:Function to Scroll to give text.
 	 * Date :14-12-2016 Author :Saran
 	 *************************************************************************************************/
-	public void ScrolltoText(String Text) {
+	/*public void ScrolltoText(String Text) {
 		try {
-			this.driver.scrollToExact(Text);
+			driver.scrollToExact(Text);
 			takeScreenshot("Scrolled to : " + Text);
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
 		}
 
 	}
-
+*/
 	/************************************************************************************************
 	 * Function :Getconnections() Decsription:Function to connect Database Date
 	 * :14-12-2016 Author :Saran
@@ -2116,7 +2131,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	public void selectPickListValue(String pickListValue) throws TimeoutException, NoSuchElementException{
 
 				
-		List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
+		List<WebElement> elements = driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
 		
 		for(WebElement element: elements){			
 			
@@ -2129,6 +2144,16 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			
 			takeScreenshot("Pick List Value - "+pickListValue+" is selected");
 		
+	}
+	
+	
+	
+	public void clickRoutineBackButton() throws TimeoutException, NoSuchElementException {
+
+		waitCommand(CONTENT_DESC_ROUITNE_BACK_BTN);
+		driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
+		takeScreenshot("Click Routine back Button");
+
 	}
 	
 }

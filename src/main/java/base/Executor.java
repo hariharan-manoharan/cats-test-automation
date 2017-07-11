@@ -32,40 +32,48 @@ import main.java.utils.Utility;
 
 public class Executor extends Utility implements Runnable {
 
-	private ExtentReports report; 
-	private ExtentTest test;
+	private static ExtentReports report; 
+	private static ExtentTest test;
 	private TestParameters testParameters;
 	private ExecutionMode execMode;
 	private DataTable dataTable;
-	private AppiumServerHandler appiumServerHandler;
+	private static AppiumServerHandler appiumServerHandler;
 	private AppiumServerHandlerCmd appiumServerHandlerCmd;
+	private int totalTestInstanceToRun ;
 	@SuppressWarnings("rawtypes")
-	private AndroidDriver driver;
+	private static AndroidDriver driver;
 	private TestRailListener testRailListenter;
 	String testRailEnabled = properties.getProperty("testRail.enabled");
 	int projectId = Integer.parseInt(properties.getProperty("testRail.projectId"));
 	
+	private static int testCaseExecuted = 0;
+	public static int driverInstanceCount = 0;
+	public static int appiumServerInstanceCount = 0;
+	private int totalKeywords = 0;
+	private int keywordCounter = 0;
 	
-
-
 	
+		
 	LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
 	LinkedHashMap<String, String> dataMap = new LinkedHashMap<String, String>();
+	
 
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, TestRailListener testRailListenter) {
+	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, TestRailListener testRailListenter, int totalTestInstanceToRun) {
 		this.testParameters = testParameters;
-		this.report = report;
+		Executor.report = report;
 		this.execMode = execMode;
 		this.dataTable = dataTable;
 		this.testRailListenter = testRailListenter;
+		this.totalTestInstanceToRun = totalTestInstanceToRun;
 
 	}
 	
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable) {
+	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, int totalTestInstanceToRun) {
 		this.testParameters = testParameters;
-		this.report = report;
+		Executor.report = report;
 		this.execMode = execMode;
 		this.dataTable = dataTable;
+		this.totalTestInstanceToRun = totalTestInstanceToRun;
 
 	}
 
@@ -75,7 +83,7 @@ public class Executor extends Utility implements Runnable {
 			if (testParameters.getExecuteCurrentTestCase().equalsIgnoreCase("Yes")) {
 				test = report.startTest(testParameters.getCurrentTestCase() + " : " + testParameters.getDescription());
 				dataTable.setCurrentRow(testParameters.getCurrentTestCase());
-				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");
+				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");				
 
 				if (testParameters.getConnectDB().equalsIgnoreCase("Yes")) {
 					Getconnections();
@@ -107,56 +115,72 @@ public class Executor extends Utility implements Runnable {
 			test.log(LogStatus.FAIL, e);	
 			if(driver!=null){
 			report(driver, test, "Exception occured", LogStatus.FAIL);
+			exceptionHandler();
 			}
-			report.flush();	
+			report.flush();				
 			return;
 		} catch (IOException | InterruptedException | TimeoutException | NoSuchElementException e) {
 			test.log(LogStatus.FAIL, e);
 			if(driver!=null){
 				report(driver, test, "Exception occured", LogStatus.FAIL);
+				exceptionHandler();
 				}
-			report.flush();	
+			report.flush();				
 			return;
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
 			if(driver!=null){
 				report(driver, test, "Exception occured", LogStatus.FAIL);
+				exceptionHandler();
 				}
-			report.flush();	
+			report.flush();				
 			return;
-		} finally {
+		} finally {			
 			end();
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	public void executeKeywords(LinkedHashMap<String, String> keywords)
 			throws ExecuteException, IOException, InterruptedException, ClassNotFoundException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
 			SecurityException, SessionNotCreatedException, TimeoutException, NoSuchElementException {
 		
-		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA")){
+		
+		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
+		testCaseExecuted++;
+		if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && driverInstanceCount==0){
+		driverInstanceCount++;		
 		driverSetUp();
+		}else if(newServerSetupForEachTestcase.equalsIgnoreCase("True") && driverInstanceCount==0) {		
+		driverSetUp();	
+		}
 		}
 		
 		if(testParameters.getBusinessFlowClass().equalsIgnoreCase("ReusableLibrary")){
 		getFields();
 		getData();		
-		}
+		}		
 		
-		int keywordCounter = 0;
 		Method method;		
 
 		Class<?> className = Class.forName("main.java.businessComponents." + execMode + "."
 				+ properties.getProperty("Project") + "."+testParameters.getBusinessFlowClass());
 		Constructor<?> constructor = className.getDeclaredConstructors()[0];
 		Object classInstance = constructor.newInstance(test, driver, dataTable, testParameters);
+		
+		totalKeywords = keywords.size();
 
 		for (Entry<String, String> map : keywords.entrySet()) {
 			if (!map.getKey().equals("TC_ID")) {
 				keywordCounter++;
 				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
 				test.log(LogStatus.INFO, "Current Keyword - " + currentKeyword, "");
+				
+				if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted>1) && (currentKeyword.equals("createNewConnection")
+						|| currentKeyword.equals("login")||currentKeyword.equals("selectUserProfile"))) {
+					test.log(LogStatus.INFO, "Keyword - " + currentKeyword + " is skipped", "");
+					continue;
+				}
 				
 				
 				switch(currentKeyword){
@@ -182,6 +206,7 @@ public class Executor extends Utility implements Runnable {
 				case "clickOkPrompt":
 				case "clickSpyGlass":
 				case "waitForSeconds":
+				case "clickNextMultiple":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;	
@@ -262,10 +287,18 @@ public class Executor extends Utility implements Runnable {
 
 	@SuppressWarnings("rawtypes")
 	public void driverSetUp() throws ExecuteException, IOException, InterruptedException, SessionNotCreatedException {
+		
 
+		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") && newServerSetupForEachTestcase.equalsIgnoreCase("False") && appiumServerInstanceCount==0){
+		appiumServerInstanceCount++;
 		appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
 				testParameters.getBootstrapPort());
 		appiumServerHandler.appiumServerStart();
+		}else if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") && newServerSetupForEachTestcase.equalsIgnoreCase("True") && appiumServerInstanceCount==0) {
+			appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
+					testParameters.getBootstrapPort());
+			appiumServerHandler.appiumServerStart();	
+		}
 
 		String absolutePath = new File(System.getProperty("user.dir")).getAbsolutePath();
 
@@ -288,7 +321,7 @@ public class Executor extends Utility implements Runnable {
 				"http://" + properties.getProperty("RemoteAddress") + ":" + testParameters.getPort() + "/wd/hub"),
 				capabilities);
 
-		driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
 
 		test.log(LogStatus.INFO, "Android Driver and Appium server setup done Successfully", "");
 
@@ -296,7 +329,9 @@ public class Executor extends Utility implements Runnable {
 
 
 	public void end() {		
-
+		
+		if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && totalTestInstanceToRun==0){
+			
 		if (driver != null) {
 			driver.quit();
 		}
@@ -304,7 +339,30 @@ public class Executor extends Utility implements Runnable {
 		if (appiumServerHandler != null) {
 			appiumServerHandler.appiumServerStop();
 		}
+		}else if (newServerSetupForEachTestcase.equalsIgnoreCase("True")) {
+			if (driver != null) {
+				driver.quit();
+			}
 
+			if (appiumServerHandler != null) {
+				appiumServerHandler.appiumServerStop();
+			}	
+		}
+
+	}
+	
+	
+	public void exceptionHandler() {
+		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") && (totalKeywords-keywordCounter)>=2) {
+			
+			if(isElementPresent(ID_MESSAGE, "Prompt Message")) {
+				GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title"));
+				Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
+			}
+			
+			clickRoutineBackButton();
+			clickRoutineBackButton();
+		}
 	}
 
 }

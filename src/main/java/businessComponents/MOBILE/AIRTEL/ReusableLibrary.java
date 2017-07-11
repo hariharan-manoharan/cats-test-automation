@@ -114,9 +114,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	 */
 
 	public void clickNext() throws TimeoutException, NoSuchElementException{
-		 	
-		    waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
-			this.driver.findElement(By.id("next")).click();				
+		
+		HardDelay(3000);	 	
+		//waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
+		this.driver.findElement(By.id("next")).click();				
 		}
 	
 	
@@ -250,11 +251,27 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void enterTransferOrder(){
-		
-		String NoofTransfer = selectQuerySingleValue(TRANSFERCOUNT_PICK, "BAL-MUNDKA-MDEL");
-		
-	}
+		public void enterTransferOrder(String locationName, String columnName){
+			
+			String TRANSFERCOUNT = String.format(TRANSFERCOUNT_PACK, locationName,locationName,locationName);
+			
+			String NoofTransfer = selectQuerySingleValue(TRANSFERCOUNT, "TRANSFERCOUNT");
+			
+			int count = 	Integer.parseInt(NoofTransfer);
+			
+			String data = getRuntimeTestdata(columnName);
+			
+			if (count>1){
+				enterText("Enter Transfer Order (*) :", data);
+				clickNext();
+				clickConfirmPrompt("Generate new shipment?", "Yes");
+			}
+			else
+			{
+				clickConfirmPrompt("Generate new shipment?", "Yes");
+				verifyAutopopulatefieldvalues("Transfer Order", data);
+			}
+			}
 	public static long generateRandom(int length) {
 	    Random random = new Random();
 	    char[] digits = new char[length];
@@ -442,26 +459,27 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void verifyAutopopulatefieldvalues(String field, String value) {
-		
+	public void verifyAutopopulatefieldvalues(String field, String data) {
+
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
 		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
-	
-		if(value.contains("#")){
-			
-			String value1= runtimeDataProperties.getProperty(value);
-			
-			value=value1;
-			
+		if(data!=null){
+			if(data.contains("#")){
+
+				String value1= runtimeDataProperties.getProperty(data);
+
+				data=value1;
+
+			}
 		}
-	
+
 		if (!fieldValue.equals("")){
-		if (value.equalsIgnoreCase(fieldValue)) {
-			test.log(LogStatus.PASS, "<b>" + field + "</b> matches the given Testdata <b>" + value + "</b>", "");
-		} else {
-			test.log(LogStatus.FAIL, "<font color=red><b>" + field + "</b></font>-not matches the given Testdata- <b> <font color=red>" + value + "</b></font>", "");
+			if (data.equalsIgnoreCase(fieldValue)) {
+				test.log(LogStatus.PASS, "<b>" + field + "</b> matches the given Testdata <b>" + data + "</b>", "");
+			} else {
+				test.log(LogStatus.FAIL, "<font color=red><b>" + field + "</b></font>-not matches the given Testdata- <b> <font color=red>" + data + "</b></font>", "");
+			}
 		}
-	}
 	}
 	
 	/**
@@ -526,6 +544,13 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		int recordId = createMaterialReceiveReceiptQuery(dataMap);
 		validateInboundTransaction("MRR", "PROCESS_FLAG", "ERROR_MESSAGE", validateMRR, getRuntimeTestdata(testParameters.getCurrentTestCase()+"#MRRNUMBER"),recordId);
 		poTaxUpdateQuery(dataMap);
+	}
+	
+	public void deliveryinfocomplete(String data){
+		
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_DIC");
+		deliveryinfocomplete(dataMap , data);
+		
 	}
 	
 	
@@ -907,4 +932,111 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			e.printStackTrace();			
 		}
 	}
+	
+	public void deliveryinfocomplete(LinkedHashMap<String, String> inputValueMap , String TCID){
+
+
+		String SHIPMENTID;
+		String query;
+		String query1;
+		String query2;
+		String Shipmentnumber= null;
+		int SHIPMENT_UDFDATAID 		= generateRandomNum(10000);
+		//String NewShipment 			= inputValueMap.get("NEW_SHIPMENT");
+		String RECEIVERNAME       	=((inputValueMap.get("VALUE1") == null) ? "NULL" : "'"+inputValueMap.get("VALUE1") +"'");
+		String RECEIVERCONTACT 		=((inputValueMap.get("VALUE2") == null) ? "NULL" : "'"+inputValueMap.get("VALUE2") +"'");		
+		String VEHICLENUMBER 		= inputValueMap.get("VALUE3");
+		String FROM_ROADPERMIT 		=((inputValueMap.get("VALUE4") == null) ? "NULL" : "'"+inputValueMap.get("VALUE4") +"'");
+		
+		String TO_ROADPERMIT 		=((inputValueMap.get("VALUE5") == null) ? "NULL" : "'"+inputValueMap.get("VALUE5") +"'");
+		String DIMENSIONS 			=((inputValueMap.get("VALUE6") == null) ? "NULL" : "'"+inputValueMap.get("VALUE6") +"'");
+		String DELIVERFLOOR 		=((inputValueMap.get("VALUE7") == null) ? "NULL" : "'"+inputValueMap.get("VALUE7") +"'");
+		String VEHICLETYPE 			=((inputValueMap.get("VALUE8") == null) ? "NULL" : "'"+inputValueMap.get("VALUE8") +"'");
+		String VEHICLECAPACITY 		=((inputValueMap.get("VALUE9") == null) ? "NULL" : "'"+inputValueMap.get("VALUE9") +"'");
+		String SMS_MESSAGE 			=((inputValueMap.get("VALUE10") == null) ? "NULL" : "'"+inputValueMap.get("VALUE10") +"'");
+		String PACKAGETYPE 			=((inputValueMap.get("VALUE11") == null) ? "NULL" : "'"+inputValueMap.get("VALUE11") +"'");
+		String COPYFROM 			=((inputValueMap.get("VALUE12") == null) ? "NULL" : "'"+inputValueMap.get("VALUE12") +"'");
+		String DRIVER 				=((inputValueMap.get("VALUE13") == null) ? "NULL" : "'"+inputValueMap.get("VALUE13") +"'");
+		String DRIVERCONTACT 		=((inputValueMap.get("VALUE14") == null) ? "NULL" : "'"+inputValueMap.get("VALUE14") +"'");
+		String COMPLETE 			= inputValueMap.get("VALUE15");
+		
+
+
+			Shipmentnumber =runtimeDataProperties.getProperty(TCID);
+
+		try{
+		query = "select * FROM CATS_SHIPMENT where SHIPMENTNUMBER ="+"'"+Shipmentnumber+"'";
+
+		SHIPMENTID = selectQuerySingleValue(query, "SHIPMENTID");
+
+		query1 = "INSERT " 
+				+"INTO CATS_SHIPMENT_UDFDATA"
+				+"("
+				+ "SHIPMENT_UDFDATAID,"
+				+ "SHIPMENTID,"
+				+"VALUE1,"
+				+"VALUE2,"
+				+"VALUE3,"
+				+"VALUE4,"
+				+"VALUE5,"
+				+"VALUE6,"
+				+"VALUE7,"
+				+"VALUE8,"
+				+"VALUE9,"
+				+"VALUE10,"
+				+"VALUE11,"
+				+"VALUE12,"
+				+"VALUE13,"
+				+"VALUE14,"
+				+"VALUE15"
+				+")" 
+				+"VALUES"
+				+"("
+				+ SHIPMENT_UDFDATAID+","
+				+ SHIPMENTID+","
+				+RECEIVERNAME+","
+				+RECEIVERCONTACT+","
+				+"'"+VEHICLENUMBER+"',"
+				+FROM_ROADPERMIT+","
+				+TO_ROADPERMIT+","
+				+DIMENSIONS+","
+				+DELIVERFLOOR+","
+				+VEHICLETYPE+","
+				+VEHICLECAPACITY+","
+				+SMS_MESSAGE+","
+				+PACKAGETYPE+","
+				+COPYFROM+","
+				+DRIVER+","
+				+DRIVERCONTACT+","
+				+"'"+COMPLETE+"'"
+				+")";
+		
+		executeUpdateQuery(query1, "Shipment  # <b>"+Shipmentnumber+"</b> with Delivery info completed is inserted in CATS_SHIPMENT_UDFDATA");	
+
+		connection.commit();
+		
+		query2 = "declare "+
+				"strShipmentNumber  "+   "varchar2(50) :='"+Shipmentnumber+ "';" +
+				"strAddContact "+       "varchar2(25) :="+ "'"+"CATSADM"+"'"+";"+
+				"aValues "+             "t_NameValue_tab := t_NameValue_tab()"+";"
+				+"begin "+ 
+				"cats_p_shipments.sp_ship"+
+				"("
+				+"i_ShipmentNumber            => strShipmentNumber"+","
+				+"i_ContactCode               => strAddContact"+","
+				+"i_Values                    => aValues"+
+				")"+";"
+		+"end"+";";
+		executeUpdateQuery(query2, "Run Procedure CATS_P_SHIPMENTS.SP_SHIP");
+		connection.commit();
+		
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		test.log(LogStatus.FAIL, "SHIPMENT # <b>"+Shipmentnumber+"</b> is not delivery info completed");
+	}
+		
+	
+	}
+	
 }

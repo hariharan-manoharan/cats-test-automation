@@ -118,7 +118,8 @@ public class Transfer extends Utility implements RoutineObjectRepository {
 		String RMANUMBER = ((inputValueMap.get("RMANUMBER") == null) ? "NULL" : "'"+inputValueMap.get("RMANUMBER") +"'");
 		String FAULT_CODE = ((inputValueMap.get("FAULT_CODE") == null) ? "NULL" : "'"+inputValueMap.get("FAULT_CODE") +"'");
 		String NOTES = ((inputValueMap.get("NOTES") == null) ? "NULL" : "'"+inputValueMap.get("NOTES") +"'");
-
+		
+		String WO_NUMBER = ((inputValueMap.get("NOTES") == null) ? "NULL" : "'"+inputValueMap.get("WO_NUMBER") +"'");
 
 
 		try {
@@ -172,7 +173,7 @@ public class Transfer extends Utility implements RoutineObjectRepository {
 						+TOSUBINVENTORY+","
 						+DESTINATIONLOCATION+","
 						+"'"+inputValueMap.get("REASON")+"',"
-						+"'"+inputValueMap.get("WO_NUMBER")+"',"
+						+WO_NUMBER+","
 						+SERVICEORDER+","
 						+RECEIVERNAME+","
 						+RECEIVERPHONE+","

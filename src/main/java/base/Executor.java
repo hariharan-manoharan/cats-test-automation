@@ -226,7 +226,6 @@ public class Executor extends Utility implements Runnable {
 		
 		keywordCounter = 0;
 
-		end();
 	}
 
 	
@@ -289,16 +288,21 @@ public class Executor extends Utility implements Runnable {
 	@SuppressWarnings("rawtypes")
 	public void driverSetUp() throws ExecuteException, IOException, InterruptedException, SessionNotCreatedException {
 		
-
-		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") && newServerSetupForEachTestcase.equalsIgnoreCase("False") && appiumServerInstanceCount==0){
+		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") ) {
+		if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && appiumServerInstanceCount==0){
+			
 		appiumServerInstanceCount++;
 		appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
 				testParameters.getBootstrapPort());
 		appiumServerHandler.appiumServerStart();
-		}else if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") && newServerSetupForEachTestcase.equalsIgnoreCase("True") && appiumServerInstanceCount==0) {
+		
+		}else if( newServerSetupForEachTestcase.equalsIgnoreCase("True") && appiumServerInstanceCount==0) {
+			
 			appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
 					testParameters.getBootstrapPort());
 			appiumServerHandler.appiumServerStart();	
+			
+		}
 		}
 
 		String absolutePath = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -356,6 +360,8 @@ public class Executor extends Utility implements Runnable {
 	public void exceptionHandler() {
 		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") && (totalKeywords-keywordCounter)>=2) {
 			
+			test.log(LogStatus.INFO, "<b>Executing exception handler</b>");
+			
 			if(isElementPresent(ID_MESSAGE, "Prompt Message")) {
 				GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title"));
 				Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
@@ -363,6 +369,8 @@ public class Executor extends Utility implements Runnable {
 			
 			clickRoutineBackButton();
 			clickRoutineBackButton();
+			
+			test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 		}
 	}
 

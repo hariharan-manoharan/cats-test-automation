@@ -547,9 +547,9 @@ public class Utility implements RoutineObjectRepository{
 			text = element.getText();
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
-			test.log(LogStatus.INFO, fieldName + ": Not Returned - Text:" + text);
+			test.log(LogStatus.INFO, fieldName + ": Not Returned - Text:<b>" + text+"</b>");
 		}
-		test.log(LogStatus.INFO, fieldName + ":  Returned - Text:" + text);
+		test.log(LogStatus.INFO, fieldName + ":  Returned - Text:<b>" + text+"</b>");
 		return text.trim();
 
 	}

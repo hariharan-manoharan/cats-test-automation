@@ -264,7 +264,7 @@ public class Utility implements RoutineObjectRepository{
 
 		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(driver);
 		wait.pollingEvery(5, TimeUnit.SECONDS);
-		wait.withTimeout(60, TimeUnit.SECONDS);
+		wait.withTimeout(20, TimeUnit.SECONDS);
 		wait.ignoring(NoSuchElementException.class);
 
 		Function<WebDriver, Boolean> function = new Function<WebDriver, Boolean>() {
@@ -292,14 +292,12 @@ public class Utility implements RoutineObjectRepository{
 	 * 
 	 */
 
-	public boolean isElementPresent(final By by, final String objectName) {
+	public boolean isElementPresent(final By by, final String objectName){
 		
 		try{
-		waitCommand(by);
 		driver.findElement(by).isDisplayed();		
 		test.log(LogStatus.PASS, "Element - " + objectName + " is present", "");
-		return true;				
-		
+		return true;		
 		}catch(NoSuchElementException  e){
 			test.log(LogStatus.INFO, "Element - " + objectName + " is not present", "");
 			return false;
@@ -538,19 +536,21 @@ public class Utility implements RoutineObjectRepository{
 	 * 
 	 */
 
-	public String GetText(By by, String fieldName) throws WebDriverException, TimeoutException, NoSuchElementException{
+	public String GetText(By by, String fieldName){
 		String text = null;
 
 		try {
 			waitCommand(by);
 			WebElement element = driver.findElement(by);
 			text = element.getText();
+			test.log(LogStatus.INFO, fieldName + ":  Returned - Text:<b>" + text+"</b>");
+			return text.trim();
 		} catch (Exception ex) {
 			test.log(LogStatus.FAIL, ex);
 			test.log(LogStatus.INFO, fieldName + ": Not Returned - Text:<b>" + text+"</b>");
+			return "NULL";
 		}
-		test.log(LogStatus.INFO, fieldName + ":  Returned - Text:<b>" + text+"</b>");
-		return text.trim();
+		
 
 	}
 	

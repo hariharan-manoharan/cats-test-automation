@@ -51,6 +51,7 @@ public class Executor extends Utility implements Runnable {
 	public static int appiumServerInstanceCount = 0;
 	private int totalKeywords = 0;
 	private int keywordCounter = 0;
+	private static boolean networkFlag= true;
 	
 	
 		
@@ -79,11 +80,17 @@ public class Executor extends Utility implements Runnable {
 
 	@Override
 	public void run() {
-		try {
+		try {	
+						
 			if (testParameters.getExecuteCurrentTestCase().equalsIgnoreCase("Yes")) {
 				test = report.startTest(testParameters.getCurrentTestCase() + " : " + testParameters.getDescription());
 				dataTable.setCurrentRow(testParameters.getCurrentTestCase());
-				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");				
+				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");	
+				
+				if(!networkFlag) {
+					test.log(LogStatus.WARNING,"<font color=red><b>Netwok not available. Suspending this testcase execution</b></font>", "");	
+					return;
+				}
 
 				if (testParameters.getConnectDB().equalsIgnoreCase("Yes")) {
 					Getconnections();
@@ -174,7 +181,7 @@ public class Executor extends Utility implements Runnable {
 			if (!map.getKey().equals("TC_ID")) {
 				keywordCounter++;
 				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
-				test.log(LogStatus.INFO, "Current Keyword - " + currentKeyword, "");
+				test.log(LogStatus.INFO, "<b>Current Keyword executing - " + currentKeyword+"</b>", "");
 				
 				if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted>1) && (currentKeyword.equals("createNewConnection")
 						|| currentKeyword.equals("login")||currentKeyword.equals("selectUserProfile"))) {
@@ -326,7 +333,7 @@ public class Executor extends Utility implements Runnable {
 				"http://" + properties.getProperty("RemoteAddress") + ":" + testParameters.getPort() + "/wd/hub"),
 				capabilities);
 
-		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 
 		test.log(LogStatus.INFO, "Android Driver and Appium server setup done Successfully", "");
 
@@ -357,20 +364,32 @@ public class Executor extends Utility implements Runnable {
 	}
 	
 	
-	public void exceptionHandler() {
-		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") && (totalKeywords-keywordCounter)>=2) {
-			
+	public void exceptionHandler(){
+		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA") && (totalKeywords - keywordCounter) >= 2) {
+
 			test.log(LogStatus.INFO, "<b>Executing exception handler</b>");
-			
-			if(isElementPresent(ID_MESSAGE, "Prompt Message")) {
-				GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title"));
-				Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
+
+			if (isElementPresent(ID_MESSAGE, "Prompt Message")) {
+				String msg = GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title"));
+
+				if (msg.equals("Would you like to switch to Batch mode?")) {
+					networkFlag = false;
+					test.log(LogStatus.INFO,"<font color=red><b>Network not available....Please check network connectivity</b></font>");
+					test.log(LogStatus.INFO,"<font color=red><b>Execution of upcoming test cases will be suspended</b></font>");
+					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+					return;
+				} else if(GetText(ID_ALERT_TITLE, "Alert Title").equals("Mobility")){
+					Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
+					clickRoutineBackButton();
+					clickRoutineBackButton();
+					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+				}
+				
+			}else {
+				clickRoutineBackButton();
+				clickRoutineBackButton();
+				test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 			}
-			
-			clickRoutineBackButton();
-			clickRoutineBackButton();
-			
-			test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 		}
 	}
 

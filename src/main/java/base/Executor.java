@@ -181,7 +181,7 @@ public class Executor extends Utility implements Runnable {
 			if (!map.getKey().equals("TC_ID")) {
 				keywordCounter++;
 				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
-				test.log(LogStatus.INFO, "<b>Current Keyword executing - " + currentKeyword+"</b>", "");
+				test.log(LogStatus.INFO, "Current Keyword executing - <b>" + currentKeyword+"</b>", "");
 				
 				if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted>1) && (currentKeyword.equals("createNewConnection")
 						|| currentKeyword.equals("login")||currentKeyword.equals("selectUserProfile"))) {
@@ -374,8 +374,8 @@ public class Executor extends Utility implements Runnable {
 
 				if (msg.equals("Would you like to switch to Batch mode?")) {
 					networkFlag = false;
-					test.log(LogStatus.INFO,"<font color=red><b>Network not available....Please check network connectivity</b></font>");
-					test.log(LogStatus.INFO,"<font color=red><b>Execution of upcoming test cases will be suspended</b></font>");
+					test.log(LogStatus.WARNING,"<font color=red><b>Network not available....Please check network connectivity</b></font>");
+					test.log(LogStatus.WARNING,"<font color=red><b>Execution of upcoming test cases will be suspended</b></font>");
 					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 					return;
 				} else if(GetText(ID_ALERT_TITLE, "Alert Title").equals("Mobility")){

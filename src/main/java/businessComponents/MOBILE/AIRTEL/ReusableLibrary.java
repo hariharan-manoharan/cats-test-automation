@@ -129,7 +129,15 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		HardDelay(3000L);
 		}
 	}
+	
+	public void multipleClickNext(String field,String times) throws TimeoutException, NoSuchElementException{
 		
+		for(int i=1;i<=Integer.parseInt(times);i++){ 	
+	    waitCommand(By.xpath(String.format(XPATH_TXT, field)));		    
+		this.driver.findElement(By.id("next")).click();	
+		HardDelay(3000L);
+		}
+	}
 	
 	
 	/**
@@ -946,8 +954,17 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}
 	}
 	
-	public void deliveryinfocomplete(String TCID){
+	public void deliveryinfocomplete( String Complete, String TCID){
 
+
+		if(Complete.equalsIgnoreCase("Yes")){
+
+			deliveryinfocomplete(TCID);
+		}
+
+	}
+	
+	public void deliveryinfocomplete(String TCID){
 
 		String SHIPMENTID;
 		String query;

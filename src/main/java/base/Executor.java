@@ -182,6 +182,7 @@ public class Executor extends Utility implements Runnable {
 				keywordCounter++;
 				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
 				test.log(LogStatus.INFO, "Current Keyword executing - <b>" + currentKeyword+"</b>", "");
+				testParameters.setCurrentKeywordColumnName("KEYWORD_"+keywordCounter);
 				
 				if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted>1) && (currentKeyword.equals("createNewConnection")
 						|| currentKeyword.equals("login")||currentKeyword.equals("selectUserProfile"))) {

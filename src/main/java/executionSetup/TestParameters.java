@@ -1,10 +1,11 @@
 package main.java.executionSetup;
 
-public class TestParameters {
+public class TestParameters implements Comparable {
 
 	private String executionMode;
 	private String currentTestCase;
 	private String description;
+	private String setCategory;
 	private String connectDB;
 	private String businessFlowClass;
 	private String executeCurrentTestCase;
@@ -18,6 +19,7 @@ public class TestParameters {
 	private String platformName;
 	private String appPackage;
 	private String appActivity;
+	private String currentKeywordColumnName;
 
 	public String getExecutionMode() {
 		return executionMode;
@@ -146,6 +148,31 @@ public class TestParameters {
 
 	public void setAppActivity(String appActivity) {
 		this.appActivity = appActivity;
+	}
+	
+	
+	public String getCurrentKeywordColumnName() {
+		return currentKeywordColumnName;
+	}
+
+	public void setCurrentKeywordColumnName(String currentKeywordColumnName) {
+		this.currentKeywordColumnName = currentKeywordColumnName;
+	}
+	
+	
+	public String getSetCategory() {
+		return setCategory;
+	}
+
+	public void setSetCategory(String setCategory) {
+		this.setCategory = setCategory;
+	}
+
+
+	@Override
+	public int compareTo(Object testParameters) {
+		int compareSetCategory=Integer.parseInt(((TestParameters)testParameters).getSetCategory());       
+        return Integer.parseInt(this.setCategory)-compareSetCategory;
 	}
 
 }

@@ -263,6 +263,7 @@ public class MSExcel implements DataTable {
 
 			testParameter.setCurrentTestCase(getData("RunInfo", i, "TC_ID"));
 			testParameter.setDescription(getData("RunInfo", i, "Description"));
+			testParameter.setSetCategory(getData("RunInfo", i, "SetCategory"));
 			testParameter.setExecuteCurrentTestCase(getData("RunInfo", i, "Execute"));
 			testParameter.setConnectDB(getData("RunInfo", i, "Connect_DB"));
 			testParameter.setBusinessFlowClass(getData("RunInfo", i, "Business_Flow_Class"));

@@ -487,16 +487,14 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void verifyAutopopulatefieldvalues(String field, String data) {
-
+	public void verifyAutopopulatefieldvalues(String field, String data)  throws TimeoutException, NoSuchElementException {
+		
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
 		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
 		if(data!=null){
 			if(data.contains("#")){
 
-				String value1= runtimeDataProperties.getProperty(data);
-
-				data=value1;
+				data = runtimeDataProperties.getProperty(data);
 
 			}
 		}
@@ -554,7 +552,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_DC");
 		int recordId = deliveryConfirmationQuery(dataMap);
-		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, dataMap.get("VALUE7"),recordId);
+		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, getRuntimeTestdata(dataMap.get("VALUE7")),recordId);
 	}
 	
 	
@@ -584,6 +582,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			RECORD_ID = generateRandomNum(10000000);
 			
 			String purchaseOrder = generateTestData("PONUMBER", inputValueMap.get("VALUE2"));
+			String itemcode = getRuntimeTestdata(inputValueMap.get("VALUE18"));
 			
 						
 			query="INSERT "
@@ -653,7 +652,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 					    +inputValueMap.get("VALUE15")+","
 					    +"'"+inputValueMap.get("VALUE16")+"',"
 					    +"'"+inputValueMap.get("VALUE17")+"',"
-					    +"'"+inputValueMap.get("VALUE18")+"',"
+					    +"'"+itemcode+"',"
 					    +"'"+inputValueMap.get("VALUE19")+"',"
 					    +"'"+inputValueMap.get("VALUE20")+"',"
 					    +"'"+inputValueMap.get("VALUE21")+"',"
@@ -682,7 +681,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 					    +"'"+inputValueMap.get("VALUE44")+"')";
 					 
 			//System.out.println(query);
-			executeUpdateQuery(query, "PO - <b>"+inputValueMap.get("VALUE2")+"</b> for Item <b>"+inputValueMap.get("VALUE18")+"</b> is inserted in to CATSCON_PO_STG table");
+			executeUpdateQuery(query, "PO - <b>"+purchaseOrder+"</b> for Item <b>"+itemcode+"</b> is inserted in to CATSCON_PO_STG table");
 			connection.commit();
 			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_PO}");	
 			stproc_stmt.executeUpdate();		
@@ -767,7 +766,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 						    +generateRandomNum(10000000)+","
 						    +generateRandomNum(10000000)+","
 						    + Integer.parseInt(inputValueMap.get("VALUE15"))+","
-						    +"'"+inputValueMap.get("VALUE16")+"',"
+						    +"'"+getRuntimeTestdata(inputValueMap.get("VALUE16"))+"',"
 						    + Integer.parseInt(inputValueMap.get("VALUE17"))+","
 						    + Integer.parseInt(inputValueMap.get("VALUE18"))+","
 						    + Integer.parseInt(inputValueMap.get("VALUE19"))+","
@@ -791,7 +790,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			
 			//System.out.println(query);
 			
-			executeUpdateQuery(query, "MRR - <b>"+inputValueMap.get("VALUE9")+"</b> is created for PO - <b>"+inputValueMap.get("VALUE6")+"</b>");
+			executeUpdateQuery(query, "MRR - <b>"+mrrNumber+"</b> is created for PO - <b>"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER")+"</b>");
 			connection.commit();
 			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_MRR}");	
 			stproc_stmt.executeUpdate();		
@@ -818,8 +817,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		String query = null;
 		String SERIALIZED;
 		String TRANSACTIONID;
-		String ASSETCODE;
-		String SERIALNUMBER;
+		String ASSETCODE;	
 		int RECORD_ID = 0;
 		ResultSet rs;
 		Statement stmt;
@@ -827,7 +825,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		
 		try {
-			String	query1 =  "SELECT * FROM CATS_PART WHERE PARTCODE =" +"'"+inputValueMap.get("VALUE7")+"'";
+			String	query1 =  "SELECT * FROM CATS_PART WHERE PARTCODE =" +"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"'";
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(query1);
 			while (rs.next()) {
@@ -836,7 +834,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		if (SERIALIZED.equalsIgnoreCase("N")){
 			
 			String query2 = "SELECT MAX(PARTTRANSACTIONID) AS PARTTRANSACTIONID FROM CATS_PARTTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
-			                +"AND PARTCODE= "+"'"+inputValueMap.get("VALUE7")+"'";
+			                +"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"'";
 			stmt = connection.createStatement();
 			
 			rs = stmt.executeQuery(query2);	
@@ -864,10 +862,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 						+"'"+RECORD_ID+"',"
 						+inputValueMap.get("VALUE5")+","
 						+"'"+inputValueMap.get("VALUE6")+"',"
-						+"'"+inputValueMap.get("VALUE7")+"',"
+						+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"',"
 						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
 						+")";
-				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+inputValueMap.get("VALUE7")+"</b>");
+				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"</b>");
 				connection.commit();
 				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
 				stproc_stmt.executeUpdate();		
@@ -883,13 +881,13 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			
 		}else{
 			String query3 = "SELECT * FROM CATS_ASSETTRANSACTION WHERE ASSETTRANSACTIONID IN (select MAX(ASSETTRANSACTIONID) AS ASSETTRANSACTIONID  FROM CATS_ASSETTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
-					+"AND PARTCODE= "+"'"+inputValueMap.get("VALUE7")+"')";
+					+"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"')";
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(query3);	
 			while (rs.next()) {
 				TRANSACTIONID = rs.getString("ASSETTRANSACTIONID");	
 				ASSETCODE = rs.getString("ASSETCODE");				
-				addRuntimeTestData("ASSETCODE", ASSETCODE);				
+				addRuntimeTestData(testParameters.getCurrentKeywordColumnName(), ASSETCODE);				
 				RECORD_ID = generateRandomNum(10000000);
 				query = "INSERT INTO "
 						+"CATS.CATSCON_POREC_STG"
@@ -912,11 +910,11 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 						+"'"+RECORD_ID+"',"
 						+inputValueMap.get("VALUE5")+","
 						+"'"+inputValueMap.get("VALUE6")+"',"
-						+"'"+inputValueMap.get("VALUE7")+"',"
+						+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"',"
 						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
 						+")";
 				connection.commit();
-				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+inputValueMap.get("VALUE7")+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
+				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
 				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
 				stproc_stmt.executeUpdate();		
 				stproc_stmt = connection.prepareCall ("{call CATSCON_P_POCONFINTERFACE.SP_INITPOCONFINTERFACE(?)}");
@@ -932,7 +930,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 				
 		}
 		}catch (SQLException e) {	
-			test.log(LogStatus.FAIL, "Delivery Confirmation   - "+inputValueMap.get("VALUE7")+" is not done successfully");
+			test.log(LogStatus.FAIL, "Delivery Confirmation   - "+getRuntimeTestdata(inputValueMap.get("VALUE7"))+" is not done successfully");
 			e.printStackTrace();			
 		}
 		return RECORD_ID;

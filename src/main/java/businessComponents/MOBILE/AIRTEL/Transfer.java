@@ -112,7 +112,7 @@ public class Transfer extends Utility implements RoutineObjectRepository {
 		String RECEIVERPHONE = ((inputValueMap.get("RECEIVERPHONE") == null) ? "NULL" : "'"+inputValueMap.get("RECEIVERPHONE") +"'");
 		String BEHALFOF = ((inputValueMap.get("BEHALFOF") == null) ? "NULL" : "'"+inputValueMap.get("BEHALFOF") +"'");
 		String NEEDBYDATE = ((inputValueMap.get("NEEDBYDATE") == null) ? "NULL" : "'"+inputValueMap.get("NEEDBYDATE") +"'");
-		String PARTCODE = ((inputValueMap.get("PARTCODE") == null) ? "NULL" : "'"+inputValueMap.get("PARTCODE") +"'");
+		String PARTCODE = ((inputValueMap.get("PARTCODE") == null) ? "NULL" : inputValueMap.get("PARTCODE") );
 		String MFGPARTNUMBER = ((inputValueMap.get("MFGPARTNUMBER") == null) ? "NULL" : "'"+inputValueMap.get("MFGPARTNUMBER") +"'");
 		String ASSETCODE = ((inputValueMap.get("ASSETCODE") == null) ? "NULL" : "'"+inputValueMap.get("ASSETCODE") +"'");
 		String RMANUMBER = ((inputValueMap.get("RMANUMBER") == null) ? "NULL" : "'"+inputValueMap.get("RMANUMBER") +"'");
@@ -120,6 +120,9 @@ public class Transfer extends Utility implements RoutineObjectRepository {
 		String NOTES = ((inputValueMap.get("NOTES") == null) ? "NULL" : "'"+inputValueMap.get("NOTES") +"'");
 		
 		String WO_NUMBER = ((inputValueMap.get("NOTES") == null) ? "NULL" : "'"+inputValueMap.get("WO_NUMBER") +"'");
+		
+		
+		PARTCODE =  "'"+getRuntimeTestdata(PARTCODE)+"'";
 
 
 		try {

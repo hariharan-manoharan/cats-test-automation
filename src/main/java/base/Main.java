@@ -7,6 +7,8 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,6 +52,7 @@ public class Main{
 	private static int nThreads;
 	private static GlobalRuntimeDataProperties globalRuntimeDataProperties;
 	private static Utility utility;
+
 	
 	
 
@@ -92,6 +95,7 @@ public class Main{
 	 * 
 	 */
 
+	@SuppressWarnings("unchecked")
 	private static void collectRunInfo() {
 		
 		String runManagerType = properties.getProperty("RunManagerType");
@@ -100,6 +104,8 @@ public class Main{
 		runManagerFactory = DataTableFactoryProducer.getDataTableFactory();
 		runManager = runManagerFactory.getTestDataTableAccess(runManagerType, "./"+runManagerName);		
 		testInstancesToRun = runManager.getRunManagerInfo();
+		
+		Collections.sort(testInstancesToRun);
 		
 		Utility utility = new Utility();
 		utility.setEnvironmentVariables(runManager.getRowData("EnvironmentDetails", properties.getProperty("Environment")));
@@ -132,7 +138,8 @@ public class Main{
 
 		ExecutorService parallelExecutor = Executors.newFixedThreadPool(nThreads);
 		Runnable testRunner = null;
-		int totalTestInstanceToRun = testInstancesToRun.size();
+		int totalTestInstanceToRun = testInstancesToRun.size();		
+		
 		for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
 			totalTestInstanceToRun--;
 			if(properties.getProperty("testRail.enabled").equalsIgnoreCase("True")){
@@ -152,6 +159,7 @@ public class Main{
 				e.printStackTrace();
 			}
 		}
+	
 
 	}
 	

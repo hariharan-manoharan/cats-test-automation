@@ -107,7 +107,39 @@ public class FunctionalComponents extends Utility {
 		
 	}
 
+	//Pick Routines
+	
+	public void pick() throws WebDriverException, SQLException {
+		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
+		dispatch.pick();
+    }
+	
+	//Pick Routines
+	
+	public void pack() throws TimeoutException , NoSuchElementException{
+		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
+		dispatch.pack();
+	}
+	
+	//Ship Routines
+	public void ship() throws TimeoutException , NoSuchElementException{
+		Dispatch dispatch = new Dispatch(test, driver, dataTable,testParameters);
+		dispatch.ship(); 
 
+	}
+	
+	public void itemInquiry() throws TimeoutException, NoSuchElementException{
+		
+		Inquiry Inquiry = new Inquiry(test, driver , dataTable,testParameters);
+		Inquiry.itemInquiry();
+		
+	}
+	public void assetInquiry() throws TimeoutException, NoSuchElementException{
+		
+		Inquiry Inquiry = new Inquiry(test, driver , dataTable,testParameters);
+		Inquiry.assetInquiry();
+		
+	}
 	
 	//Performance Testing
 

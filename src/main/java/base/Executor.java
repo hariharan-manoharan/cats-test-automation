@@ -181,7 +181,7 @@ public class Executor extends Utility implements Runnable {
 			if (!map.getKey().equals("TC_ID")) {
 				keywordCounter++;
 				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
-				test.log(LogStatus.INFO, "Current Keyword executing - <b>" + currentKeyword+"</b>", "");
+				test.log(LogStatus.INFO, "<font size=2 face = Bedrock color=blue><b>" + currentKeyword.toUpperCase()+"</font></b>", "");
 				testParameters.setCurrentKeywordColumnName("KEYWORD_"+keywordCounter);
 				
 				if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted>1) && (currentKeyword.equals("createNewConnection")
@@ -218,7 +218,8 @@ public class Executor extends Utility implements Runnable {
 				case "clickOkPrompt":
 				case "clickSpyGlass":
 				case "waitForSeconds":
-				case "clickNextMultiple":		
+				case "clickNextMultiple":
+				case "verifyRoutine":
 					method = className.getDeclaredMethod(currentKeyword, String.class);
 					method.invoke(classInstance, dataMap.get("KEYWORD_"+keywordCounter));
 					break;	

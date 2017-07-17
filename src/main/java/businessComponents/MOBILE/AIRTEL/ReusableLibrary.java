@@ -96,8 +96,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		By by = By.xpath(String.format(XPATH_TXT, field));
 		
 		waitCommand(by);
-		WebElement element = this.driver.findElement(by);
-		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
+		WebElement element = driver.findElement(by);
+		driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
 
@@ -117,7 +117,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		HardDelay(3000);	 	
 		//waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
-		this.driver.findElement(By.id("next")).click();				
+		driver.findElement(By.id("next")).click();				
 		}
 	
 	
@@ -125,7 +125,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		for(int i=1;i<=Integer.parseInt(times);i++){ 	
 	    waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
-		this.driver.findElement(By.id("next")).click();	
+		driver.findElement(By.id("next")).click();	
 		HardDelay(3000L);
 		}
 	}
@@ -134,7 +134,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		for(int i=1;i<=Integer.parseInt(times);i++){ 	
 	    waitCommand(By.xpath(String.format(XPATH_TXT, field)));		    
-		this.driver.findElement(By.id("next")).click();	
+		driver.findElement(By.id("next")).click();	
 		HardDelay(3000L);
 		}
 	}
@@ -153,7 +153,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void clickPrevious() throws TimeoutException, NoSuchElementException{
 		
 			waitCommand(By.id("previous"));
-			this.driver.findElement(By.id("previous")).click();
+			driver.findElement(By.id("previous")).click();
 			takeScreenshot("Click Previous Button");
 		
 	}
@@ -162,7 +162,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void clickRoutineBackButton() throws TimeoutException, NoSuchElementException{
 		
 		waitCommand(CONTENT_DESC_ROUITNE_BACK_BTN);
-		this.driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
+		driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
 		takeScreenshot("Click Routine back Button");
 	
 }
@@ -213,7 +213,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			pickListValue = getRuntimeTestdata(pickListValue);
 		}			
 	
-		List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
+		List<WebElement> elements = driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
 		int size = elements.size();
 		for(WebElement element: elements){			
 			size--;
@@ -251,8 +251,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		By by = By.xpath(String.format(XPATH_TXT, field));
 		
 		waitCommand(by);
-		WebElement element = this.driver.findElement(by);
-		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
+		WebElement element = driver.findElement(by);
+		driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
 	
@@ -340,7 +340,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
-		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
+		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 		try {
 			FileUtils.copyFile(scrFile,
 					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
@@ -419,7 +419,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 
 	public void clearField(){
-		this.driver.pressKeyCode(112);
+		driver.pressKeyCode(112);
 	}
 	
 	

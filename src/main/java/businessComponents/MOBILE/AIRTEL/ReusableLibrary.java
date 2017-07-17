@@ -259,7 +259,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-		public void enterTransferOrder(String locationName, String columnName){
+		public void enterTransferOrder(String locationName, String columnName) throws TimeoutException, NoSuchElementException{
 			
 			String TRANSFERCOUNT = String.format(TRANSFERCOUNT_PACK, locationName,locationName,locationName);
 			
@@ -280,7 +280,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 				verifyAutopopulatefieldvalues("Transfer Order", data);
 			}
 			}
-		public void enterShipmentNumber(String locationName, String columnName){
+		public void enterShipmentNumber(String locationName, String columnName) throws TimeoutException, NoSuchElementException{
 			
 			String SHIPMENTCOUNT = String.format(SHIPMENTCOUNT_IR, locationName,locationName,locationName);
 			
@@ -314,7 +314,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 	// Verification Components
 	
-	public void validateLoopField(String loopField) {		
+	public void validateLoopField(String loopField) throws TimeoutException, NoSuchElementException {		
 		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
 			report(driver,test, " Transaction is successfull", LogStatus.PASS);			
 		} else {
@@ -474,7 +474,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	}
 	
-	public void getPutTestdata(String field , String name){
+	public void getPutTestdata(String field , String name) throws TimeoutException, NoSuchElementException{
 		
 
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
@@ -487,7 +487,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void verifyAutopopulatefieldvalues(String field, String data) {
+	public void verifyAutopopulatefieldvalues(String field, String data)  throws TimeoutException, NoSuchElementException{
 
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
 		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
@@ -499,6 +499,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 				data=value1;
 
 			}
+		}else{
+			test.log(LogStatus.INFO, "Given Testdata "+field+" is empty", "");
 		}
 
 		if (!fieldValue.equals("")){
@@ -507,8 +509,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			} else {
 				test.log(LogStatus.FAIL, "<font color=red><b>" + field + "</b></font>-not matches the given Testdata- <b> <font color=red>" + data + "</b></font>", "");
 			}
+		}else{
+			test.log(LogStatus.INFO, field+" is empty", "");
 		}
-	}
+	} 
 	
 	/**
 	 * Function implements thread.sleep function 8
@@ -996,6 +1000,20 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}
 
 
+	}
+	
+	
+	public void verifyRoutine(String routinename){
+		
+		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(routinename)) {
+			
+			test.log(LogStatus.PASS, routinename + " - Routine is displayed");
+		}
+		else{
+			test.log(LogStatus.FAIL, routinename + " - Routine is displayed");
+			
+		}
+		
 	}
 	
 }

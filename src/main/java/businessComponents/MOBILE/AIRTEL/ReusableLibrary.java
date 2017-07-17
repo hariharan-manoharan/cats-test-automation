@@ -96,8 +96,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		By by = By.xpath(String.format(XPATH_TXT, field));
 		
 		waitCommand(by);
-		WebElement element = this.driver.findElement(by);
-		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
+		WebElement element = driver.findElement(by);
+		driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
 
@@ -117,7 +117,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		HardDelay(3000);	 	
 		//waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
-		this.driver.findElement(By.id("next")).click();				
+		driver.findElement(By.id("next")).click();				
 		}
 	
 	
@@ -125,7 +125,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		for(int i=1;i<=Integer.parseInt(times);i++){ 	
 	    waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
-		this.driver.findElement(By.id("next")).click();	
+		driver.findElement(By.id("next")).click();	
 		HardDelay(3000L);
 		}
 	}
@@ -134,7 +134,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		for(int i=1;i<=Integer.parseInt(times);i++){ 	
 	    waitCommand(By.xpath(String.format(XPATH_TXT, field)));		    
-		this.driver.findElement(By.id("next")).click();	
+		driver.findElement(By.id("next")).click();	
 		HardDelay(3000L);
 		}
 	}
@@ -153,7 +153,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void clickPrevious() throws TimeoutException, NoSuchElementException{
 		
 			waitCommand(By.id("previous"));
-			this.driver.findElement(By.id("previous")).click();
+			driver.findElement(By.id("previous")).click();
 			takeScreenshot("Click Previous Button");
 		
 	}
@@ -162,7 +162,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void clickRoutineBackButton() throws TimeoutException, NoSuchElementException{
 		
 		waitCommand(CONTENT_DESC_ROUITNE_BACK_BTN);
-		this.driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
+		driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
 		takeScreenshot("Click Routine back Button");
 	
 }
@@ -213,7 +213,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			pickListValue = getRuntimeTestdata(pickListValue);
 		}			
 	
-		List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
+		List<WebElement> elements = driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
 		int size = elements.size();
 		for(WebElement element: elements){			
 			size--;
@@ -251,15 +251,15 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		By by = By.xpath(String.format(XPATH_TXT, field));
 		
 		waitCommand(by);
-		WebElement element = this.driver.findElement(by);
-		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
+		WebElement element = driver.findElement(by);
+		driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
 	
 	}
 	
 	
-		public void enterTransferOrder(String locationName, String columnName){
+		public void enterTransferOrder(String locationName, String columnName) throws TimeoutException, NoSuchElementException{
 			
 			String TRANSFERCOUNT = String.format(TRANSFERCOUNT_PACK, locationName,locationName,locationName);
 			
@@ -280,7 +280,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 				verifyAutopopulatefieldvalues("Transfer Order", data);
 			}
 			}
-		public void enterShipmentNumber(String locationName, String columnName){
+		public void enterShipmentNumber(String locationName, String columnName) throws TimeoutException, NoSuchElementException{
 			
 			String SHIPMENTCOUNT = String.format(SHIPMENTCOUNT_IR, locationName,locationName,locationName);
 			
@@ -314,7 +314,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 	// Verification Components
 	
-	public void validateLoopField(String loopField) {		
+	public void validateLoopField(String loopField) throws TimeoutException, NoSuchElementException {		
 		if (isElementPresent(By.xpath(String.format(XPATH_TXT, loopField)),"Loop field - "+loopField)) {
 			report(driver,test, " Transaction is successfull", LogStatus.PASS);			
 		} else {
@@ -340,7 +340,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
-		File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
+		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 		try {
 			FileUtils.copyFile(scrFile,
 					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
@@ -419,7 +419,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	
 
 	public void clearField(){
-		this.driver.pressKeyCode(112);
+		driver.pressKeyCode(112);
 	}
 	
 	
@@ -474,7 +474,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	}
 	
-	public void getPutTestdata(String field , String name){
+	public void getPutTestdata(String field , String name) throws TimeoutException, NoSuchElementException{
 		
 
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
@@ -487,16 +487,20 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
-	public void verifyAutopopulatefieldvalues(String field, String data)  throws TimeoutException, NoSuchElementException {
-		
+	public void verifyAutopopulatefieldvalues(String field, String data)  throws TimeoutException, NoSuchElementException{
+
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
 		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
 		if(data!=null){
 			if(data.contains("#")){
 
-				data = runtimeDataProperties.getProperty(data);
+				String value1= runtimeDataProperties.getProperty(data);
+
+				data=value1;
 
 			}
+		}else{
+			test.log(LogStatus.INFO, "Given Testdata "+field+" is empty", "");
 		}
 
 		if (!fieldValue.equals("")){
@@ -505,8 +509,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			} else {
 				test.log(LogStatus.FAIL, "<font color=red><b>" + field + "</b></font>-not matches the given Testdata- <b> <font color=red>" + data + "</b></font>", "");
 			}
+		}else{
+			test.log(LogStatus.INFO, field+" is empty", "");
 		}
-	}
+	} 
 	
 	/**
 	 * Function implements thread.sleep function 8
@@ -552,7 +558,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
 		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_DC");
 		int recordId = deliveryConfirmationQuery(dataMap);
-		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, getRuntimeTestdata(dataMap.get("VALUE7")),recordId);
+		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, dataMap.get("VALUE7"),recordId);
 	}
 	
 	
@@ -582,7 +588,6 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			RECORD_ID = generateRandomNum(10000000);
 			
 			String purchaseOrder = generateTestData("PONUMBER", inputValueMap.get("VALUE2"));
-			String itemcode = getRuntimeTestdata(inputValueMap.get("VALUE18"));
 			
 						
 			query="INSERT "
@@ -652,7 +657,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 					    +inputValueMap.get("VALUE15")+","
 					    +"'"+inputValueMap.get("VALUE16")+"',"
 					    +"'"+inputValueMap.get("VALUE17")+"',"
-					    +"'"+itemcode+"',"
+					    +"'"+inputValueMap.get("VALUE18")+"',"
 					    +"'"+inputValueMap.get("VALUE19")+"',"
 					    +"'"+inputValueMap.get("VALUE20")+"',"
 					    +"'"+inputValueMap.get("VALUE21")+"',"
@@ -681,7 +686,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 					    +"'"+inputValueMap.get("VALUE44")+"')";
 					 
 			//System.out.println(query);
-			executeUpdateQuery(query, "PO - <b>"+purchaseOrder+"</b> for Item <b>"+itemcode+"</b> is inserted in to CATSCON_PO_STG table");
+			executeUpdateQuery(query, "PO - <b>"+purchaseOrder+"</b> for Item <b>"+inputValueMap.get("VALUE18")+"</b> is inserted in to CATSCON_PO_STG table");
 			connection.commit();
 			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_PO}");	
 			stproc_stmt.executeUpdate();		
@@ -766,7 +771,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 						    +generateRandomNum(10000000)+","
 						    +generateRandomNum(10000000)+","
 						    + Integer.parseInt(inputValueMap.get("VALUE15"))+","
-						    +"'"+getRuntimeTestdata(inputValueMap.get("VALUE16"))+"',"
+						    +"'"+inputValueMap.get("VALUE16")+"',"
 						    + Integer.parseInt(inputValueMap.get("VALUE17"))+","
 						    + Integer.parseInt(inputValueMap.get("VALUE18"))+","
 						    + Integer.parseInt(inputValueMap.get("VALUE19"))+","
@@ -790,7 +795,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			
 			//System.out.println(query);
 			
-			executeUpdateQuery(query, "MRR - <b>"+mrrNumber+"</b> is created for PO - <b>"+getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER")+"</b>");
+			executeUpdateQuery(query, "MRR - <b>"+inputValueMap.get("VALUE9")+"</b> is created for PO - <b>"+inputValueMap.get("VALUE6")+"</b>");
 			connection.commit();
 			stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_MRR}");	
 			stproc_stmt.executeUpdate();		
@@ -817,7 +822,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		String query = null;
 		String SERIALIZED;
 		String TRANSACTIONID;
-		String ASSETCODE;	
+		String ASSETCODE;
+		String SERIALNUMBER;
 		int RECORD_ID = 0;
 		ResultSet rs;
 		Statement stmt;
@@ -825,7 +831,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		
 		try {
-			String	query1 =  "SELECT * FROM CATS_PART WHERE PARTCODE =" +"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"'";
+			String	query1 =  "SELECT * FROM CATS_PART WHERE PARTCODE =" +"'"+inputValueMap.get("VALUE7")+"'";
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(query1);
 			while (rs.next()) {
@@ -834,7 +840,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		if (SERIALIZED.equalsIgnoreCase("N")){
 			
 			String query2 = "SELECT MAX(PARTTRANSACTIONID) AS PARTTRANSACTIONID FROM CATS_PARTTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
-			                +"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"'";
+			                +"AND PARTCODE= "+"'"+inputValueMap.get("VALUE7")+"'";
 			stmt = connection.createStatement();
 			
 			rs = stmt.executeQuery(query2);	
@@ -862,10 +868,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 						+"'"+RECORD_ID+"',"
 						+inputValueMap.get("VALUE5")+","
 						+"'"+inputValueMap.get("VALUE6")+"',"
-						+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"',"
+						+"'"+inputValueMap.get("VALUE7")+"',"
 						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
 						+")";
-				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"</b>");
+				executeUpdateQuery(query, "Delivery Confirmation  - <b>"+inputValueMap.get("VALUE7")+"</b>");
 				connection.commit();
 				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
 				stproc_stmt.executeUpdate();		
@@ -881,13 +887,13 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			
 		}else{
 			String query3 = "SELECT * FROM CATS_ASSETTRANSACTION WHERE ASSETTRANSACTIONID IN (select MAX(ASSETTRANSACTIONID) AS ASSETTRANSACTIONID  FROM CATS_ASSETTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
-					+"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"')";
+					+"AND PARTCODE= "+"'"+inputValueMap.get("VALUE7")+"')";
 			stmt = connection.createStatement();
 			rs = stmt.executeQuery(query3);	
 			while (rs.next()) {
 				TRANSACTIONID = rs.getString("ASSETTRANSACTIONID");	
 				ASSETCODE = rs.getString("ASSETCODE");				
-				addRuntimeTestData(testParameters.getCurrentKeywordColumnName(), ASSETCODE);				
+				addRuntimeTestData("ASSETCODE", ASSETCODE);				
 				RECORD_ID = generateRandomNum(10000000);
 				query = "INSERT INTO "
 						+"CATS.CATSCON_POREC_STG"
@@ -910,11 +916,11 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 						+"'"+RECORD_ID+"',"
 						+inputValueMap.get("VALUE5")+","
 						+"'"+inputValueMap.get("VALUE6")+"',"
-						+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"',"
+						+"'"+inputValueMap.get("VALUE7")+"',"
 						+selectQuerySingleValue("SELECT * FROM CATS_CONTACT_UDFDATA WHERE CONTACTID=1", "NUMBER3")
 						+")";
 				connection.commit();
-				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
+				executeUpdateQuery(query, "Delivery Confirmation ITEMCODE : - <b>"+inputValueMap.get("VALUE7")+"</b> with Assetcode : <b>" + ASSETCODE +"</b>");
 				stproc_stmt = connection.prepareCall ("{call CATSCON_P_ERPINBOUND.SP_STG_INT_POREC}");	
 				stproc_stmt.executeUpdate();		
 				stproc_stmt = connection.prepareCall ("{call CATSCON_P_POCONFINTERFACE.SP_INITPOCONFINTERFACE(?)}");
@@ -930,7 +936,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 				
 		}
 		}catch (SQLException e) {	
-			test.log(LogStatus.FAIL, "Delivery Confirmation   - "+getRuntimeTestdata(inputValueMap.get("VALUE7"))+" is not done successfully");
+			test.log(LogStatus.FAIL, "Delivery Confirmation   - "+inputValueMap.get("VALUE7")+" is not done successfully");
 			e.printStackTrace();			
 		}
 		return RECORD_ID;
@@ -994,6 +1000,20 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}
 
 
+	}
+	
+	
+	public void verifyRoutine(String routinename){
+		
+		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(routinename)) {
+			
+			test.log(LogStatus.PASS, routinename + " - Routine is displayed");
+		}
+		else{
+			test.log(LogStatus.FAIL, routinename + " - Routine is displayed");
+			
+		}
+		
 	}
 	
 }

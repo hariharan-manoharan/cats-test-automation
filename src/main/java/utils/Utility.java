@@ -58,8 +58,6 @@ public class Utility implements RoutineObjectRepository{
 	public static Properties runtimeDataProperties;
 	public static Connection connection;
 	public static LinkedHashMap<String, String> environmentVariables;
-	private static HashMap<String, String> globalRuntimeRecevingDatamap = new HashMap<String, String>();
-	private static HashMap<String, String> globalRuntimeContainerDatamap = new HashMap<String, String>();
 	public static String newServerSetupForEachTestcase;
 	int verifyCounter = 0;
 	
@@ -1934,93 +1932,7 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		return succesFlag;
 	}
 	
-	
-	public String generateTestData(String routineFolderName, String columnName, String columnValue) {
-
-		String value = null;
-
-		try {
-
-			value = columnValue + getCurrentFormattedTime("ddMMhhmmss");
-
-			switch (routineFolderName) {
-
-			case "CONTAINER":
-				globalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
-				break;
-			
-			case "RECEIVING":
-				globalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, value);
-				break;
-				
-			}
-
-		} catch (Exception e) {
-			test.log(LogStatus.FAIL, e);
-		}
-
-		return value;
-
-	}
-	
-	
-	
-	public void addRuntimeTestData(String routineFolderName, String columnName, String columnValue) {
-
 		
-		try {
-			
-
-			switch (routineFolderName) {
-
-			case "CONTAINER":
-				globalRuntimeContainerDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
-				break;
-			
-			case "RECEIVING":
-				globalRuntimeRecevingDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
-				break;
-				
-			}
-
-		} catch (Exception e) {
-			test.log(LogStatus.FAIL, e);
-		}
-
-		
-
-	}
-	
-	
-	public String getRuntimeTestdata(String routineFolderName, String tescase_ColumnName) {
-
-		String value = null;
-
-		try {
-
-			switch (routineFolderName) {
-
-			case "CONTAINER":
-				value = globalRuntimeContainerDatamap.get(tescase_ColumnName);
-				break;
-
-			case "RECEIVING":
-				value = globalRuntimeRecevingDatamap.get(tescase_ColumnName);
-				break;
-
-			}
-
-		} catch (Exception e) {
-			test.log(LogStatus.FAIL, e);
-		}
-
-		return value;
-
-	}
-	
-	
-	
-	
 	
 	
 	public void VerfiyAutopopulatefieldvalues(String labelxpath ,String objectName , String values ){

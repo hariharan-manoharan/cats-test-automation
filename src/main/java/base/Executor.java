@@ -38,7 +38,7 @@ public class Executor extends Utility implements Runnable {
 	private ExecutionMode execMode;
 	private DataTable dataTable;
 	private static AppiumServerHandler appiumServerHandler;
-	private AppiumServerHandlerCmd appiumServerHandlerCmd;
+	//private AppiumServerHandlerCmd appiumServerHandlerCmd;
 	private int totalTestInstanceToRun ;
 	@SuppressWarnings("rawtypes")
 	private static AndroidDriver driver;
@@ -338,7 +338,7 @@ public class Executor extends Utility implements Runnable {
 				"http://" + properties.getProperty("RemoteAddress") + ":" + testParameters.getPort() + "/wd/hub"),
 				capabilities);
 
-		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
 		test.log(LogStatus.INFO, "Android Driver and Appium server setup done Successfully", "");
 
@@ -385,6 +385,11 @@ public class Executor extends Utility implements Runnable {
 					return;
 				} else if(GetText(ID_ALERT_TITLE, "Alert Title").equals("Mobility")){
 					Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
+					clickRoutineBackButton();
+					clickRoutineBackButton();
+					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+				} else if(GetText(ID_ALERT_TITLE, "Alert Title").equals("Confirm")){
+					Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt");
 					clickRoutineBackButton();
 					clickRoutineBackButton();
 					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");

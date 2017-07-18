@@ -9,7 +9,6 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -20,6 +19,8 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
@@ -30,14 +31,10 @@ import io.appium.java_client.pagefactory.AndroidFindBy;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
-import main.java.utils.GlobalRuntimeDataProperties;
 import main.java.utils.Utility;
 
 public class ReusableLibrary extends Utility implements RoutineObjectRepository {
 
-
-	private static HashMap<String, String> globalRuntimeDatamap = new HashMap<String, String>();
-	private boolean attachmentFlag = false;
 
 	@AndroidFindBy(uiAutomator = "new UiSelector().description(\"?\")")
 	private AndroidElement myElement;
@@ -96,8 +93,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		By by = By.xpath(String.format(XPATH_TXT, field));
 
 		waitCommand(by);
-		WebElement element = this.driver.findElement(by);
-		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
+		WebElement element = driver.findElement(by);
+		driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
 
@@ -114,10 +111,15 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	 */
 
 	public void clickNext() throws TimeoutException, NoSuchElementException{
-
-		HardDelay(3000);	 	
-		//waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
-		this.driver.findElement(By.id("next")).click();				
+		 	
+		waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
+		driver.findElement(By.id("next")).click();				
+	}
+	
+	public void clickNextWaitTillContains(String nextFieldLabel) throws TimeoutException, NoSuchElementException{
+	 	
+		waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, nextFieldLabel)));		    
+		driver.findElement(By.id("next")).click();				
 	}
 
 
@@ -125,7 +127,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		for(int i=1;i<=Integer.parseInt(times);i++){ 	
 			waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, ":")));		    
-			this.driver.findElement(By.id("next")).click();	
+			driver.findElement(By.id("next")).click();	
 			HardDelay(3000L);
 		}
 	}
@@ -134,7 +136,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		for(int i=1;i<=Integer.parseInt(times);i++){ 	
 			waitCommand(By.xpath(String.format(XPATH_TXT, field)));		    
-			this.driver.findElement(By.id("next")).click();	
+			driver.findElement(By.id("next")).click();	
 			HardDelay(3000L);
 		}
 	}
@@ -153,7 +155,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void clickPrevious() throws TimeoutException, NoSuchElementException{
 
 		waitCommand(By.id("previous"));
-		this.driver.findElement(By.id("previous")).click();
+		driver.findElement(By.id("previous")).click();
 		takeScreenshot("Click Previous Button");
 
 	}
@@ -162,7 +164,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void clickRoutineBackButton() throws TimeoutException, NoSuchElementException{
 
 		waitCommand(CONTENT_DESC_ROUITNE_BACK_BTN);
-		this.driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
+		driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
 		takeScreenshot("Click Routine back Button");
 
 	}
@@ -180,17 +182,38 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	@SuppressWarnings("unchecked")
 	public void clickSpyGlass(String pickListName) throws TimeoutException, NoSuchElementException {
-
+		
+		waitCommand(By.xpath(String.format(XPATH_TXT, pickListName)));		
+		
 		List<WebElement> element = driver.findElementsByAndroidUIAutomator(
 				"new UiSelector().className(\"android.view.View\").index(0).clickable(true)");
+		
+		
 		int size = element.size();
 		if (size > 1) {
-			element.get(size - 1).click();
+			//((JavascriptExecutor) driver).executeScript("arguments[0].click();", element.get(size - 1));
+			//element.get(size - 1).click();
+			
+			int x = element.get(size - 1).getLocation().getX();
+			int y = element.get(size - 1).getLocation().getY();
+			
+			driver.tap(1, x, y, 2);
+			
+			
+			takeScreenshot("Clicked - " + pickListName + " spyglass");
 		} else {
-			element.get(0).click();
+		    //((JavascriptExecutor) driver).executeScript("arguments[0].click();", element.get(0));
+			//element.get(0).click();
+			
+			int x = element.get(0).getLocation().getX();
+			int y = element.get(0).getLocation().getY();
+			
+			driver.tap(1, x, y, 2);
+			
+			takeScreenshot("Clicked - " + pickListName + " spyglass");
 		}
 		HardDelay(1000L);	
-		takeScreenshot("Clicked - " + pickListName + " spyglass");
+		
 
 	}
 
@@ -213,7 +236,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			pickListValue = getRuntimeTestdata(pickListValue);
 		}			
 
-		List<WebElement> elements = this.driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
+		List<WebElement> elements = driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']/android.widget.LinearLayout/android.widget.TextView[@index='0']");
 		int size = elements.size();
 		for(WebElement element: elements){			
 			size--;
@@ -251,8 +274,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		By by = By.xpath(String.format(XPATH_TXT, field));
 
 		waitCommand(by);
-		WebElement element = this.driver.findElement(by);
-		this.driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
+		WebElement element = driver.findElement(by);
+		driver.pressKeyCode(112); // DELETE Key event - https://developer.android.com/reference/android/view/KeyEvent.html#KEYCODE_FORWARD_DEL
 		element.sendKeys(data);
 		takeScreenshot(field, data);
 
@@ -340,7 +363,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 			String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
 
-			File scrFile = ((TakesScreenshot) this.driver).getScreenshotAs(OutputType.FILE);
+			File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 			try {
 				FileUtils.copyFile(scrFile,
 						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
@@ -419,7 +442,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 
 	public void clearField(){
-		this.driver.pressKeyCode(112);
+		driver.pressKeyCode(112);
 	}
 
 
@@ -501,9 +524,12 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		if (!fieldValue.equals("")){
 			if (data.equalsIgnoreCase(fieldValue)) {
-				test.log(LogStatus.PASS, "<b>" + field + "</b> matches the given Testdata <b>" + data + "</b>", "");
+				test.log(LogStatus.PASS, "<b>" + field + "Expected - <b>" + data + "</b></br>"
+													   + "Actual - <b>" + fieldValue +"</b>", "");
 			} else {
-				test.log(LogStatus.FAIL, "<font color=red><b>" + field + "</b></font>-not matches the given Testdata- <b> <font color=red>" + data + "</b></font>", "");
+				test.log(LogStatus.FAIL, "<b>" + field + "Expected - <b>" + data + "</b></br>"
+													   + "Actual - <font color=red><b>" + fieldValue +"</font></b>", "");
+				takeScreenshot(field + " is not populated as expected");
 			}
 		}
 	}

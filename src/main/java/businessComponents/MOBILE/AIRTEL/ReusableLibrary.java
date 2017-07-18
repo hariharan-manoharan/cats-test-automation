@@ -116,9 +116,9 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		driver.findElement(By.id("next")).click();				
 	}
 	
-	public void clickNextWaitTillContains(String nextFieldLabel) throws TimeoutException, NoSuchElementException{
+	public void clickNextWaitTillFieldContains(String fieldLabel) throws TimeoutException, NoSuchElementException{
 	 	
-		waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, nextFieldLabel)));		    
+		waitCommand(By.xpath(String.format(XPATH_TXT_CONTAINS, fieldLabel)));		    
 		driver.findElement(By.id("next")).click();				
 	}
 
@@ -524,10 +524,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		if (!fieldValue.equals("")){
 			if (data.equalsIgnoreCase(fieldValue)) {
-				test.log(LogStatus.PASS, "<b>" + field + "Expected - <b>" + data + "</b></br>"
+				test.log(LogStatus.PASS, field + "</br>Expected - <b>" + data + "</b></br>"
 													   + "Actual - <b>" + fieldValue +"</b>", "");
 			} else {
-				test.log(LogStatus.FAIL, "<b>" + field + "Expected - <b>" + data + "</b></br>"
+				test.log(LogStatus.FAIL, field + "</br>Expected - <b>" + data + "</b></br>"
 													   + "Actual - <font color=red><b>" + fieldValue +"</font></b>", "");
 				takeScreenshot(field + " is not populated as expected");
 			}

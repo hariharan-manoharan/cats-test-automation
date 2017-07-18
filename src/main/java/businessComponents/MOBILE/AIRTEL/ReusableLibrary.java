@@ -513,7 +513,9 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void verifyAutopopulatefieldvalues(String field, String data)  throws TimeoutException, NoSuchElementException {
 
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
-		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");			
+		waitForSeconds("3");
+		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");		
+		
 		if(data!=null){
 			if(data.contains("#")){
 

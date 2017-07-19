@@ -7,7 +7,6 @@ public class TestParameters implements Comparable {
 	private String description;
 	private String setCategory;
 	private String connectDB;
-	private String businessFlowClass;
 	private String executeCurrentTestCase;
 	private String port;
 	private String bootstrapPort;
@@ -59,15 +58,6 @@ public class TestParameters implements Comparable {
 
 	public void setConnectDB(String connectDB) {
 		this.connectDB = connectDB;
-	}
-	
-	
-	public String getBusinessFlowClass() {
-		return businessFlowClass;
-	}
-
-	public void setBusinessFlowClass(String businessFlowClass) {
-		this.businessFlowClass = businessFlowClass;
 	}
 
 	public String getPort() {

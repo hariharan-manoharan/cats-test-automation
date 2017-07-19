@@ -109,6 +109,7 @@ public class Main{
 		
 		Utility utility = new Utility();
 		utility.setEnvironmentVariables(runManager.getRowData("EnvironmentDetails", properties.getProperty("Environment")));
+		
 			
 	}
 

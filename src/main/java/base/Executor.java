@@ -149,100 +149,162 @@ public class Executor extends Utility implements Runnable {
 
 	public void executeKeywords(LinkedHashMap<String, String> keywords)
 			throws ExecuteException, IOException, InterruptedException, ClassNotFoundException, InstantiationException,
-			IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
+			IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			SecurityException, SessionNotCreatedException, TimeoutException, NoSuchElementException {
-		
-		
-		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
-		testCaseExecuted++;
-		if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && driverInstanceCount==0){
-		driverInstanceCount++;		
-		driverSetUp();
-		}else if(newServerSetupForEachTestcase.equalsIgnoreCase("True") && driverInstanceCount==0) {		
-		driverSetUp();	
-		}
-		}
-		
-		if(testParameters.getBusinessFlowClass().equalsIgnoreCase("ReusableLibrary")){
-		getFields();
-		getData();		
-		}		
-		
-		Method method;		
 
-		Class<?> className = Class.forName("main.java.businessComponents." + execMode + "."
-				+ properties.getProperty("Project") + "."+testParameters.getBusinessFlowClass());
-		Constructor<?> constructor = className.getDeclaredConstructors()[0];
-		Object classInstance = constructor.newInstance(test, driver, dataTable, testParameters);
-		
-		totalKeywords = keywords.size();
-
-		for (Entry<String, String> map : keywords.entrySet()) {
-			if (!map.getKey().equals("TC_ID")) {
-				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
-				test.log(LogStatus.INFO, "<font size=2 face = Bedrock color=blue><b>" + currentKeyword.toUpperCase()+"</font></b>", "");
-				
-				String currentKey = map.getKey();				
-				testParameters.setCurrentKeywordColumnName(map.getKey());
-				
-				if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted>1) && (currentKeyword.equals("createNewConnection")
-						|| currentKeyword.equals("login")||currentKeyword.equals("selectUserProfile"))) {
-					test.log(LogStatus.INFO, "Keyword - " + currentKeyword + " is skipped", "");
-					continue;
-				}
-				
-				
-				switch(currentKeyword){
-				
-				case "enterText":
-				case "verifyAutopopulatefieldvalues":
-				case "clickConfirmPrompt":
-				case "getPutTestdata":
-				case "enterTransferOrder":
-				case "enterShipmentNumber":
-				case "deliveryinfocomplete":
-				case "multipleClickNext":
-					method = className.getDeclaredMethod(currentKeyword, String.class, String.class);
-					method.invoke(classInstance, fieldMap.get(currentKey), dataMap.get(currentKey));	
-					break;
-				case "enterTextFormattedData":	
-					method = className.getDeclaredMethod(currentKeyword, String.class, String.class, String.class);
-					method.invoke(classInstance, fieldMap.get(currentKey), dataMap.get(currentKey), currentKey);	
-					break;					
-				case "clickRoutineFolder":
-				case "clickRoutine":
-				case "selectPickListValue":
-				case "validateLoopField":
-				case "clickYesConfirmPromptContains":
-				case "clickNoConfirmPromptContains":
-				case "selectUserProfile":
-				case "clickOkPrompt":
-				case "clickSpyGlass":
-				case "waitForSeconds":
-				case "clickNextMultiple":
-				case "verifyRoutine":
-				case "clickNextWaitTillFieldContains":
-					method = className.getDeclaredMethod(currentKeyword, String.class);
-					method.invoke(classInstance, dataMap.get(currentKey));
-					break;	
-
-				default:
-					method = className.getDeclaredMethod(currentKeyword);
-					method.invoke(classInstance);
-					break;
-					
-					
-				}
-			
-				
+		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
+			testCaseExecuted++;
+			if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && driverInstanceCount == 0) {
+				driverInstanceCount++;
+				driverSetUp();
+			} else if (newServerSetupForEachTestcase.equalsIgnoreCase("True") && driverInstanceCount == 0) {
+				driverSetUp();
 			}
 		}
-		
+
+		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
+			getFields();
+			getData();
+		}
+
+		Class<?> dynamicClass = null;
+		Constructor<?> constructor = null;
+		Object classInstance = null;
+		Method method = null;
+		String className = null;
+
+		totalKeywords = keywords.size();	
+
+
+		for (Entry<String, String> map : keywords.entrySet()) {
+			
+			boolean isMethodFound = false;
+			
+			if (!map.getKey().equals("TC_ID")) {
+				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
+				test.log(LogStatus.INFO,
+						"<font size=2 face = Bedrock color=blue><b>" + currentKeyword.toUpperCase() + "</font></b>",
+						"");
+				
+
+				if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted > 1)
+						&& (currentKeyword.equals("createNewConnection") || currentKeyword.equals("login")
+								|| currentKeyword.equals("selectUserProfile"))) {
+					test.log(LogStatus.INFO, "Keyword - " + currentKeyword + " is skipped", "");
+					continue;
+				}	
+
+			File packageDirectory = new File(
+					"./src/main/java/businessComponents/" + execMode + "/" + properties.getProperty("Project"));
+
+			File[] packageFiles = packageDirectory.listFiles();			
+
+			for (int i = 0; i < packageFiles.length; i++) {
+				if(isMethodFound) {
+					break;
+				}				
+				File packageFile = packageFiles[i];
+				String fileName = packageFile.getName();
+
+				if (fileName.endsWith(".class")) {
+					 className = fileName.substring(0, fileName.length() - ".class".length());
+				}else if (fileName.endsWith(".java")){
+					 className = fileName.substring(0, fileName.length() - ".java".length());
+				}
+
+				
+
+					String currentKey = map.getKey();
+					testParameters.setCurrentKeywordColumnName(map.getKey());
+					
+
+					dynamicClass = Class.forName("main.java.businessComponents." + execMode + "." + properties.getProperty("Project") + "." + className);
+					constructor = dynamicClass.getDeclaredConstructors()[0];
+					classInstance = constructor.newInstance(test, driver, dataTable, testParameters);
+
+
+					switch (currentKeyword) {
+
+					case "enterText":
+					case "verifyAutopopulatefieldvalues":
+					case "clickConfirmPrompt":
+					case "getPutTestdata":
+					case "enterTransferOrder":
+					case "enterShipmentNumber":
+					case "deliveryinfocomplete":
+					case "multipleClickNext":
+						try {
+							method = dynamicClass.getDeclaredMethod(currentKeyword, String.class, String.class);
+							isMethodFound = true;
+						} catch (NoSuchMethodException e) {
+							isMethodFound = false;
+							break;
+						}
+						if (isMethodFound) {
+							method.invoke(classInstance, fieldMap.get(currentKey), dataMap.get(currentKey));
+						}
+						break;
+					case "enterTextFormattedData":
+						try {
+							method = dynamicClass.getDeclaredMethod(currentKeyword, String.class, String.class,
+									String.class);
+							isMethodFound = true;
+						} catch (NoSuchMethodException e) {
+							isMethodFound = false;
+							break;
+						}
+						if (isMethodFound) {
+							method.invoke(classInstance, fieldMap.get(currentKey), dataMap.get(currentKey), currentKey);							
+						}
+						break;
+					case "clickRoutineFolder":
+					case "clickRoutine":
+					case "selectPickListValue":
+					case "validateLoopField":
+					case "clickYesConfirmPromptContains":
+					case "clickNoConfirmPromptContains":
+					case "selectUserProfile":
+					case "clickOkPrompt":
+					case "clickSpyGlass":
+					case "waitForSeconds":
+					case "clickNextMultiple":
+					case "verifyRoutine":
+					case "clickNextWaitTillFieldContains":
+						try {
+							method = dynamicClass.getDeclaredMethod(currentKeyword, String.class);
+							isMethodFound = true;
+						} catch (NoSuchMethodException e) {
+							isMethodFound = false;
+							break;
+						}
+						if (isMethodFound) {
+							method.invoke(classInstance, dataMap.get(currentKey));
+						}
+						break;
+
+					default:
+						try {
+							method = dynamicClass.getDeclaredMethod(currentKeyword);
+							isMethodFound = true;
+						} catch (NoSuchMethodException e) {
+							isMethodFound = false;
+							break;
+						}
+						if (isMethodFound) {
+							method.invoke(classInstance);							
+						}
+						break;
+
+					}
+
+				}
+			}
+		}
+
 		keywordCounter = 0;
 
 	}
 
-	
 	/**
 	 * Function to get Business Keywords
 	 * 
@@ -252,16 +314,15 @@ public class Executor extends Utility implements Runnable {
 	 * @since 01/05/2017
 	 * 
 	 */
-	
+
 	public LinkedHashMap<String, String> getKeywords() {
 
 		LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
-		keywordMap = dataTable.getRowData("BusinessFlow",testParameters.getCurrentTestCase());
+		keywordMap = dataTable.getRowData("BusinessFlow", testParameters.getCurrentTestCase());
 		return keywordMap;
 
 	}
-	
-	
+
 	/**
 	 * Function to get Fields
 	 * 
@@ -271,16 +332,15 @@ public class Executor extends Utility implements Runnable {
 	 * @since 01/05/2017
 	 * 
 	 */
-	
+
 	public LinkedHashMap<String, String> getFields() {
-	
-		fieldMap = dataTable.getRowData("BusinessFlow",testParameters.getCurrentTestCase()+"_FIELD");
+
+		fieldMap = dataTable.getRowData("BusinessFlow", testParameters.getCurrentTestCase() + "_FIELD");
 		fieldMap.remove("TC_ID");
 		return fieldMap;
 
 	}
-	
-	
+
 	/**
 	 * Function to get Data
 	 * 
@@ -290,10 +350,10 @@ public class Executor extends Utility implements Runnable {
 	 * @since 01/05/2017
 	 * 
 	 */
-	
+
 	public LinkedHashMap<String, String> getData() {
-		
-		dataMap = dataTable.getRowData("BusinessFlow",testParameters.getCurrentTestCase()+"_DATA");
+
+		dataMap = dataTable.getRowData("BusinessFlow", testParameters.getCurrentTestCase() + "_DATA");
 		dataMap.remove("TC_ID");
 		return dataMap;
 
@@ -301,22 +361,22 @@ public class Executor extends Utility implements Runnable {
 
 	@SuppressWarnings("rawtypes")
 	public void driverSetUp() throws ExecuteException, IOException, InterruptedException, SessionNotCreatedException {
-		
-		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA") ) {
-		if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && appiumServerInstanceCount==0){
-			
-		appiumServerInstanceCount++;
-		appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
-				testParameters.getBootstrapPort());
-		appiumServerHandler.appiumServerStart();
-		
-		}else if( newServerSetupForEachTestcase.equalsIgnoreCase("True") && appiumServerInstanceCount==0) {
-			
-			appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
-					testParameters.getBootstrapPort());
-			appiumServerHandler.appiumServerStart();	
-			
-		}
+
+		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
+			if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && appiumServerInstanceCount == 0) {
+
+				appiumServerInstanceCount++;
+				appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
+						testParameters.getBootstrapPort());
+				appiumServerHandler.appiumServerStart();
+
+			} else if (newServerSetupForEachTestcase.equalsIgnoreCase("True") && appiumServerInstanceCount == 0) {
+
+				appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
+						testParameters.getBootstrapPort());
+				appiumServerHandler.appiumServerStart();
+
+			}
 		}
 
 		String absolutePath = new File(System.getProperty("user.dir")).getAbsolutePath();
@@ -326,16 +386,15 @@ public class Executor extends Utility implements Runnable {
 		capabilities.setCapability("udid", testParameters.getUdid());
 		capabilities.setCapability(CapabilityType.BROWSER_NAME, testParameters.getBROWSER_NAME());
 		capabilities.setCapability(CapabilityType.VERSION, testParameters.getVERSION());
-		capabilities.setCapability("app", absolutePath +
-		 "\\src\\main\\resources\\Libs\\" + testParameters.getApp());
+		capabilities.setCapability("app", absolutePath + "\\src\\main\\resources\\Libs\\" + testParameters.getApp());
 		capabilities.setCapability("platformName", testParameters.getPlatformName());
 		capabilities.setCapability("appPackage", testParameters.getAppPackage());
 		capabilities.setCapability("appActivity", testParameters.getAppActivity());
 		capabilities.setCapability("unicodeKeyboard", "true");
 		capabilities.setCapability("resetKeyboard", "true");
-		capabilities.setCapability("newCommandTimeout", properties.getProperty("New.Command.TimeOut"));		
+		capabilities.setCapability("newCommandTimeout", properties.getProperty("New.Command.TimeOut"));
 		capabilities.setCapability("noReset", true);
-		
+
 		driver = new AndroidDriver(new URL(
 				"http://" + properties.getProperty("RemoteAddress") + ":" + testParameters.getPort() + "/wd/hub"),
 				capabilities);
@@ -346,32 +405,30 @@ public class Executor extends Utility implements Runnable {
 
 	}
 
+	public void end() {
 
-	public void end() {		
-		
-		if(newServerSetupForEachTestcase.equalsIgnoreCase("False") && totalTestInstanceToRun==0){
-			
-		if (driver != null) {
-			driver.quit();
-		}
+		if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && totalTestInstanceToRun == 0) {
 
-		if (appiumServerHandler != null) {
-			appiumServerHandler.appiumServerStop();
-		}
-		}else if (newServerSetupForEachTestcase.equalsIgnoreCase("True")) {
 			if (driver != null) {
 				driver.quit();
 			}
 
 			if (appiumServerHandler != null) {
 				appiumServerHandler.appiumServerStop();
-			}	
+			}
+		} else if (newServerSetupForEachTestcase.equalsIgnoreCase("True")) {
+			if (driver != null) {
+				driver.quit();
+			}
+
+			if (appiumServerHandler != null) {
+				appiumServerHandler.appiumServerStop();
+			}
 		}
 
 	}
-	
-	
-	public void exceptionHandler(){
+
+	public void exceptionHandler() {
 		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA") && (totalKeywords - keywordCounter) >= 2) {
 
 			test.log(LogStatus.INFO, "<b>Executing exception handler</b>");
@@ -381,23 +438,25 @@ public class Executor extends Utility implements Runnable {
 
 				if (msg.equals("Would you like to switch to Batch mode?")) {
 					networkFlag = false;
-					test.log(LogStatus.WARNING,"<font color=red><b>Network not available....Please check network connectivity</b></font>");
-					test.log(LogStatus.WARNING,"<font color=red><b>Execution of upcoming test cases will be suspended</b></font>");
+					test.log(LogStatus.WARNING,
+							"<font color=red><b>Network not available....Please check network connectivity</b></font>");
+					test.log(LogStatus.WARNING,
+							"<font color=red><b>Execution of upcoming test cases will be suspended</b></font>");
 					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 					return;
-				} else if(GetText(ID_ALERT_TITLE, "Alert Title").equals("Mobility")){
+				} else if (GetText(ID_ALERT_TITLE, "Alert Title").equals("Mobility")) {
 					Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
 					clickRoutineBackButton();
 					clickRoutineBackButton();
 					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
-				} else if(GetText(ID_ALERT_TITLE, "Alert Title").equals("Confirm")){
+				} else if (GetText(ID_ALERT_TITLE, "Alert Title").equals("Confirm")) {
 					Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt");
 					clickRoutineBackButton();
 					clickRoutineBackButton();
 					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 				}
-				
-			}else {
+
+			} else {
 				clickRoutineBackButton();
 				clickRoutineBackButton();
 				test.log(LogStatus.INFO, "<b>Exception handler completed</b>");

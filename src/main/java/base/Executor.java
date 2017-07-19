@@ -166,12 +166,7 @@ public class Executor extends Utility implements Runnable {
 			getFields();
 			getData();
 		}
-
-		Class<?> dynamicClass = null;
-		Constructor<?> constructor = null;
-		Object classInstance = null;
-		Method method = null;
-		String className = null;
+		
 
 		totalKeywords = keywords.size();	
 
@@ -200,6 +195,13 @@ public class Executor extends Utility implements Runnable {
 			File[] packageFiles = packageDirectory.listFiles();			
 
 			for (int i = 0; i < packageFiles.length; i++) {
+				
+				Class<?> dynamicClass = null;
+				Constructor<?> constructor = null;
+				Object classInstance = null;
+				Method method = null;
+				String className = null;
+				
 				if(isMethodFound) {
 					break;
 				}				
@@ -219,6 +221,9 @@ public class Executor extends Utility implements Runnable {
 					
 
 					dynamicClass = Class.forName("main.java.businessComponents." + execMode + "." + properties.getProperty("Project") + "." + className);
+					if(dynamicClass.isInterface()) {
+						continue;
+					}
 					constructor = dynamicClass.getDeclaredConstructors()[0];
 					classInstance = constructor.newInstance(test, driver, dataTable, testParameters);
 

@@ -20,20 +20,21 @@ public class TestRailListener extends Utility {
 	public void initialize() {
 
 		
-			testRail = TestRail.builder(properties.getProperty("testRail.url"),
-										properties.getProperty("testRail.username"),
-										properties.getProperty("testRail.password")).applicationName("Automation").build();
+			testRail = TestRail.builder(testRailProperties.getProperty("testRail.url"),
+										testRailProperties.getProperty("testRail.username"),
+										testRailProperties.getProperty("testRail.password")).applicationName("Automation").build();
 		
 		
 	}
 
 	public void addTestRun() {
-		run = testRail.runs().add(projectId, new Run().setSuiteId(Integer.parseInt(properties.getProperty("testRail.suiteId"))).setName(properties.getProperty("testRail.testRunName"))).execute();
+		run = testRail.runs().add(projectId, new Run().setSuiteId(Integer.parseInt(testRailProperties.getProperty("testRail.suiteId"))).setName(testRailProperties.getProperty("testRail.testRunName"))).execute();
+		testRailProperties.setProperty("testRail.runId", String.valueOf(run.getId()));
 	}
 
 	public void addTestResult(int testCaseId, int statusId) {
 		List<ResultField> customResultFields = testRail.resultFields().list().execute();
-		testRail.results().addForCase(Integer.parseInt(properties.getProperty("testRail.runId")), testCaseId, new Result().setStatusId(statusId), customResultFields).execute();
+		testRail.results().addForCase(Integer.parseInt(testRailProperties.getProperty("testRail.runId")), testCaseId, new Result().setStatusId(statusId), customResultFields).execute();
 	}
 
 	public void closeTestRun() {

@@ -56,6 +56,7 @@ public class Utility implements RoutineObjectRepository{
 	protected TestParameters testParameters;
 	public static Properties properties;
 	public static Properties runtimeDataProperties;
+	public static Properties testRailProperties;
 	public static Connection connection;
 	public static LinkedHashMap<String, String> environmentVariables;
 	public static String newServerSetupForEachTestcase;
@@ -85,6 +86,18 @@ public class Utility implements RoutineObjectRepository{
 	public void setRuntimeDataProperties(Properties runtimeDataProperties) {
 		this.runtimeDataProperties = runtimeDataProperties;
 	}
+	
+	@SuppressWarnings("static-access")
+	public void setTestRailProperties(Properties testRailProperties) {
+		this.testRailProperties = testRailProperties;
+	}
+	
+	
+	@SuppressWarnings("static-access")
+	public Properties getTestRailProperties() {
+		return this.testRailProperties;
+	}
+	
 	
 	
 	@SuppressWarnings("static-access")

@@ -43,8 +43,8 @@ public class Executor extends Utility implements Runnable {
 	@SuppressWarnings("rawtypes")
 	private static AndroidDriver driver;
 	private TestRailListener testRailListenter;
-	String testRailEnabled = properties.getProperty("testRail.enabled");
-	int projectId = Integer.parseInt(properties.getProperty("testRail.projectId"));
+	String testRailEnabled = testRailProperties.getProperty("testRail.enabled");
+	int projectId = Integer.parseInt(testRailProperties.getProperty("testRail.projectId"));
 	
 	private static int testCaseExecuted = 0;
 	public static int driverInstanceCount = 0;
@@ -54,7 +54,7 @@ public class Executor extends Utility implements Runnable {
 	private static boolean networkFlag= true;
 	
 	
-		
+	LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
 	LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
 	LinkedHashMap<String, String> dataMap = new LinkedHashMap<String, String>();
 	
@@ -96,7 +96,11 @@ public class Executor extends Utility implements Runnable {
 					Getconnections();
 				}
 
-				executeKeywords(getKeywords());
+				getKeywords();
+				
+				if(!keywordMap.isEmpty()) {
+				executeKeywords(keywordMap);
+				}
 
 				if (testParameters.getConnectDB().equalsIgnoreCase("Yes")) {
 					Closeconnections();
@@ -104,18 +108,15 @@ public class Executor extends Utility implements Runnable {
 
 				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution completed", "");
 				report.endTest(test);
-				report.flush();				
-					
-				if(test.getRunStatus() == LogStatus.PASS && testRailEnabled.equalsIgnoreCase("True")){
-				testRailListenter.addTestResult(Integer.parseInt(testParameters.getCurrentTestCase()), 1);
-				}else if (testRailEnabled.equalsIgnoreCase("True")) {
-				testRailListenter.addTestResult(Integer.parseInt(testParameters.getCurrentTestCase()), 5);	
-				}
+				report.flush();		
+				
+				testRailReport();
 			}
 		} catch (SessionNotCreatedException e) {
 			test.log(LogStatus.FAIL, "Android Driver and Appium server setup not done Successfully", "");
 			test.log(LogStatus.FAIL, e);	
-			report.flush();	
+			report.flush();
+			testRailReport();
 			return;
 		} catch (ExecuteException | ClassNotFoundException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -124,7 +125,8 @@ public class Executor extends Utility implements Runnable {
 			report(driver, test, "Exception occured", LogStatus.FAIL);
 			exceptionHandler();
 			}
-			report.flush();				
+			report.flush();	
+			testRailReport();
 			return;
 		} catch (IOException | InterruptedException | TimeoutException | NoSuchElementException e) {
 			test.log(LogStatus.FAIL, e);
@@ -132,7 +134,8 @@ public class Executor extends Utility implements Runnable {
 				report(driver, test, "Exception occured", LogStatus.FAIL);
 				exceptionHandler();
 				}
-			report.flush();				
+			report.flush();	
+			testRailReport();
 			return;
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
@@ -140,7 +143,8 @@ public class Executor extends Utility implements Runnable {
 				report(driver, test, "Exception occured", LogStatus.FAIL);
 				exceptionHandler();
 				}
-			report.flush();				
+			report.flush();	
+			testRailReport();
 			return;
 		} finally {			
 			end();
@@ -169,13 +173,22 @@ public class Executor extends Utility implements Runnable {
 		
 
 		totalKeywords = keywords.size();	
+		
+		Class<?> dynamicClass = null;
+		Constructor<?> constructor = null;
+		Object classInstance = null;
+		Method method = null;
+		String className = null;
 
 
 		for (Entry<String, String> map : keywords.entrySet()) {
 			
 			boolean isMethodFound = false;
 			
-			if (!map.getKey().equals("TC_ID")) {
+			if (!map.getKey().equals("TC_ID") && !(map.getValue().length()<=1)) {
+				
+				//System.out.println(map.getKey() + " - " +map.getValue() + " - length() - "+ map.getValue().length());
+				
 				String currentKeyword = map.getValue().substring(0, 1).toLowerCase() + map.getValue().substring(1);
 				test.log(LogStatus.INFO,
 						"<font size=2 face = Bedrock color=blue><b>" + currentKeyword.toUpperCase() + "</font></b>",
@@ -194,13 +207,7 @@ public class Executor extends Utility implements Runnable {
 
 			File[] packageFiles = packageDirectory.listFiles();			
 
-			for (int i = 0; i < packageFiles.length; i++) {
-				
-				Class<?> dynamicClass = null;
-				Constructor<?> constructor = null;
-				Object classInstance = null;
-				Method method = null;
-				String className = null;
+			for (int i = 0; i < packageFiles.length; i++) {		
 				
 				if(isMethodFound) {
 					break;
@@ -321,9 +328,13 @@ public class Executor extends Utility implements Runnable {
 	 */
 
 	public LinkedHashMap<String, String> getKeywords() {
-
-		LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
+		
 		keywordMap = dataTable.getRowData("BusinessFlow", testParameters.getCurrentTestCase());
+		
+		if(keywordMap.isEmpty()) {
+			test.log(LogStatus.FATAL, "No Business flow available for current test case in worksheet - <b>BusinessFlow</b>");
+		}
+		
 		return keywordMap;
 
 	}
@@ -434,6 +445,7 @@ public class Executor extends Utility implements Runnable {
 	}
 
 	public void exceptionHandler() {
+		try {
 		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA") && (totalKeywords - keywordCounter) >= 2) {
 
 			test.log(LogStatus.INFO, "<b>Executing exception handler</b>");
@@ -466,6 +478,29 @@ public class Executor extends Utility implements Runnable {
 				clickRoutineBackButton();
 				test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 			}
+		}
+	}
+	catch(Exception e) {
+		test.log(LogStatus.INFO, "<b>Exception occured while executing - Exception handler</b>");
+		test.log(LogStatus.INFO, e);	
+	}
+	}
+	
+	
+	private void testRailReport() {
+		
+		try {
+		
+		if(!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {					
+			if(test.getRunStatus() == LogStatus.PASS && testRailEnabled.equalsIgnoreCase("True")){
+			testRailListenter.addTestResult(Integer.parseInt(testParameters.getTestRailTestcaseID()), 1);
+			}else if (testRailEnabled.equalsIgnoreCase("True")) {
+			testRailListenter.addTestResult(Integer.parseInt(testParameters.getTestRailTestcaseID()), 5);	
+			}
+			}
+		}catch(RuntimeException e) {
+			test.log(LogStatus.WARNING, "Exception occured while updating test result in test rail.");
+			test.log(LogStatus.WARNING, e);
 		}
 	}
 

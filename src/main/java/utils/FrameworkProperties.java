@@ -12,33 +12,33 @@ import java.util.Properties;
  * Java Design pattern followed - Singleton Pattern
  * 
  */
-public class GlobalRuntimeDataProperties{
+public class FrameworkProperties{
 
 	//Create an object of GlobalProperties
 	
-	private static GlobalRuntimeDataProperties instance = new GlobalRuntimeDataProperties();
+	private static FrameworkProperties instance = new FrameworkProperties();
 
     //Create constructor private so that this class cannot be instantiated
 	
-	private GlobalRuntimeDataProperties(){
+	private FrameworkProperties(){
 		
 	}
 	
 	//Get the only object available	
 	
-	public static GlobalRuntimeDataProperties getInstance(){
+	public static FrameworkProperties getInstance(){
 		return instance;
 	}
 	
 	//Loads GlobalProperties.properties files and return Properties object
 	
-	public Properties loadPropertyFile() {
+	public Properties loadPropertyFile(String propertyFilePath) {
 		Properties properties = new Properties();
 		InputStream input = null;
 
 		try {
 			
-			input = new FileInputStream("./src/main/resources/PropertyFiles/GlobalRuntimeDataProperties.properties");
+			input = new FileInputStream(propertyFilePath);
 			properties.load(input);
 
 		} catch (IOException e) {
@@ -60,12 +60,12 @@ public class GlobalRuntimeDataProperties{
 	}
 	
 	
-	public void writeGlobalRuntimeDataProperties(Properties globalRuntimeDataProperties){
+	public void writeGlobalRuntimeDataProperties(String propertyFilePath, Properties globalRuntimeDataProperties){
 		OutputStream output = null;
 		
 		try {
 
-			output = new FileOutputStream("./src/main/resources/PropertyFiles/GlobalRuntimeDataProperties.properties");	
+			output = new FileOutputStream(propertyFilePath);	
 
 			// save properties to project root folder
 			globalRuntimeDataProperties.store(output, null);

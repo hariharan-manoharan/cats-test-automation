@@ -572,7 +572,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			test.log(LogStatus.PASS, routinename + " - Routine is displayed");
 		}
 		else{
-			test.log(LogStatus.FAIL, routinename + " - Routine is displayed");
+			test.log(LogStatus.FAIL, routinename + " - Routine is not displayed");
 
 		}
 

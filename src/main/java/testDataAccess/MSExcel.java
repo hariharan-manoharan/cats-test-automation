@@ -160,6 +160,8 @@ public class MSExcel implements DataTable {
 		Row colName = sheet.getRow(0);
 		Row currentRow = sheet.getRow(getRowNum(workSheetName, currentTestCase));
 		int lastColNum = currentRow.getLastCellNum();
+		
+		if(currentRow.getRowNum()!=0) {
 
 		for (int col = 0; col < lastColNum; col++) {
 			Cell key = colName.getCell(col, Row.RETURN_BLANK_AS_NULL);
@@ -196,6 +198,7 @@ public class MSExcel implements DataTable {
 			}
 
 		}
+		}
 		return rowData;
 	}
 
@@ -208,6 +211,8 @@ public class MSExcel implements DataTable {
 		Row colName = sheet.getRow(0);
 		Row currentRow = sheet.getRow(getRowNum(workSheetName, currentTestCase));
 		int lastColNum = currentRow.getLastCellNum();
+		
+		if(currentRow.getRowNum()!=0) {
 
 		for (int col = 0; col < lastColNum; col++) {
 			Cell key = colName.getCell(col, Row.RETURN_BLANK_AS_NULL);
@@ -241,6 +246,7 @@ public class MSExcel implements DataTable {
 
 			}
 
+		}
 		}
 		return rowData;
 	}
@@ -262,6 +268,7 @@ public class MSExcel implements DataTable {
 			if(getData("RunInfo", i, "Execute").equalsIgnoreCase("Yes")){
 
 			testParameter.setCurrentTestCase(getData("RunInfo", i, "TC_ID"));
+			testParameter.setTestRailTestcaseID(getData("RunInfo", i, "TestRail_TC_ID"));
 			testParameter.setDescription(getData("RunInfo", i, "Description"));
 			testParameter.setSetCategory(getData("RunInfo", i, "SetCategory"));
 			testParameter.setExecuteCurrentTestCase(getData("RunInfo", i, "Execute"));
@@ -280,6 +287,7 @@ public class MSExcel implements DataTable {
 
 			}
 		}
+
 		return runInfoArray;
 	}
 

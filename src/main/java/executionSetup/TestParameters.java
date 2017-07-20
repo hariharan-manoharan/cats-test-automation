@@ -4,6 +4,7 @@ public class TestParameters implements Comparable {
 
 	private String executionMode;
 	private String currentTestCase;
+	private String testRailTestcaseID;
 	private String description;
 	private String setCategory;
 	private String connectDB;
@@ -34,6 +35,14 @@ public class TestParameters implements Comparable {
 
 	public void setCurrentTestCase(String currentTestCase) {
 		this.currentTestCase = currentTestCase;
+	}
+	
+	public String getTestRailTestcaseID() {
+		return testRailTestcaseID;
+	}
+
+	public void setTestRailTestcaseID(String testRailTestcaseID) {
+		this.testRailTestcaseID = testRailTestcaseID;
 	}
 
 	public String getExecuteCurrentTestCase() {

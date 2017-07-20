@@ -14,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
+import com.relevantcodes.extentreports.LogStatus;
+
 import main.java.executionSetup.ExecutionMode;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
@@ -21,8 +23,7 @@ import main.java.testDataAccess.DataTable;
 import main.java.testDataAccess.DataTableAbstractFactory;
 import main.java.testDataAccess.DataTableFactoryProducer;
 import main.java.utils.CopyLatestResult;
-import main.java.utils.GlobalProperties;
-import main.java.utils.GlobalRuntimeDataProperties;
+import main.java.utils.FrameworkProperties;
 import main.java.utils.TestRailListener;
 import main.java.utils.Utility;
 
@@ -41,6 +42,7 @@ public class Main{
 	private static String absolutePath;
 	private static Properties properties;
 	private static Properties runtimeDataProperties;
+	private static Properties testRailProperties;
 	private static DataTableAbstractFactory runManagerFactory;
 	private static DataTable runManager;
 	private static DataTableAbstractFactory dataTableFactory;
@@ -50,9 +52,15 @@ public class Main{
 	private static ArrayList<TestParameters> testInstancesToRun;	
 	private static ExtentTest test;
 	private static int nThreads;
-	private static GlobalRuntimeDataProperties globalRuntimeDataProperties;
+	private static FrameworkProperties globalRuntimeDataProperties;
+	private static FrameworkProperties globalProperties;
+	private static FrameworkProperties frameworkTestRailProperties;
 	private static Utility utility;
-
+	private static ExtentTest runManagerTest;
+	
+	private static final String globalPropertyFilePath = "./src/main/resources/PropertyFiles/GlobalProperties.properties";
+	private static final String globalRuntimeDataPropertyFilePath = "./src/main/resources/PropertyFiles/GlobalRuntimeDataProperties.properties";
+	private static final String testRailPropertyFilePath = "./src/main/resources/PropertyFiles/TestRail.properties";
 	
 	
 
@@ -85,6 +93,7 @@ public class Main{
 		setAbsolutePath();
 		collectGlobalProperties();
 		initializeGlobalRuntimeDataProperties();
+		collectTestRailProperties();
 		
 	}	
 	
@@ -104,6 +113,11 @@ public class Main{
 		runManagerFactory = DataTableFactoryProducer.getDataTableFactory();
 		runManager = runManagerFactory.getTestDataTableAccess(runManagerType, "./"+runManagerName);		
 		testInstancesToRun = runManager.getRunManagerInfo();
+		
+		if(testInstancesToRun.isEmpty()) {
+			runManagerTest = report.startTest("Run Manager status");
+			runManagerTest.log(LogStatus.FATAL, "No test cases are selected in Run Manager for execution.");
+		}
 		
 		Collections.sort(testInstancesToRun);
 		
@@ -143,7 +157,7 @@ public class Main{
 		
 		for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
 			totalTestInstanceToRun--;
-			if(properties.getProperty("testRail.enabled").equalsIgnoreCase("True")){
+			if(testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")){
 			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable, testRailListenter, totalTestInstanceToRun);
 			}else{
 			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable, totalTestInstanceToRun);	
@@ -173,8 +187,9 @@ public class Main{
 
 	private static void tearDown() {
 		
-		report.flush();		
-		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(utility.getRuntimeDataProperties());		
+		report.flush();				
+		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(globalRuntimeDataPropertyFilePath, utility.getRuntimeDataProperties());	
+		frameworkTestRailProperties.writeGlobalRuntimeDataProperties(testRailPropertyFilePath, utility.getTestRailProperties());
 		
 		try {
 			Desktop.getDesktop().open(new File(HtmlReport.reportPath));
@@ -184,7 +199,7 @@ public class Main{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 	}
 	
 	
@@ -213,13 +228,21 @@ public class Main{
 	
 	private static void collectGlobalProperties() {
 
-		GlobalProperties globalProperties = GlobalProperties.getInstance();
-		properties = globalProperties.loadPropertyFile();
+		globalProperties = FrameworkProperties.getInstance();
+		properties = globalProperties.loadPropertyFile(globalPropertyFilePath);
 		
 		utility = new Utility();
 		utility.setProperties(properties);
 		utility.setNewServerSetupForEachTestcase();
 
+	}
+	
+	private static void collectTestRailProperties() {
+	
+	frameworkTestRailProperties = FrameworkProperties.getInstance();			
+	testRailProperties = frameworkTestRailProperties.loadPropertyFile(testRailPropertyFilePath);			
+	utility.setTestRailProperties(testRailProperties);
+	
 	}
 	
 	/**
@@ -232,8 +255,8 @@ public class Main{
 	
 	private static void initializeGlobalRuntimeDataProperties() {
 
-		globalRuntimeDataProperties = GlobalRuntimeDataProperties.getInstance();
-		runtimeDataProperties = globalRuntimeDataProperties.loadPropertyFile();
+		globalRuntimeDataProperties = FrameworkProperties.getInstance();
+		runtimeDataProperties = globalRuntimeDataProperties.loadPropertyFile(globalRuntimeDataPropertyFilePath);
 		
 		utility.setRuntimeDataProperties(runtimeDataProperties);
 
@@ -291,20 +314,20 @@ public class Main{
 		report.loadConfig((new File("./src/main/resources/PropertyFiles/extent-report-config.xml")));
 		report.addSystemInfo("Project", properties.getProperty("Project"));
 		report.addSystemInfo("Environment", properties.getProperty("Environment"));
-		report.addSystemInfo("Project ID", properties.getProperty("testRail.projectId"));
-		report.addSystemInfo("Suite ID", properties.getProperty("testRail.suiteId"));
-		report.addSystemInfo("Test Run name", properties.getProperty("testRail.testRunName"));		
+		report.addSystemInfo("Project ID", testRailProperties.getProperty("testRail.projectId"));
+		report.addSystemInfo("Suite ID", testRailProperties.getProperty("testRail.suiteId"));
+		report.addSystemInfo("Test Run name", testRailProperties.getProperty("testRail.testRunName"));		
 		
 	}
 	
 	
 	private static void initializeTestRailReporting(){			
 		
-		if (properties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {		
-		int projectId = Integer.parseInt(properties.getProperty("testRail.projectId"));
+		if (testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {			
+		int projectId = Integer.parseInt(testRailProperties.getProperty("testRail.projectId"));
 		testRailListenter = new TestRailListener(projectId);
 		testRailListenter.initialize();
-		if (properties.getProperty("testRail.addNewRun").equalsIgnoreCase("True")) {	
+		if (testRailProperties.getProperty("testRail.addNewRun").equalsIgnoreCase("True")) {	
 		testRailListenter.addTestRun();
 		}
 		}

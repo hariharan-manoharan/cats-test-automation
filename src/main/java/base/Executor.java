@@ -245,6 +245,7 @@ public class Executor extends Utility implements Runnable {
 					case "enterShipmentNumber":
 					case "deliveryinfocomplete":
 					case "multipleClickNext":
+					case "validatePicklistValue":
 						try {
 							method = dynamicClass.getDeclaredMethod(currentKeyword, String.class, String.class);
 							isMethodFound = true;
@@ -282,6 +283,7 @@ public class Executor extends Utility implements Runnable {
 					case "clickNextMultiple":
 					case "verifyRoutine":
 					case "clickNextWaitTillFieldContains":
+					case "swipingHorizontal":
 						try {
 							method = dynamicClass.getDeclaredMethod(currentKeyword, String.class);
 							isMethodFound = true;
@@ -415,7 +417,7 @@ public class Executor extends Utility implements Runnable {
 				"http://" + properties.getProperty("RemoteAddress") + ":" + testParameters.getPort() + "/wd/hub"),
 				capabilities);
 
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(25, TimeUnit.SECONDS);
 
 		test.log(LogStatus.INFO, "Android Driver and Appium server setup done Successfully", "");
 

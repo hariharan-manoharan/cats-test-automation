@@ -10,18 +10,27 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.FluentWait;
+
+import com.google.common.base.Function;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
+
+import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
+import io.appium.java_client.android.AndroidKeyCode;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
@@ -163,6 +172,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		takeScreenshot("Click Previous Button");
 
 	}
+	
+	public void clickDeviceBackButton(){
+		driver.pressKeyCode(AndroidKeyCode.BACK);
+	}
 
 
 	public void clickRoutineBackButton() throws TimeoutException, NoSuchElementException{
@@ -257,7 +270,102 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 
 	}
+	
+	
+	public void validatePicklistValue(String columnName, String value) throws InterruptedException {
+		
+		int requiredValueIndex = 0;
+		int picklistNumber = 0;
+		String[] valueSplit = new String[2];
+		String header = null;
+		
+		waitCommand(ID_PICKLIST_SEARCHFIELD);
+		
+		
+		if(value!=null && value.contains("@")) {
+			
+			valueSplit = value.split("@");			
+			picklistNumber = Integer.parseInt(valueSplit[0])-1;
+			
+			if(valueSplit[1].contains("#")){
+				valueSplit[1] = getRuntimeTestdata(valueSplit[1]);
+			}else if(valueSplit[1].equalsIgnoreCase("EMPTY")) {
+				valueSplit[1] = "";
+			}
+			
+		}
+		
+	
+		@SuppressWarnings("unchecked")
+		List<WebElement> elements1 = driver.findElementsByXPath(".//android.widget.LinearLayout[@resource-id='net.fulcrum.mobility:id/lookup_headers']"
+				+ "/android.widget.TextView");
+		
+		
+		for(int i=0;i<elements1.size();i++) {			
+			
+			header = elements1.get(i).getText();	
+			
+			if(header.equals(columnName)) {
+				requiredValueIndex = i;	
+				
+				 
+				
+				@SuppressWarnings("unchecked")
+				List<WebElement> elements2 = driver.findElementsByXPath(".//android.widget.ListView[@resource-id='android:id/list']"
+						+ "/android.widget.LinearLayout[@index='"+picklistNumber+"']/android.widget.TextView");
+				
+				String actualValue = elements2.get(requiredValueIndex).getText();
 
+				if (actualValue.equals(valueSplit[1])) {
+					test.log(LogStatus.PASS, "<b>"+ columnName + "</b></br>Expected - <b>" + valueSplit[1] + "</b></br>"
+																+ "Actual - <b>" + actualValue +"</b>", "");
+				}else {
+					test.log(LogStatus.FAIL, "<b>"+ columnName + "</b></br>Expected - <b>" + valueSplit[1] + "</b></br>"
+							   										+ "Actual - <font color=red><b>" + actualValue +"</font></b>", "");
+				}
+				
+				break;
+			}else if ((elements1.size()-1)==i){
+				swipingHorizontal("Right To Left");
+				validatePicklistValue(columnName,value);
+				break;
+			}
+		}
+		
+		
+		
+	}
+	
+	
+
+	public void swipingHorizontal(String direction) throws InterruptedException {
+		  //Get the size of screen.
+		  Dimension size = driver.manage().window().getSize();
+		  System.out.println(size);
+		  
+		  //Find swipe start and end point from screen's with and height.
+		  //Find startx point which is at right side of screen.
+		  int startx = (int) (size.width * 0.70);
+		  //Find endx point which is at left side of screen.
+		  int endx = (int) (size.width * 0.1);
+		  //Find vertical point where you wants to swipe. It is in middle of screen height.
+		  int starty = size.height / 2;
+		  //System.out.println("startx = " + startx + " ,endx = " + endx + " , starty = " + starty);
+
+		  
+		  if(direction.equalsIgnoreCase("Right To Left")) {
+		  //Swipe from Right to Left.
+		  driver.swipe(startx, starty, endx, starty, 3000);
+		  Thread.sleep(2000);
+		  takeScreenshot("Swiping Horizontally...Right to Left");
+		  }else if (direction.equalsIgnoreCase("Left to Right")){
+		  //Swipe from Left to Right.
+		  driver.swipe(endx, starty, startx, starty, 3000);
+		  Thread.sleep(2000); 
+		  takeScreenshot("Swiping Horizontally...Left to Right");
+		  }	
+	}
+		  
 
 
 	/**
@@ -517,8 +625,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public void verifyAutopopulatefieldvalues(String field, String data)  throws TimeoutException, NoSuchElementException {
 
 		waitCommand(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
-		waitForSeconds("3");
-		String fieldValue = driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View")).getAttribute("name");		
+		waitForSeconds("2");
+		
+		WebElement element =  driver.findElement(By.xpath(String.format(XPATH_TXT, field)+"/following-sibling::android.view.View"));
+		String fieldValue = element.getAttribute("name");		
 		
 		if(data!=null){
 			if(data.contains("#")){
@@ -528,15 +638,48 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			}
 		}
 
-		if (!fieldValue.equals("")){
+		if (data!=null){
 			if (data.equalsIgnoreCase(fieldValue)) {
-				test.log(LogStatus.PASS, field + "</br>Expected - <b>" + data + "</b></br>"
+				test.log(LogStatus.PASS, "<b>"+ field + "</b></br>Expected - <b>" + data + "</b></br>"
 													   + "Actual - <b>" + fieldValue +"</b>", "");
-			} else {
-				test.log(LogStatus.FAIL, field + "</br>Expected - <b>" + data + "</b></br>"
-													   + "Actual - <font color=red><b>" + fieldValue +"</font></b>", "");
-				takeScreenshot(field + " is not populated as expected");
+			}else {
+				test.log(LogStatus.FAIL, "<b>"+ field + "</b></br>Expected - <b>" + data + "</b></br>"
+						   + "Actual - <font color=red><b>" + fieldValue +"</font></b>", "");
+				driver.scrollToExact(field);
+				takeScreenshot(field + " is not populated as expected");				
 			}
+		}else if(field!=null && fieldValue.equals("")) {
+			test.log(LogStatus.INFO, "<b>"+ field + "</b></br> - Value is not expected in this field</b></br>"	, "");
+		}
+	}
+	
+	
+	
+	// Won't Work - Yet to Fix
+	public void touchAndScrollToElement(WebElement element) {
+		try {
+
+	    int startX = 0;
+		int startY = 0;
+		int endX = 0;
+		int endY = 0;
+		
+		@SuppressWarnings("unchecked")
+		List<WebElement> elements = driver.findElements(By.xpath(".//android.view.View"));
+		
+		WebElement startElement = elements.get(elements.size()-1);
+		
+		startX = startElement.getLocation().getX();
+		startY = startElement.getLocation().getY();
+		
+		endX = element.getLocation().getX();
+		endY = element.getLocation().getX();
+		
+		
+		driver.swipe(startX, startY, endX, endY, 3000);
+		
+		}catch(Exception e) {
+			test.log(LogStatus.INFO, e);
 		}
 	}
 
@@ -565,7 +708,9 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 
 
-	public void verifyRoutine(String routinename){
+	public void verifyRoutine(String routinename) throws TimeoutException, NoSuchElementException{
+		
+		waitUntilTextDisplayed(ID_ACTION_BAR_SUBTITLE, routinename);
 
 		if (GetText(ID_ACTION_BAR_SUBTITLE, "Routine name").equals(routinename)) {
 
@@ -577,6 +722,8 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		}
 
 	}
+	
+	
 
 
 

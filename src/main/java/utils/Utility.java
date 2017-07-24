@@ -275,7 +275,7 @@ public class Utility implements RoutineObjectRepository{
 
 		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(driver);
 		wait.pollingEvery(5, TimeUnit.SECONDS);
-		wait.withTimeout(20, TimeUnit.SECONDS);
+		wait.withTimeout(30, TimeUnit.SECONDS);
 		wait.ignoring(NoSuchElementException.class);
 
 		Function<WebDriver, Boolean> function = new Function<WebDriver, Boolean>() {
@@ -283,6 +283,40 @@ public class Utility implements RoutineObjectRepository{
 			@Override
 			public Boolean apply(WebDriver arg0) {
 				boolean displayed = arg0.findElement(by).isEnabled();
+				if (displayed) {
+					return true;
+				}
+				return false;
+			}
+		};
+		wait.until(function);
+		
+	}
+	
+	
+	/**
+	 * FulentWait Function - Waits until the object is available with timeout of 100 seconds polling every 5 seconds
+	 * 
+	 * @param1 By by	
+	 * @return void
+	 * @author Hari
+	 * @since 12/27/2016
+	 * 
+	 */
+	
+	
+	public void waitUntilTextDisplayed(final By by, final String text) throws TimeoutException, NoSuchElementException {
+
+		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(driver);
+		wait.pollingEvery(5, TimeUnit.SECONDS);
+		wait.withTimeout(20, TimeUnit.SECONDS);
+		wait.ignoring(NoSuchElementException.class);
+
+		Function<WebDriver, Boolean> function = new Function<WebDriver, Boolean>() {
+
+			@Override
+			public Boolean apply(WebDriver arg0) {
+				boolean displayed = arg0.findElement(by).getText().equals(text);
 				if (displayed) {
 					return true;
 				}

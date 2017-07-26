@@ -181,7 +181,7 @@ public class Main{
 
 	private static void execute() {			
 		
-		
+		if(!testInstancesToRun.isEmpty()) {
 		String executionMode = properties.getProperty("ExecutionMode");	
 		
 		if(executionMode.equalsIgnoreCase("DISTRIBUTED")) {
@@ -189,7 +189,7 @@ public class Main{
 		}else if(executionMode.equalsIgnoreCase("PARALLEL")){
 			parallelExecution();
 		}
-		
+		}		
 	    
 	}
 	
@@ -266,7 +266,7 @@ public class Main{
 	public static void parallelExecution() {
 		
 		int numberOfNodes = Integer.parseInt(properties.getProperty("NumberOfNodes"));
-		ExecutorService[] parallelExecutor = new ExecutorService[numberOfNodes] ;
+		ExecutorService[] parallelExecutor = new ExecutorService[numberOfNodes] ;	
 		
 		Runnable testRunner = null;
 		lock = new ReentrantLock();
@@ -380,19 +380,21 @@ public class Main{
 	
 
 	public static void shutDownAppiumAndAndroidDriver() {
-		
-		for(int i=0;i<nThreads; i++) {
 
-		if (androidDriverList.get(i) != null) {
-			androidDriverList.get(i).quit();
-		}
+		if (!androidDriverList.isEmpty() && !appiumServerInstanceList.isEmpty())
 
-		if (appiumServerInstanceList.get(i) != null) {
-			appiumServerInstanceList.get(i).appiumServerStop();
-		}
-		
-		}
-}
+			for (int i = 0; i < nThreads; i++) {
+
+				if (androidDriverList.get(i) != null) {
+					androidDriverList.get(i).quit();
+				}
+
+				if (appiumServerInstanceList.get(i) != null) {
+					appiumServerInstanceList.get(i).appiumServerStop();
+				}
+
+			}
+	}
 	
 	
 	

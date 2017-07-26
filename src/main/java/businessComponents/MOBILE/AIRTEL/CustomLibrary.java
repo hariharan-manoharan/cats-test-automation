@@ -1,5 +1,8 @@
 package main.java.businessComponents.MOBILE.AIRTEL;
 
+import java.sql.Connection;
+import java.util.concurrent.locks.Lock;
+
 import com.relevantcodes.extentreports.ExtentTest;
 
 import io.appium.java_client.android.AndroidDriver;
@@ -9,9 +12,14 @@ import main.java.testDataAccess.DataTable;
 
 public class CustomLibrary extends ReusableLibrary implements RoutineObjectRepository {
 	
+	public Lock lock;
+	public Connection connection;
+	
 	@SuppressWarnings("rawtypes")
-	public CustomLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
-		super(test, driver, dataTable, testParameters);
+	public CustomLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection) {
+		super(test, driver, dataTable, testParameters, lock, connection);
+		this.lock = lock;
+		this.connection = connection;
 	}
 
 	/************************************************************************************************

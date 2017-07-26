@@ -1,6 +1,6 @@
 package main.java.executionSetup;
 
-public enum ExecutionMode {
+public enum ExecutionType {
 
 	WEBAPP, SOA, MOBILE, DATABASE;
 

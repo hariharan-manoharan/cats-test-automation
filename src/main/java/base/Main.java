@@ -20,6 +20,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.exec.ExecuteException;
+import org.openqa.selenium.By;
 import org.openqa.selenium.SessionNotCreatedException;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -29,7 +30,7 @@ import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
-import main.java.executionSetup.ExecutionMode;
+import main.java.executionSetup.ExecutionType;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
@@ -61,7 +62,7 @@ public class Main{
 	private static DataTable runManager;
 	private static DataTableAbstractFactory dataTableFactory;
 	private static DataTable dataTable;
-	private static ExecutionMode execMode;
+	private static ExecutionType executionType;
 	private static TestRailListener testRailListenter;
 	private static ArrayList<TestParameters> testInstancesToRun;	
 	private static ArrayList<Integer> setCategoryList = new ArrayList<>();
@@ -178,68 +179,144 @@ public class Main{
 	 * 
 	 */
 
-	private static void execute() {
+	private static void execute() {			
 		
-		Runnable testRunner = null;
 		
-		lock = new ReentrantLock();
+		String executionMode = properties.getProperty("ExecutionMode");	
 		
-		groupedtestInstancesToRun = new ArrayList<ArrayList<TestParameters>>();
-		
-	    for(int t=0; t<nThreads; t++) {
-			
-			appiumServerSetup(t+1);
-			androidDriverSetUp(t+1);
-			
+		if(executionMode.equalsIgnoreCase("DISTRIBUTED")) {
+			distributedExecution();
+		}else if(executionMode.equalsIgnoreCase("PARALLEL")){
+			parallelExecution();
 		}
 		
-		for(int i=0;i<setCategoryList.size();i++) {	
-			
+	    
+	}
+	
+	
+	public static void distributedExecution() {
+		
+		groupedtestInstancesToRun = new ArrayList<ArrayList<TestParameters>>();
+		String appSetup = properties.getProperty("appSetup");
+		
+		Runnable testRunner = null;
+		lock = new ReentrantLock();
+		
+		for (int t = 0; t < nThreads; t++) {
+
+			appiumServerSetup(t + 1);
+			androidDriverSetUp(t + 1);
+			if(appSetup.equalsIgnoreCase("True")) {
+			setupAppForTesting(t);
+			}
+
+		}
+
+		for (int i = 0; i < setCategoryList.size(); i++) {
+
 			groupedTestInstances = new ArrayList<TestParameters>();
-			for(int j=0;j<testInstancesToRun.size();j++) {				
-			if(Integer.parseInt(testInstancesToRun.get(j).getSetCategory())==setCategoryList.get(i)) {					
-				groupedTestInstances.add(testInstancesToRun.get(j));
-			}		
-						
+			for (int j = 0; j < testInstancesToRun.size(); j++) {
+				if (Integer.parseInt(testInstancesToRun.get(j).getSetCategory()) == setCategoryList.get(i)) {
+					groupedTestInstances.add(testInstancesToRun.get(j));
+				}
+
 			}
 			groupedtestInstancesToRun.add(groupedTestInstances);
 		}
-		
-		
-		for(int k=0;k<groupedtestInstancesToRun.size();k++) {
-			
-		ExecutorService parallelExecutor = Executors.newFixedThreadPool(nThreads);		
-	
-		
-		int groupedTestInstanceSize = groupedtestInstancesToRun.get(k).size();
-		
-		driverSequence(groupedTestInstanceSize);
-		
-		for (int currentTestInstance = 0; currentTestInstance < groupedTestInstanceSize; currentTestInstance++) {
-			if(testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")){
-			testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report, execMode, dataTable,
-					                  testRailListenter, lock, androidDriverList.get(driverSequence.get(currentTestInstance)));
-			}else{
-			testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report, execMode, dataTable,lock, androidDriverList.get(driverSequence.get(currentTestInstance)));	
+
+		for (int k = 0; k < groupedtestInstancesToRun.size(); k++) {
+
+			ExecutorService parallelExecutor = Executors.newFixedThreadPool(nThreads);
+
+			int groupedTestInstanceSize = groupedtestInstancesToRun.get(k).size();
+
+			driverSequence(groupedTestInstanceSize);
+
+			for (int currentTestInstance = 0; currentTestInstance < groupedTestInstanceSize; currentTestInstance++) {
+				if (testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {
+					testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
+							executionType, dataTable, testRailListenter, lock,
+							androidDriverList.get(driverSequence.get(currentTestInstance)));
+				} else {
+					testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
+							executionType, dataTable, lock,
+							androidDriverList.get(driverSequence.get(currentTestInstance)));
+				}
+
+				parallelExecutor.execute(testRunner);
+
 			}
+
+			parallelExecutor.shutdown();
+			while (!parallelExecutor.isTerminated()) {
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+	}
+	
+	
+
+
+	public static void parallelExecution() {
+		
+		int numberOfNodes = Integer.parseInt(properties.getProperty("NumberOfNodes"));
+		ExecutorService[] parallelExecutor = new ExecutorService[numberOfNodes] ;
+		
+		Runnable testRunner = null;
+		lock = new ReentrantLock();
+		
+		for (int t = 0; t < numberOfNodes; t++) {
+
+			appiumServerSetup(t + 1);
+			androidDriverSetUp(t + 1);
+
+		}
+		
+		for(int run = 0; run < numberOfNodes; run ++ ) {
 			
-			parallelExecutor.execute(testRunner);
+			parallelExecutor[run] = Executors.newFixedThreadPool(1);
+			
+			for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
+				
+				if (testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {
+					testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report,
+							executionType, dataTable, testRailListenter, lock,
+							androidDriverList.get(run));
+				} else {
+					testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report,
+							executionType, dataTable, lock,
+							androidDriverList.get(run));
+				}
+
+				parallelExecutor[run].execute(testRunner);				
+				
+
+			}			
 			
 		}
 		
-		parallelExecutor.shutdown();
-		while (!parallelExecutor.isTerminated()) {
+		for(int run = 0; run < numberOfNodes; run ++ ) {		
+		parallelExecutor[run].shutdown();
+		while (!parallelExecutor[run].isTerminated()) {
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
 		}
 		
-
+		
+		
 	}
+
+	
 	
 	public static void driverSequence(int sequenceRepeatCount) {
 		
@@ -255,8 +332,8 @@ public class Main{
 	
 	
 	public static void appiumServerSetup(int selectDevice) {		
-		AppiumServerHandler appiumServerHandler = new AppiumServerHandler(Integer.parseInt(desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.port"))
-														, desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.bootstrap.port"));
+		AppiumServerHandler appiumServerHandler = new AppiumServerHandler(Integer.parseInt(desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.port").trim())
+														, desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.bootstrap.port").trim());
 		appiumServerHandler.appiumServerStart();	
 		appiumServerInstanceList.add(appiumServerHandler);		
 	}
@@ -420,7 +497,7 @@ public class Main{
 	
 	private static void setUpExecutionMode() {
 		
-		execMode = ExecutionMode.valueOf(properties.getProperty("ExecutionMode"));
+		executionType = ExecutionType.valueOf(properties.getProperty("ExecutionType"));
 		nThreads = Integer.parseInt(properties.getProperty("NumberOfThreads"));
 		
 	}
@@ -481,6 +558,16 @@ public class Main{
 		}
 		}
 	}
+	
+	
+	
+	private static void setupAppForTesting(int driverIndex) {
+		
+		androidDriverList.get(driverIndex).findElement(By.id("btn_connect")).click();
+		androidDriverList.get(driverIndex).findElement(By.name(properties.getProperty("userProfile"))).click();
+		
+	}
+	
 	
 	
 		

@@ -24,7 +24,7 @@ import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
 import io.appium.java_client.android.AndroidDriver;
-import main.java.executionSetup.ExecutionMode;
+import main.java.executionSetup.ExecutionType;
 import main.java.executionSetup.TestParameters;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.AppiumServerHandler;
@@ -37,7 +37,7 @@ public class Executor extends Utility implements Runnable {
 	private ExtentReports report; 
 	private ExtentTest test;
 	private TestParameters testParameters;
-	private ExecutionMode execMode;
+	private ExecutionType executionType;
 	private DataTable dataTable;
 	private AndroidDriver driver;
 	private TestRailListener testRailListenter;
@@ -47,10 +47,10 @@ public class Executor extends Utility implements Runnable {
 	private Connection connection;
 
 
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver) {
+	public Executor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver) {
 		this.testParameters = testParameters;
 		this.report = report;
-		this.execMode = execMode;
+		this.executionType = executionType;
 		this.dataTable = dataTable;
 		this.testRailListenter = testRailListenter;
 		this.lock = lock;
@@ -58,10 +58,10 @@ public class Executor extends Utility implements Runnable {
 
 	}
 	
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable,Lock lock,  AndroidDriver driver) {
+	public Executor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable,Lock lock,  AndroidDriver driver) {
 		this.testParameters = testParameters;
 		this.report = report;
-		this.execMode = execMode;
+		this.executionType = executionType;
 		this.dataTable = dataTable;	
 		this.lock = lock;
 		this.driver = driver;
@@ -174,7 +174,7 @@ public class Executor extends Utility implements Runnable {
 				
 
 			File packageDirectory = new File(
-					"./src/main/java/businessComponents/" + execMode + "/" + properties.getProperty("Project"));
+					"./src/main/java/businessComponents/" + executionType + "/" + properties.getProperty("Project"));
 
 			File[] packageFiles = packageDirectory.listFiles();			
 
@@ -198,7 +198,7 @@ public class Executor extends Utility implements Runnable {
 					testParameters.setCurrentKeywordColumnName(map.getKey());
 					
 
-					dynamicClass = Class.forName("main.java.businessComponents." + execMode + "." + properties.getProperty("Project") + "." + className);
+					dynamicClass = Class.forName("main.java.businessComponents." + executionType + "." + properties.getProperty("Project") + "." + className);
 					if(dynamicClass.isInterface()) {
 						continue;
 					}

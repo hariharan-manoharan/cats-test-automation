@@ -3,6 +3,7 @@ package main.java.businessComponents.MOBILE.AIRTEL;
 import java.io.File;
 import java.io.IOException;
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
@@ -40,12 +42,14 @@ import main.java.utils.Utility;
 public class ReusableLibrary extends Utility implements RoutineObjectRepository {
 
 
-	@AndroidFindBy(uiAutomator = "new UiSelector().description(\"?\")")
-	private AndroidElement myElement;
+	public Lock lock;
+	public Connection connection;
 
 	@SuppressWarnings("rawtypes")
-	public ReusableLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
-		super(test, driver, dataTable, testParameters);
+	public ReusableLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection) {
+		super(test, driver, dataTable, testParameters, lock, connection);
+		this.lock = lock;
+		this.connection = connection;
 	}
 
 
@@ -317,10 +321,10 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 				String actualValue = elements2.get(requiredValueIndex).getText();
 
 				if (actualValue.equals(valueSplit[1])) {
-					test.log(LogStatus.PASS, "<b>"+ columnName + "</b></br>Expected - <b>" + valueSplit[1] + "</b></br>"
+					test.log(LogStatus.PASS, "<b> Line Number - " + valueSplit[0] + ":" + columnName + "</b></br>Expected - <b>" + valueSplit[1] + "</b></br>"
 																+ "Actual - <b>" + actualValue +"</b>", "");
 				}else {
-					test.log(LogStatus.FAIL, "<b>"+ columnName + "</b></br>Expected - <b>" + valueSplit[1] + "</b></br>"
+					test.log(LogStatus.FAIL, "<b> Line Number - " + valueSplit[0] + ":" + columnName + "</b></br>Expected - <b>" + valueSplit[1] + "</b></br>"
 							   										+ "Actual - <font color=red><b>" + actualValue +"</font></b>", "");
 				}
 				
@@ -596,7 +600,7 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		try {
 
-			data = columnValue + getCurrentFormattedTime("ddMMhhmmss");
+			data = columnValue + getCurrentFormattedTime("ddMMhhmmssSSS");
 
 			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
 			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);

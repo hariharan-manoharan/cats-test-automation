@@ -20,6 +20,8 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
@@ -50,27 +52,29 @@ import main.java.testDataAccess.DataTable;
 public class Utility implements RoutineObjectRepository{
 
 	@SuppressWarnings("rawtypes")
-	protected static AndroidDriver driver;
-	protected static ExtentTest test;
-	protected DataTable dataTable;
-	protected TestParameters testParameters;
+	public AndroidDriver driver;
+	public ExtentTest test;
+	public DataTable dataTable;
+	public TestParameters testParameters;
 	public static Properties properties;
 	public static Properties runtimeDataProperties;
-	public static Properties testRailProperties;
-	public static Connection connection;
+	public static Properties testRailProperties;	
 	public static LinkedHashMap<String, String> environmentVariables;
-	public static String newServerSetupForEachTestcase;
 	int verifyCounter = 0;
+	public Lock lock;
+	public Connection connection;
 	
 	
 
 	@SuppressWarnings("rawtypes")
-	public Utility(ExtentTest test, AndroidDriver driver, DataTable dataTable,TestParameters testParameters) {
-		Utility.test = test;
-		Utility.driver = driver;
+	public Utility(ExtentTest test, AndroidDriver driver, DataTable dataTable,TestParameters testParameters, Lock lock, Connection connection) {
+		this.test = test;
+		this.driver = driver;
 		this.dataTable = dataTable;
 		this.testParameters = testParameters;
-	}
+		this.lock = lock;
+		this.connection = connection;
+	}	
 
 	public Utility() {
 
@@ -101,18 +105,6 @@ public class Utility implements RoutineObjectRepository{
 	
 	
 	@SuppressWarnings("static-access")
-	public void setNewServerSetupForEachTestcase() {
-		this.newServerSetupForEachTestcase = properties.getProperty("new.server.setup.for.each.testcase");
-	}
-	
-	
-	@SuppressWarnings("static-access")
-	public String getNewServerSetupForEachTestcase() {
-		return this.newServerSetupForEachTestcase ;
-	}
-	
-	
-	@SuppressWarnings("static-access")
 	public Properties getRuntimeDataProperties() {
 		return this.runtimeDataProperties;
 	}
@@ -137,6 +129,28 @@ public class Utility implements RoutineObjectRepository{
 		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")){	
 		test.log(LogStatus.PASS, reportName,
 				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot() + ".png"));
+		}else{
+			test.log(LogStatus.PASS, reportName);	
+		}
+
+	}
+	
+	
+	/**
+	 * Function to log test report with screenshot and Status PASS
+	 * 
+	 * @param1 String reportName
+	 * @return void
+	 * @author Hari
+	 * @since 12/27/2016
+	 * 
+	 */
+
+	public void takeScreenshot(AndroidDriver driver, ExtentTest test, String reportName) {
+
+		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")){	
+		test.log(LogStatus.PASS, reportName,
+				"<b>Screenshot: <b>" + test.addScreenCapture("./" + screenShot(driver) + ".png"));
 		}else{
 			test.log(LogStatus.PASS, reportName);	
 		}
@@ -305,6 +319,40 @@ public class Utility implements RoutineObjectRepository{
 	 */
 	
 	
+	public void waitCommand(AndroidDriver driver, final By by) throws TimeoutException, NoSuchElementException {
+
+		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(driver);
+		wait.pollingEvery(5, TimeUnit.SECONDS);
+		wait.withTimeout(30, TimeUnit.SECONDS);
+		wait.ignoring(NoSuchElementException.class);
+
+		Function<WebDriver, Boolean> function = new Function<WebDriver, Boolean>() {
+
+			@Override
+			public Boolean apply(WebDriver arg0) {
+				boolean displayed = arg0.findElement(by).isEnabled();
+				if (displayed) {
+					return true;
+				}
+				return false;
+			}
+		};
+		wait.until(function);
+		
+	}
+	
+	
+	/**
+	 * FulentWait Function - Waits until the object is available with timeout of 100 seconds polling every 5 seconds
+	 * 
+	 * @param1 By by	
+	 * @return void
+	 * @author Hari
+	 * @since 12/27/2016
+	 * 
+	 */
+	
+	
 	public void waitUntilTextDisplayed(final By by, final String text) throws TimeoutException, NoSuchElementException {
 
 		FluentWait<WebDriver> wait = new FluentWait<WebDriver>(driver);
@@ -338,6 +386,31 @@ public class Utility implements RoutineObjectRepository{
 	 */
 
 	public boolean isElementPresent(final By by, final String objectName){
+		
+		try{
+		driver.findElement(by).isDisplayed();		
+		test.log(LogStatus.PASS, "Element - " + objectName + " is present", "");
+		return true;		
+		}catch(NoSuchElementException  e){
+			test.log(LogStatus.INFO, "Element - " + objectName + " is not present", "");
+			return false;
+		}
+		
+
+	}
+	
+	
+	/**
+	 *  	  
+	 * @param1 By by
+	 * @param2 String objectName	
+	 * @return boolean 
+	 * @author Hari
+	 * @since 12/27/2016
+	 * 
+	 */
+
+	public boolean isElementPresent(AndroidDriver driver, ExtentTest test, final By by, final String objectName){
 		
 		try{
 		driver.findElement(by).isDisplayed();		
@@ -523,6 +596,26 @@ public class Utility implements RoutineObjectRepository{
 		
 	}
 	
+	/**
+	 * Function to click WebElement
+	 * 
+	 * @param1 By by	
+	 * @param2 String reportName	 
+	 * @return void
+	 * @author Hari 
+	 * @since 12/27/2016
+	 * 
+	 */
+
+	public void Click(AndroidDriver driver, ExtentTest test, By by, String reportName) throws TimeoutException, NoSuchElementException{
+		
+			waitCommand(driver, by);
+			driver.findElement(by).click();
+			HardDelay(5000L);
+			takeScreenshot(driver, test, reportName);
+		
+	}
+	
 	
 	/**
 	 * Function to click spyglass  - Need to Fix this one - Avoid getting the fieldIndex from user
@@ -582,6 +675,35 @@ public class Utility implements RoutineObjectRepository{
 	 */
 
 	public String GetText(By by, String fieldName){
+		String text = null;
+
+		try {
+			waitCommand(by);
+			WebElement element = driver.findElement(by);
+			text = element.getText();
+			test.log(LogStatus.INFO, fieldName + ":  Returned - Text:<b>" + text+"</b>");
+			return text.trim();
+		} catch (Exception ex) {
+			test.log(LogStatus.FAIL, ex);
+			test.log(LogStatus.INFO, fieldName + ": Not Returned - Text:<b>" + text+"</b>");
+			return "NULL";
+		}
+		
+
+	}
+	
+	/**
+	 * Function to get text from WebElement
+	 * 
+	 * @param1 By by	
+	 * @param2 String fieldName	 
+	 * @return String text
+	 * @author Hari 
+	 * @since 12/27/2016
+	 * 
+	 */
+
+	public String GetText(AndroidDriver driver,ExtentTest test, By by, String fieldName){
 		String text = null;
 
 		try {
@@ -1223,7 +1345,9 @@ public boolean checkRecordAvailable(String query) {
 	 * Function :Getconnections() Decsription:Function to connect Database Date
 	 * :14-12-2016 Author :Saran
 	 *************************************************************************************************/
-	public void Getconnections() throws Exception {
+	public Connection Getconnections() throws Exception {
+		
+		 Connection connection = null;
 
 		try {
 			String driver = "oracle.jdbc.driver.OracleDriver";
@@ -1239,6 +1363,8 @@ public boolean checkRecordAvailable(String query) {
 			test.log(LogStatus.FAIL, "DB Connection not established");
 
 		}
+		
+		return connection;
 
 	}
 
@@ -1246,7 +1372,7 @@ public boolean checkRecordAvailable(String query) {
 	 * Function :Closeconnections() Decsription:Function to connect Database
 	 * Date :14-12-2016 Author :Saran
 	 *************************************************************************************************/
-	public void Closeconnections() throws Exception {
+	public void Closeconnections(Connection connection) throws Exception {
 		try {
 			connection.close();
 			if (connection.isClosed()){
@@ -1355,10 +1481,9 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	CallableStatement stproc_stmt;  
 	try {
 		
-		RECORD_ID = generateRandomNum(10000000);
-		
+		RECORD_ID = generateRandomNum(10000000);		
 		String itemCode = generateTestData("ITEMCODE", inputValueMap.get("VALUE2"));
-		
+	
 		query = "INSERT "
 				+"INTO CATS.CATSCON_PART_STG"
 				  +"("
@@ -2035,7 +2160,9 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	}
 	
 	public void addRuntimeTestData(String columnName, String columnValue) {
-
+		
+		try {
+			lock.lock();
 		try {
 
 			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
@@ -2043,6 +2170,9 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
+		}
+		}finally {
+			lock.unlock();
 		}
 
 	}
@@ -2067,18 +2197,27 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 	
 	
 	public String generateTestData(String columnName, String columnValue) {
-
+		
 		String data = null;
 
 		try {
 			
-			data = columnValue + getCurrentFormattedTime("ddMMhhmmss");
+			lock.lock();			
 
-			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
-			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+			try {
 
-		} catch (Exception e) {
-			test.log(LogStatus.FAIL, e);
+				data = columnValue + getCurrentFormattedTime("ddMMhhmmssSSS");
+
+				// globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" +
+				// columnName, data);
+				runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+
+			} catch (Exception e) {
+				test.log(LogStatus.FAIL, e);
+			}
+
+		} finally {
+			lock.unlock();
 		}
 
 		return data;
@@ -2120,6 +2259,14 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		waitCommand(CONTENT_DESC_ROUITNE_BACK_BTN);
 		driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
 		takeScreenshot("Click Routine back Button");
+
+	}
+	
+	public void clickRoutineBackButton(AndroidDriver driver , ExtentTest test) throws TimeoutException, NoSuchElementException {
+
+		waitCommand(driver, CONTENT_DESC_ROUITNE_BACK_BTN);
+		driver.findElement(CONTENT_DESC_ROUITNE_BACK_BTN).click();
+		takeScreenshot (driver, test,"Click Routine back Button");
 
 	}
 	

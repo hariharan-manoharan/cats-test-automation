@@ -1,10 +1,12 @@
 package main.java.businessComponents.MOBILE.AIRTEL;
 
 import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedHashMap;
+import java.util.concurrent.locks.Lock;
 
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
@@ -17,10 +19,15 @@ import main.java.utils.Utility;
 
 
 public class SQLLibrary extends Utility {
+	
+	public Lock lock;
+	public Connection connection;
 
 	@SuppressWarnings("rawtypes")
-	public SQLLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters) {
-		super(test, driver, dataTable, testParameters);
+	public SQLLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection) {
+		super(test, driver, dataTable, testParameters, lock, connection);
+		this.lock = lock;
+		this.connection = connection;
 	}
 
 	
@@ -28,14 +35,14 @@ public class SQLLibrary extends Utility {
 	
 	public void createNewPart(){
 		String validateItem = "SELECT * FROM CATSCON_PART_STG WHERE ITEM='%s' AND RECORD_ID=%d";
-		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");		
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging", testParameters.getCurrentTestCase());			
 		int recordId = createNewPart(dataMap);
 		validateInboundTransaction("Item", "PROCESS_FLAG", "ERROR_MESSAGE", validateItem, getRuntimeTestdata(testParameters.getCurrentTestCase()+"#ITEMCODE"),recordId);	
 	}
 	
 	public void addManufacturer(){
 		String validateMFG = "SELECT * FROM CATSCON_MFG_STG WHERE MANUFACTURER_NAME='%s' AND RECORD_ID=%d";
-		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");		
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging", testParameters.getCurrentTestCase());		
 		int recordId = addMfgForItem(dataMap);
 		validateInboundTransaction("MFG", "PROCESS_FLAG", "ERROR_MESSAGE", validateMFG, getRuntimeTestdata(testParameters.getCurrentTestCase()+"#MFG"),recordId);
 	}
@@ -43,15 +50,17 @@ public class SQLLibrary extends Utility {
 
 	
 	public void createBillOfMaterial(){
-		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging");
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging", testParameters.getCurrentTestCase());
 		createBillOfMaterial(dataMap);
 	}
 
 
 	public void createBulkTransferRequest(){
+		
+
 		String validateBulkTransferRequest = "SELECT * FROM CATSCON_TRANSFERREQ_STG WHERE REFERENCENUMBER='%s' AND STAGEID=%d";	
 
-		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Bulk_Transfer_Request");		
+		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Bulk_Transfer_Request", testParameters.getCurrentTestCase());		
 		int stageId = createBulkTransferRequest(dataMap);
 		boolean successFlag = validateInboundTransaction("Bulk Transfer Request", "PROCESSED", "ERRORMESSAGE", validateBulkTransferRequest, dataMap.get("REFERENCENUMBER"),stageId);	
 		
@@ -66,28 +75,57 @@ public class SQLLibrary extends Utility {
 	}	
 	
 	
-	public void deliveryConfirmation(){
-		String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
-		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_DC");
-		int recordId = deliveryConfirmationQuery(dataMap);
-		validateInboundTransaction("Delivery Confirmation :","PROCESS_FLAG", "ERROR_MESSAGE", validateDC, getRuntimeTestdata(dataMap.get("VALUE7")),recordId);
+	public void deliveryConfirmation() {
+
+		try {
+
+			lock.lock();
+			String validateDC = "SELECT * FROM CATSCON_POREC_STG WHERE ITEM_CODE='%s' AND RECORD_ID=%d";
+			LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",
+					testParameters.getCurrentTestCase() + "_DC");
+			int recordId = deliveryConfirmationQuery(dataMap);
+			validateInboundTransaction("Delivery Confirmation :", "PROCESS_FLAG", "ERROR_MESSAGE", validateDC,
+					getRuntimeTestdata(dataMap.get("VALUE7")), recordId);
+		} finally {
+			lock.unlock();
+		}
 	}
 
 
-	public void createPurchaseOrder(){
-		String validatePO = "SELECT * FROM CATSCON_PO_STG WHERE PHA_PO_NUMBER='%s' AND RECORD_ID=%d";
-		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_PO");		
-		int recordId = createPurchaseOrderQuery(dataMap);
-		validateInboundTransaction("PO", "PROCESS_FLAG", "ERROR_MESSAGE", validatePO, getRuntimeTestdata(testParameters.getCurrentTestCase()+"#PONUMBER"),recordId);		
+	public void createPurchaseOrder() {
+
+		try {
+
+			lock.lock();
+			String validatePO = "SELECT * FROM CATSCON_PO_STG WHERE PHA_PO_NUMBER='%s' AND RECORD_ID=%d";
+			LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",
+					testParameters.getCurrentTestCase() + "_PO");
+			int recordId = createPurchaseOrderQuery(dataMap);
+			validateInboundTransaction("PO", "PROCESS_FLAG", "ERROR_MESSAGE", validatePO,
+					getRuntimeTestdata(testParameters.getCurrentTestCase() + "#PONUMBER"), recordId);
+
+		} finally {
+			lock.unlock();
+		}
 	}
 
 
-	public void createMaterialReceiveReceipt(){
-		String validateMRR = "SELECT * FROM CATSCON_MRR_STG WHERE RECEIPT_NUM='%s' AND RECORD_ID=%d";
-		LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",testParameters.getCurrentTestCase()+"_MRR");
-		int recordId = createMaterialReceiveReceiptQuery(dataMap);
-		validateInboundTransaction("MRR", "PROCESS_FLAG", "ERROR_MESSAGE", validateMRR, getRuntimeTestdata(testParameters.getCurrentTestCase()+"#MRRNUMBER"),recordId);
-		poTaxUpdateQuery(dataMap);
+	public void createMaterialReceiveReceipt() {
+
+		try {
+
+			lock.lock();
+			String validateMRR = "SELECT * FROM CATSCON_MRR_STG WHERE RECEIPT_NUM='%s' AND RECORD_ID=%d";
+			LinkedHashMap<String, String> dataMap = dataTable.getRowData("Data_Staging",
+					testParameters.getCurrentTestCase() + "_MRR");
+			int recordId = createMaterialReceiveReceiptQuery(dataMap);
+			validateInboundTransaction("MRR", "PROCESS_FLAG", "ERROR_MESSAGE", validateMRR,
+					getRuntimeTestdata(testParameters.getCurrentTestCase() + "#MRRNUMBER"), recordId);
+			poTaxUpdateQuery(dataMap);
+
+		} finally {
+			lock.unlock();
+		}
 	}
 
 
@@ -352,7 +390,7 @@ public class SQLLibrary extends Utility {
 				if (SERIALIZED.equalsIgnoreCase("N")){
 
 					String query2 = "SELECT MAX(PARTTRANSACTIONID) AS PARTTRANSACTIONID FROM CATS_PARTTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
-							+"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"'";
+							+"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"' AND LOTNUMBER="+"'"+getRuntimeTestdata(testParameters.getCurrentTestCase() + "#MRRNUMBER")+"'";
 					stmt = connection.createStatement();
 
 					rs = stmt.executeQuery(query2);	
@@ -399,7 +437,7 @@ public class SQLLibrary extends Utility {
 
 				}else{
 					String query3 = "SELECT * FROM CATS_ASSETTRANSACTION WHERE ASSETTRANSACTIONID IN (select MAX(ASSETTRANSACTIONID) AS ASSETTRANSACTIONID  FROM CATS_ASSETTRANSACTION WHERE ORIGINATOR ="+"'CATS_POTRANSACTION'"
-							+"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"')";
+							+"AND PARTCODE= "+"'"+getRuntimeTestdata(inputValueMap.get("VALUE7"))+"' AND LOTNUMBER="+"'"+getRuntimeTestdata(testParameters.getCurrentTestCase() + "#MRRNUMBER")+"')";
 					stmt = connection.createStatement();
 					rs = stmt.executeQuery(query3);	
 					while (rs.next()) {
@@ -571,6 +609,7 @@ public class SQLLibrary extends Utility {
 		String REASONCODE = inputValueMap.get("REASON");
 
 		try {
+			
 			stmt = connection.createStatement();
 			String query = "SELECT * from CATSCUST_TRANSFERREASON WHERE REASONCODE ="+"'"+REASONCODE+"'";
 			rs = stmt.executeQuery(query);
@@ -616,7 +655,7 @@ public class SQLLibrary extends Utility {
 
 
 		try {
-
+			lock.lock();
 			if(inputValueMap.get("TRANSACTION_TYPE").equalsIgnoreCase("INSERT")){			
 				lastStageId = getLastTransactionId("SELECT MAX(STAGEID) AS STAGEID FROM CATSCON_TRANSFERREQ_STG","STAGEID" );
 				currentStageId = lastStageId+1;
@@ -701,6 +740,8 @@ public class SQLLibrary extends Utility {
 
 		} catch (SQLException e) {			
 			e.printStackTrace();
+		}finally {
+			lock.unlock();
 		}
 		return currentStageId;
 	} 

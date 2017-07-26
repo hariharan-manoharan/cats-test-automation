@@ -6,22 +6,36 @@ package main.java.base;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.apache.commons.exec.ExecuteException;
+import org.openqa.selenium.SessionNotCreatedException;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
 import com.relevantcodes.extentreports.ExtentReports;
 import com.relevantcodes.extentreports.ExtentTest;
 import com.relevantcodes.extentreports.LogStatus;
 
+import io.appium.java_client.android.AndroidDriver;
 import main.java.executionSetup.ExecutionMode;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
 import main.java.testDataAccess.DataTableAbstractFactory;
 import main.java.testDataAccess.DataTableFactoryProducer;
+import main.java.utils.AppiumServerHandler;
 import main.java.utils.CopyLatestResult;
 import main.java.utils.FrameworkProperties;
 import main.java.utils.TestRailListener;
@@ -35,14 +49,14 @@ import main.java.utils.Utility;
  * @version 1.0
  * @since 05/10/2016
  */
-public class Main{
-	
-	private static final int Current_DB = 0;
+public class Main{	
+
 	private static ExtentReports report;
 	private static String absolutePath;
 	private static Properties properties;
 	private static Properties runtimeDataProperties;
 	private static Properties testRailProperties;
+	private static Properties desiredCapabilitiesProperties;
 	private static DataTableAbstractFactory runManagerFactory;
 	private static DataTable runManager;
 	private static DataTableAbstractFactory dataTableFactory;
@@ -50,17 +64,25 @@ public class Main{
 	private static ExecutionMode execMode;
 	private static TestRailListener testRailListenter;
 	private static ArrayList<TestParameters> testInstancesToRun;	
-	private static ExtentTest test;
+	private static ArrayList<Integer> setCategoryList = new ArrayList<>();
+	private static ArrayList<TestParameters> groupedTestInstances = null;
+	private static ArrayList<ArrayList<TestParameters>> groupedtestInstancesToRun;	
 	private static int nThreads;
 	private static FrameworkProperties globalRuntimeDataProperties;
 	private static FrameworkProperties globalProperties;
 	private static FrameworkProperties frameworkTestRailProperties;
+	private static FrameworkProperties globalDesiredCapabilitiesProperties;
 	private static Utility utility;
 	private static ExtentTest runManagerTest;
+	private static Lock lock;
+	private static ArrayList<AndroidDriver> androidDriverList = new ArrayList<>();
+	private static ArrayList<AppiumServerHandler> appiumServerInstanceList = new ArrayList<>();
+	private static ArrayList<Integer> driverSequence = new ArrayList<>();
 	
 	private static final String globalPropertyFilePath = "./src/main/resources/PropertyFiles/GlobalProperties.properties";
 	private static final String globalRuntimeDataPropertyFilePath = "./src/main/resources/PropertyFiles/GlobalRuntimeDataProperties.properties";
 	private static final String testRailPropertyFilePath = "./src/main/resources/PropertyFiles/TestRail.properties";
+	private static final String desiredCapabilityPropertyFilePath = "./src/main/resources/DesiredCapabilities/DesiredCapabilities.properties";
 	
 	
 
@@ -94,6 +116,7 @@ public class Main{
 		collectGlobalProperties();
 		initializeGlobalRuntimeDataProperties();
 		collectTestRailProperties();
+		collectDesiredCapabilitiesProperties();
 		
 	}	
 	
@@ -120,6 +143,12 @@ public class Main{
 		}
 		
 		Collections.sort(testInstancesToRun);
+		
+		for(int i=0;i<testInstancesToRun.size();i++) {
+			setCategoryList.add(Integer.parseInt(testInstancesToRun.get(i).getSetCategory())) ;
+		}
+		
+		setCategoryList = new ArrayList<Integer>(new LinkedHashSet<Integer>(setCategoryList));
 		
 		Utility utility = new Utility();
 		utility.setEnvironmentVariables(runManager.getRowData("EnvironmentDetails", properties.getProperty("Environment")));
@@ -150,22 +179,54 @@ public class Main{
 	 */
 
 	private static void execute() {
-
-		ExecutorService parallelExecutor = Executors.newFixedThreadPool(nThreads);
-		Runnable testRunner = null;
-		int totalTestInstanceToRun = testInstancesToRun.size();		
 		
-		for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
-			totalTestInstanceToRun--;
+		Runnable testRunner = null;
+		
+		lock = new ReentrantLock();
+		
+		groupedtestInstancesToRun = new ArrayList<ArrayList<TestParameters>>();
+		
+	    for(int t=0; t<nThreads; t++) {
+			
+			appiumServerSetup(t+1);
+			androidDriverSetUp(t+1);
+			
+		}
+		
+		for(int i=0;i<setCategoryList.size();i++) {	
+			
+			groupedTestInstances = new ArrayList<TestParameters>();
+			for(int j=0;j<testInstancesToRun.size();j++) {				
+			if(Integer.parseInt(testInstancesToRun.get(j).getSetCategory())==setCategoryList.get(i)) {					
+				groupedTestInstances.add(testInstancesToRun.get(j));
+			}		
+						
+			}
+			groupedtestInstancesToRun.add(groupedTestInstances);
+		}
+		
+		
+		for(int k=0;k<groupedtestInstancesToRun.size();k++) {
+			
+		ExecutorService parallelExecutor = Executors.newFixedThreadPool(nThreads);		
+	
+		
+		int groupedTestInstanceSize = groupedtestInstancesToRun.get(k).size();
+		
+		driverSequence(groupedTestInstanceSize);
+		
+		for (int currentTestInstance = 0; currentTestInstance < groupedTestInstanceSize; currentTestInstance++) {
 			if(testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")){
-			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable, testRailListenter, totalTestInstanceToRun);
+			testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report, execMode, dataTable,
+					                  testRailListenter, lock, androidDriverList.get(driverSequence.get(currentTestInstance)));
 			}else{
-			testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report, execMode, dataTable, totalTestInstanceToRun);	
+			testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report, execMode, dataTable,lock, androidDriverList.get(driverSequence.get(currentTestInstance)));	
 			}
 			
 			parallelExecutor.execute(testRunner);
+			
 		}
-
+		
 		parallelExecutor.shutdown();
 		while (!parallelExecutor.isTerminated()) {
 			try {
@@ -174,9 +235,89 @@ public class Main{
 				e.printStackTrace();
 			}
 		}
-	
+		
+		}
+		
 
 	}
+	
+	public static void driverSequence(int sequenceRepeatCount) {
+		
+		for(int j=0;j<sequenceRepeatCount;j++) {
+		
+		for(int i=0;i<nThreads;i++) {
+			driverSequence.add(i);
+		}
+		
+		}
+		
+	}
+	
+	
+	public static void appiumServerSetup(int selectDevice) {		
+		AppiumServerHandler appiumServerHandler = new AppiumServerHandler(Integer.parseInt(desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.port"))
+														, desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.bootstrap.port"));
+		appiumServerHandler.appiumServerStart();	
+		appiumServerInstanceList.add(appiumServerHandler);		
+	}
+	
+
+	@SuppressWarnings("rawtypes")
+	public static void androidDriverSetUp(int selectDevice) {
+		
+		try {
+			
+		AndroidDriver driver;	
+
+		String absolutePath = new File(System.getProperty("user.dir")).getAbsolutePath();
+
+		DesiredCapabilities capabilities = new DesiredCapabilities();
+		capabilities.setCapability("deviceName", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".deviceName"));
+		capabilities.setCapability("udid", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".udid"));
+		capabilities.setCapability(CapabilityType.BROWSER_NAME, desiredCapabilitiesProperties.getProperty("device1"+selectDevice+".browserName"));
+		capabilities.setCapability(CapabilityType.VERSION, desiredCapabilitiesProperties.getProperty("device"+selectDevice+".version"));
+		capabilities.setCapability("app", absolutePath + "\\src\\main\\resources\\Libs\\" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".app"));
+		capabilities.setCapability("platformName", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".platformName"));
+		capabilities.setCapability("appPackage", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appPackage"));
+		capabilities.setCapability("appActivity", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appActivity"));
+		capabilities.setCapability("unicodeKeyboard", properties.getProperty("unicodeKeyboard"));
+		capabilities.setCapability("resetKeyboard", properties.getProperty("resetKeyboard"));
+		capabilities.setCapability("newCommandTimeout", properties.getProperty("newCommandTimeout"));
+		capabilities.setCapability("noReset", properties.getProperty("noReset"));
+
+		
+		driver = new AndroidDriver(new URL(	"http://" + properties.getProperty("RemoteAddress") + ":" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.port") + "/wd/hub"),capabilities);
+		
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);	
+		
+		androidDriverList.add(driver);
+		
+		} catch (MalformedURLException e) {		
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
+	
+
+	public static void shutDownAppiumAndAndroidDriver() {
+		
+		for(int i=0;i<nThreads; i++) {
+
+		if (androidDriverList.get(i) != null) {
+			androidDriverList.get(i).quit();
+		}
+
+		if (appiumServerInstanceList.get(i) != null) {
+			appiumServerInstanceList.get(i).appiumServerStop();
+		}
+		
+		}
+}
+	
+	
 	
 	/**
 	 * tearDown method is used to wrap up the execution. 
@@ -190,6 +331,7 @@ public class Main{
 		report.flush();				
 		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(globalRuntimeDataPropertyFilePath, utility.getRuntimeDataProperties());	
 		frameworkTestRailProperties.writeGlobalRuntimeDataProperties(testRailPropertyFilePath, utility.getTestRailProperties());
+		shutDownAppiumAndAndroidDriver();
 		
 		try {
 			Desktop.getDesktop().open(new File(HtmlReport.reportPath));
@@ -233,8 +375,7 @@ public class Main{
 		
 		utility = new Utility();
 		utility.setProperties(properties);
-		utility.setNewServerSetupForEachTestcase();
-
+		
 	}
 	
 	private static void collectTestRailProperties() {
@@ -244,6 +385,14 @@ public class Main{
 	utility.setTestRailProperties(testRailProperties);
 	
 	}
+	
+	
+	private static void collectDesiredCapabilitiesProperties() {
+		
+		globalDesiredCapabilitiesProperties = FrameworkProperties.getInstance();			
+		desiredCapabilitiesProperties = globalDesiredCapabilitiesProperties.loadPropertyFile(desiredCapabilityPropertyFilePath);	
+			
+		}
 	
 	/**
 	 * collectGlobalProperties method is used to gather Global properties from user  

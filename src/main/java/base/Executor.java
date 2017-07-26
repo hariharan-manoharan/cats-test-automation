@@ -6,9 +6,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.sql.Connection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.exec.ExecuteException;
 import org.openqa.selenium.NoSuchElementException;
@@ -32,78 +34,64 @@ import main.java.utils.Utility;
 
 public class Executor extends Utility implements Runnable {
 
-	private static ExtentReports report; 
-	private static ExtentTest test;
+	private ExtentReports report; 
+	private ExtentTest test;
 	private TestParameters testParameters;
 	private ExecutionMode execMode;
 	private DataTable dataTable;
-	private static AppiumServerHandler appiumServerHandler;
-	//private AppiumServerHandlerCmd appiumServerHandlerCmd;
-	private int totalTestInstanceToRun ;
-	@SuppressWarnings("rawtypes")
-	private static AndroidDriver driver;
+	private AndroidDriver driver;
 	private TestRailListener testRailListenter;
 	String testRailEnabled = testRailProperties.getProperty("testRail.enabled");
 	int projectId = Integer.parseInt(testRailProperties.getProperty("testRail.projectId"));
-	
-	private static int testCaseExecuted = 0;
-	public static int driverInstanceCount = 0;
-	public static int appiumServerInstanceCount = 0;
-	private int totalKeywords = 0;
-	private int keywordCounter = 0;
-	private static boolean networkFlag= true;
-	
-	
-	LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
-	LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
-	LinkedHashMap<String, String> dataMap = new LinkedHashMap<String, String>();
-	
+	private Lock lock;
+	private Connection connection;
 
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, TestRailListener testRailListenter, int totalTestInstanceToRun) {
+
+	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver) {
 		this.testParameters = testParameters;
-		Executor.report = report;
+		this.report = report;
 		this.execMode = execMode;
 		this.dataTable = dataTable;
 		this.testRailListenter = testRailListenter;
-		this.totalTestInstanceToRun = totalTestInstanceToRun;
+		this.lock = lock;
+		this.driver = driver;
 
 	}
 	
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable, int totalTestInstanceToRun) {
+	public Executor(TestParameters testParameters, ExtentReports report, ExecutionMode execMode, DataTable dataTable,Lock lock,  AndroidDriver driver) {
 		this.testParameters = testParameters;
-		Executor.report = report;
+		this.report = report;
 		this.execMode = execMode;
-		this.dataTable = dataTable;
-		this.totalTestInstanceToRun = totalTestInstanceToRun;
+		this.dataTable = dataTable;	
+		this.lock = lock;
+		this.driver = driver;
 
 	}
 
 	@Override
 	public void run() {
+		
+		LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
 		try {	
 						
 			if (testParameters.getExecuteCurrentTestCase().equalsIgnoreCase("Yes")) {
 				test = report.startTest(testParameters.getCurrentTestCase() + " : " + testParameters.getDescription());
 				dataTable.setCurrentRow(testParameters.getCurrentTestCase());
-				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");	
-				
-				if(!networkFlag) {
-					test.log(LogStatus.WARNING,"<font color=red><b>Netwok not available. Suspending this testcase execution</b></font>", "");	
-					return;
-				}
+				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");					
+			
 
 				if (testParameters.getConnectDB().equalsIgnoreCase("Yes")) {
-					Getconnections();
+					connection = Getconnections();
 				}
 
-				getKeywords();
+				keywordMap = getKeywords();
 				
 				if(!keywordMap.isEmpty()) {
 				executeKeywords(keywordMap);
 				}
 
 				if (testParameters.getConnectDB().equalsIgnoreCase("Yes")) {
-					Closeconnections();
+					Closeconnections(connection);
 				}
 
 				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution completed", "");
@@ -146,33 +134,23 @@ public class Executor extends Utility implements Runnable {
 			report.flush();	
 			testRailReport();
 			return;
-		} finally {			
-			end();
-		}
+		} 
 	}
 
 	public void executeKeywords(LinkedHashMap<String, String> keywords)
 			throws ExecuteException, IOException, InterruptedException, ClassNotFoundException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			SecurityException, SessionNotCreatedException, TimeoutException, NoSuchElementException {
-
-		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
-			testCaseExecuted++;
-			if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && driverInstanceCount == 0) {
-				driverInstanceCount++;
-				driverSetUp();
-			} else if (newServerSetupForEachTestcase.equalsIgnoreCase("True") && driverInstanceCount == 0) {
-				driverSetUp();
-			}
-		}
-
-		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
-			getFields();
-			getData();
-		}
 		
+		LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, String> dataMap = new LinkedHashMap<String, String>();
 
-		totalKeywords = keywords.size();	
+
+		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
+			fieldMap = getFields();
+			dataMap = getData();
+		}
+
 		
 		Class<?> dynamicClass = null;
 		Constructor<?> constructor = null;
@@ -194,13 +172,6 @@ public class Executor extends Utility implements Runnable {
 						"<font size=2 face = Bedrock color=blue><b>" + currentKeyword.toUpperCase() + "</font></b>",
 						"");
 				
-
-				if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && (testCaseExecuted > 1)
-						&& (currentKeyword.equals("createNewConnection") || currentKeyword.equals("login")
-								|| currentKeyword.equals("selectUserProfile"))) {
-					test.log(LogStatus.INFO, "Keyword - " + currentKeyword + " is skipped", "");
-					continue;
-				}	
 
 			File packageDirectory = new File(
 					"./src/main/java/businessComponents/" + execMode + "/" + properties.getProperty("Project"));
@@ -232,7 +203,7 @@ public class Executor extends Utility implements Runnable {
 						continue;
 					}
 					constructor = dynamicClass.getDeclaredConstructors()[0];
-					classInstance = constructor.newInstance(test, driver, dataTable, testParameters);
+					classInstance = constructor.newInstance(test, driver, dataTable, testParameters, lock, connection);
 
 
 					switch (currentKeyword) {
@@ -315,7 +286,6 @@ public class Executor extends Utility implements Runnable {
 			}
 		}
 
-		keywordCounter = 0;
 
 	}
 
@@ -330,6 +300,7 @@ public class Executor extends Utility implements Runnable {
 	 */
 
 	public LinkedHashMap<String, String> getKeywords() {
+		LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
 		
 		keywordMap = dataTable.getRowData("BusinessFlow", testParameters.getCurrentTestCase());
 		
@@ -337,9 +308,13 @@ public class Executor extends Utility implements Runnable {
 			test.log(LogStatus.FATAL, "No Business flow available for current test case in worksheet - <b>BusinessFlow</b>");
 		}
 		
+
+		
 		return keywordMap;
 
 	}
+	
+
 
 	/**
 	 * Function to get Fields
@@ -352,9 +327,12 @@ public class Executor extends Utility implements Runnable {
 	 */
 
 	public LinkedHashMap<String, String> getFields() {
+		LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
+
 
 		fieldMap = dataTable.getRowData("BusinessFlow", testParameters.getCurrentTestCase() + "_FIELD");
 		fieldMap.remove("TC_ID");
+		
 		return fieldMap;
 
 	}
@@ -370,121 +348,55 @@ public class Executor extends Utility implements Runnable {
 	 */
 
 	public LinkedHashMap<String, String> getData() {
+		LinkedHashMap<String, String> dataMap = new LinkedHashMap<String, String>();
 
 		dataMap = dataTable.getRowData("BusinessFlow", testParameters.getCurrentTestCase() + "_DATA");
-		dataMap.remove("TC_ID");
+		dataMap.remove("TC_ID");		
+		
 		return dataMap;
 
 	}
 
-	@SuppressWarnings("rawtypes")
-	public void driverSetUp() throws ExecuteException, IOException, InterruptedException, SessionNotCreatedException {
-
-		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
-			if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && appiumServerInstanceCount == 0) {
-
-				appiumServerInstanceCount++;
-				appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
-						testParameters.getBootstrapPort());
-				appiumServerHandler.appiumServerStart();
-
-			} else if (newServerSetupForEachTestcase.equalsIgnoreCase("True") && appiumServerInstanceCount == 0) {
-
-				appiumServerHandler = new AppiumServerHandler(Integer.parseInt(testParameters.getPort()),
-						testParameters.getBootstrapPort());
-				appiumServerHandler.appiumServerStart();
-
-			}
-		}
-
-		String absolutePath = new File(System.getProperty("user.dir")).getAbsolutePath();
-
-		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability("deviceName", testParameters.getDeviceName());
-		capabilities.setCapability("udid", testParameters.getUdid());
-		capabilities.setCapability(CapabilityType.BROWSER_NAME, testParameters.getBROWSER_NAME());
-		capabilities.setCapability(CapabilityType.VERSION, testParameters.getVERSION());
-		capabilities.setCapability("app", absolutePath + "\\src\\main\\resources\\Libs\\" + testParameters.getApp());
-		capabilities.setCapability("platformName", testParameters.getPlatformName());
-		capabilities.setCapability("appPackage", testParameters.getAppPackage());
-		capabilities.setCapability("appActivity", testParameters.getAppActivity());
-		capabilities.setCapability("unicodeKeyboard", "true");
-		capabilities.setCapability("resetKeyboard", "true");
-		capabilities.setCapability("newCommandTimeout", properties.getProperty("New.Command.TimeOut"));
-		capabilities.setCapability("noReset", true);
-
-		driver = new AndroidDriver(new URL(
-				"http://" + properties.getProperty("RemoteAddress") + ":" + testParameters.getPort() + "/wd/hub"),
-				capabilities);
-
-		driver.manage().timeouts().implicitlyWait(25, TimeUnit.SECONDS);
-
-		test.log(LogStatus.INFO, "Android Driver and Appium server setup done Successfully", "");
-
-	}
-
-	public void end() {
-
-		if (newServerSetupForEachTestcase.equalsIgnoreCase("False") && totalTestInstanceToRun == 0) {
-
-			if (driver != null) {
-				driver.quit();
-			}
-
-			if (appiumServerHandler != null) {
-				appiumServerHandler.appiumServerStop();
-			}
-		} else if (newServerSetupForEachTestcase.equalsIgnoreCase("True")) {
-			if (driver != null) {
-				driver.quit();
-			}
-
-			if (appiumServerHandler != null) {
-				appiumServerHandler.appiumServerStop();
-			}
-		}
-
-	}
+	
 
 	public void exceptionHandler() {
 		try {
-		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA") && (totalKeywords - keywordCounter) >= 2) {
+		if (!testParameters.getCurrentTestCase().contains("STAGE_DATA")) {
 
-			test.log(LogStatus.INFO, "<b>Executing exception handler</b>");
+			this.test.log(LogStatus.INFO, "<b>Executing exception handler</b>");
 
-			if (isElementPresent(ID_MESSAGE, "Prompt Message")) {
-				String msg = GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title"));
+			if (isElementPresent(this.driver, this.test,ID_MESSAGE, "Prompt Message")) {
+				String msg = GetText(this.driver, this.test,ID_MESSAGE, GetText(this.driver,this.test,ID_ALERT_TITLE, "Alert Title"));
 
-				if (msg.equals("Would you like to switch to Batch mode?")) {
-					networkFlag = false;
-					test.log(LogStatus.WARNING,
+				if (msg.equals("Would you like to switch to Batch mode?")) {					
+					this.test.log(LogStatus.WARNING,
 							"<font color=red><b>Network not available....Please check network connectivity</b></font>");
-					test.log(LogStatus.WARNING,
-							"<font color=red><b>Execution of upcoming test cases will be suspended</b></font>");
-					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+					this.test.log(LogStatus.WARNING,
+							"<font color=red><b>Execution of upcoming this.test cases will be suspended</b></font>");
+					this.test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 					return;
-				} else if (GetText(ID_ALERT_TITLE, "Alert Title").equals("Mobility")) {
-					Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
-					clickRoutineBackButton();
-					clickRoutineBackButton();
-					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
-				} else if (GetText(ID_ALERT_TITLE, "Alert Title").equals("Confirm")) {
-					Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt");
-					clickRoutineBackButton();
-					clickRoutineBackButton();
-					test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+				} else if (GetText(this.driver,this.test,ID_ALERT_TITLE, "Alert Title").equals("Mobility")) {
+					Click(this.driver, this.test,ID_MESSAGE_OK, "Clicked 'Ok' for prompt");
+					clickRoutineBackButton(this.driver, this.test);
+					clickRoutineBackButton(this.driver, this.test);
+					this.test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+				} else if (GetText(this.driver,this.test,ID_ALERT_TITLE, "Alert Title").equals("Confirm")) {
+					Click(this.driver, this.test,ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt");
+					clickRoutineBackButton(this.driver,this.test);
+					clickRoutineBackButton(this.driver, this.test);
+					this.test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 				}
 
 			} else {
-				clickRoutineBackButton();
-				clickRoutineBackButton();
-				test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+				clickRoutineBackButton(this.driver, this.test);
+				clickRoutineBackButton(this.driver, this.test);
+				this.test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
 			}
 		}
 	}
 	catch(Exception e) {
-		test.log(LogStatus.INFO, "<b>Exception occured while executing - Exception handler</b>");
-		test.log(LogStatus.INFO, e);	
+		this.test.log(LogStatus.INFO, "<b>Exception occured while executing - Exception handler</b>");
+		this.test.log(LogStatus.INFO, e);	
 	}
 	}
 	

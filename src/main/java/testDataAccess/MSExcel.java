@@ -152,7 +152,7 @@ public class MSExcel implements DataTable {
 	}
 
 	@Override
-	public LinkedHashMap<String, String> getRowData(String workSheetName) {
+	public synchronized LinkedHashMap<String, String> getRowData(String workSheetName) {
 
 		LinkedHashMap<String, String> rowData = new LinkedHashMap<String, String>();
 
@@ -199,14 +199,15 @@ public class MSExcel implements DataTable {
 
 		}
 		}
+	
 		return rowData;
 	}
 
 	@Override
-	public LinkedHashMap<String, String> getRowData(String workSheetName, String currentTestCase) {
+	public synchronized LinkedHashMap<String, String> getRowData(String workSheetName, String currentTestCase) {
 
 		LinkedHashMap<String, String> rowData = new LinkedHashMap<String, String>();
-
+		
 		Sheet sheet = getSheet(workSheetName);
 		Row colName = sheet.getRow(0);
 		Row currentRow = sheet.getRow(getRowNum(workSheetName, currentTestCase));
@@ -248,7 +249,9 @@ public class MSExcel implements DataTable {
 
 		}
 		}
+		
 		return rowData;
+		
 	}
 	@Override
 	public String writeData(String arg1, String arg2) {
@@ -272,16 +275,8 @@ public class MSExcel implements DataTable {
 			testParameter.setDescription(getData("RunInfo", i, "Description"));
 			testParameter.setSetCategory(getData("RunInfo", i, "SetCategory"));
 			testParameter.setExecuteCurrentTestCase(getData("RunInfo", i, "Execute"));
-			testParameter.setConnectDB(getData("RunInfo", i, "Connect_DB"));			
-			testParameter.setPort(getData("RunInfo", i, "Port"));
-			testParameter.setBootstrapPort(getData("RunInfo", i, "BootstrapPort"));
-			testParameter.setDeviceName(getData("RunInfo", i, "DeviceName"));
-			testParameter.setUdid(getData("RunInfo", i, "UDID"));		
-			testParameter.setBROWSER_NAME(getData("RunInfo", i, "BROWSER_NAME"));
-			testParameter.setVERSION(getData("RunInfo", i, "VERSION"));
-			testParameter.setApp(getData("RunInfo", i, "App"));
-			testParameter.setAppPackage(getData("RunInfo", i, "AppPackage"));
-			testParameter.setAppActivity(getData("RunInfo", i, "AppActivity"));
+			testParameter.setConnectDB(getData("RunInfo", i, "Connect_DB"));
+			
 			
 			runInfoArray.add(testParameter);
 

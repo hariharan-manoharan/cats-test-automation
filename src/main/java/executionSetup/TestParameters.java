@@ -21,6 +21,7 @@ public class TestParameters implements Comparable {
 	private String appActivity;
 	private String currentKeywordColumnName;
 
+
 	public String getExecutionMode() {
 		return executionMode;
 	}
@@ -166,6 +167,9 @@ public class TestParameters implements Comparable {
 	public void setSetCategory(String setCategory) {
 		this.setCategory = setCategory;
 	}
+	
+
+
 
 
 	@Override
@@ -173,5 +177,6 @@ public class TestParameters implements Comparable {
 		int compareSetCategory=Integer.parseInt(((TestParameters)testParameters).getSetCategory());       
         return Integer.parseInt(this.setCategory)-compareSetCategory;
 	}
+
 
 }

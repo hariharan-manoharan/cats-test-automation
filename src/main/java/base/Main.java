@@ -226,7 +226,7 @@ public class Main{
 
 		for (int k = 0; k < groupedtestInstancesToRun.size(); k++) {
 
-			ExecutorService parallelExecutor = Executors.newFixedThreadPool(nThreads);
+			ExecutorService distributedExecutor = Executors.newFixedThreadPool(nThreads);
 
 			int groupedTestInstanceSize = groupedtestInstancesToRun.get(k).size();
 
@@ -234,21 +234,21 @@ public class Main{
 
 			for (int currentTestInstance = 0; currentTestInstance < groupedTestInstanceSize; currentTestInstance++) {
 				if (testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {
-					testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
+					testRunner = new DistributedExecutor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
 							executionType, dataTable, testRailListenter, lock,
 							androidDriverList.get(driverSequence.get(currentTestInstance)));
 				} else {
-					testRunner = new Executor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
+					testRunner = new DistributedExecutor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
 							executionType, dataTable, lock,
 							androidDriverList.get(driverSequence.get(currentTestInstance)));
 				}
 
-				parallelExecutor.execute(testRunner);
+				distributedExecutor.execute(testRunner);
 
 			}
 
-			parallelExecutor.shutdown();
-			while (!parallelExecutor.isTerminated()) {
+			distributedExecutor.shutdown();
+			while (!distributedExecutor.isTerminated()) {
 				try {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
@@ -267,6 +267,7 @@ public class Main{
 		
 		int numberOfNodes = Integer.parseInt(properties.getProperty("NumberOfNodes"));
 		ExecutorService[] parallelExecutor = new ExecutorService[numberOfNodes] ;	
+		String appSetup = properties.getProperty("appSetup");
 		
 		Runnable testRunner = null;
 		lock = new ReentrantLock();
@@ -275,6 +276,9 @@ public class Main{
 
 			appiumServerSetup(t + 1);
 			androidDriverSetUp(t + 1);
+			if(appSetup.equalsIgnoreCase("True")) {
+				setupAppForTesting(t);
+				}
 
 		}
 		
@@ -285,19 +289,20 @@ public class Main{
 			for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
 				
 				if (testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {
-					testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report,
+					testRunner = new ParallelExecutor(testInstancesToRun.get(currentTestInstance), report,
 							executionType, dataTable, testRailListenter, lock,
 							androidDriverList.get(run));
 				} else {
-					testRunner = new Executor(testInstancesToRun.get(currentTestInstance), report,
+					testRunner = new ParallelExecutor(testInstancesToRun.get(currentTestInstance), report,
 							executionType, dataTable, lock,
 							androidDriverList.get(run));
-				}
-
-				parallelExecutor[run].execute(testRunner);				
+				}				
 				
-
-			}			
+				parallelExecutor[run].execute(testRunner);	
+				
+			}
+			
+			
 			
 		}
 		

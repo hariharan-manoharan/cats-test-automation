@@ -32,7 +32,7 @@ import main.java.utils.AppiumServerHandlerCmd;
 import main.java.utils.TestRailListener;
 import main.java.utils.Utility;
 
-public class Executor extends Utility implements Runnable {
+public class ParallelExecutor extends Utility implements Runnable {
 
 	private ExtentReports report; 
 	private ExtentTest test;
@@ -47,7 +47,7 @@ public class Executor extends Utility implements Runnable {
 	private Connection connection;
 
 
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver) {
+	public ParallelExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver) {
 		this.testParameters = testParameters;
 		this.report = report;
 		this.executionType = executionType;
@@ -58,7 +58,7 @@ public class Executor extends Utility implements Runnable {
 
 	}
 	
-	public Executor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable,Lock lock,  AndroidDriver driver) {
+	public ParallelExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable,Lock lock,  AndroidDriver driver) {
 		this.testParameters = testParameters;
 		this.report = report;
 		this.executionType = executionType;

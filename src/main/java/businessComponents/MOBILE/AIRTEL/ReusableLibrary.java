@@ -397,48 +397,6 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	}
 
-
-	public void enterTransferOrder(String locationName, String columnName){
-
-		String TRANSFERCOUNT = String.format(TRANSFERCOUNT_PACK, locationName,locationName,locationName);
-
-		String NoofTransfer = selectQuerySingleValue(TRANSFERCOUNT, "TRANSFERCOUNT");
-
-		int count = 	Integer.parseInt(NoofTransfer);
-
-		String data = getRuntimeTestdata(columnName);
-
-		if (count>1){
-			enterText("Enter Transfer Order (*) :", data);
-			clickNext();
-			clickConfirmPrompt("Generate new shipment?", "Yes");
-		}
-		else
-		{
-			clickConfirmPrompt("Generate new shipment?", "Yes");
-			verifyAutopopulatefieldvalues("Transfer Order", data);
-		}
-	}
-	public void enterShipmentNumber(String locationName, String columnName){
-
-		String SHIPMENTCOUNT = String.format(SHIPMENTCOUNT_IR, locationName,locationName,locationName);
-
-		String Noofshipments = selectQuerySingleValue(SHIPMENTCOUNT, "SHIPMENTCOUNT");
-
-		int count = 	Integer.parseInt(Noofshipments);
-
-		String data = getRuntimeTestdata(columnName);
-
-		if (count>1){
-			enterText("Enter Shipment # (*) :", data);
-			clickNext();
-		}
-		else
-		{
-			verifyAutopopulatefieldvalues("Shipment #", data);
-		}
-	}
-
 	public static long generateRandom(int length) {
 		Random random = new Random();
 		char[] digits = new char[length];

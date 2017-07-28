@@ -719,7 +719,7 @@ public class Utility implements RoutineObjectRepository{
 		String text = null;
 
 		try {
-			waitCommand(by);
+			waitCommand(driver, by);
 			WebElement element = driver.findElement(by);
 			text = element.getText();
 			test.log(LogStatus.INFO, fieldName + ":  Returned - Text:<b>" + text+"</b>");

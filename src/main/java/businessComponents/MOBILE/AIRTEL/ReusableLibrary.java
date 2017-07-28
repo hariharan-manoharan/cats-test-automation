@@ -10,6 +10,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -45,9 +46,16 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	public Lock lock;
 	public Connection connection;
 
+
 	@SuppressWarnings("rawtypes")
 	public ReusableLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection) {
 		super(test, driver, dataTable, testParameters, lock, connection);
+		this.lock = lock;
+		this.connection = connection;
+	}
+	
+	public ReusableLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection, Properties runtimeDataProperties) {
+		super(test, driver, dataTable, testParameters, lock, connection, runtimeDataProperties);
 		this.lock = lock;
 		this.connection = connection;
 	}

@@ -1,6 +1,7 @@
 package main.java.businessComponents.MOBILE.AIRTEL;
 
 import java.sql.Connection;
+import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 
 import com.relevantcodes.extentreports.ExtentTest;
@@ -14,6 +15,7 @@ public class CustomLibrary extends ReusableLibrary implements RoutineObjectRepos
 	
 	public Lock lock;
 	public Connection connection;
+
 	
 	@SuppressWarnings("rawtypes")
 	public CustomLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection) {
@@ -22,6 +24,12 @@ public class CustomLibrary extends ReusableLibrary implements RoutineObjectRepos
 		this.connection = connection;
 	}
 
+	public CustomLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection, Properties runtimeDataProperties) {
+		super(test, driver, dataTable, testParameters, lock, connection, runtimeDataProperties);
+		this.lock = lock;
+		this.connection = connection;
+	}
+	
 	/************************************************************************************************
 	 * Function :enterTransferOrder 
 	 * Decsription:Function to used enter TransferOrder in Pack Routine

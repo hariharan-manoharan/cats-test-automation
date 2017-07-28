@@ -115,7 +115,6 @@ public class Main{
 		
 		setAbsolutePath();
 		collectGlobalProperties();
-		initializeGlobalRuntimeDataProperties();
 		collectTestRailProperties();
 		collectDesiredCapabilitiesProperties();
 		
@@ -199,6 +198,8 @@ public class Main{
 		groupedtestInstancesToRun = new ArrayList<ArrayList<TestParameters>>();
 		String appSetup = properties.getProperty("appSetup");
 		
+		initializeGlobalRuntimeDataProperties();
+		
 		Runnable testRunner = null;
 		lock = new ReentrantLock();
 		
@@ -257,6 +258,8 @@ public class Main{
 			}
 
 		}
+		
+		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(globalRuntimeDataPropertyFilePath, utility.getRuntimeDataProperties());	
 
 	}
 	
@@ -286,16 +289,19 @@ public class Main{
 			
 			parallelExecutor[run] = Executors.newFixedThreadPool(1);
 			
+			FrameworkProperties globalRuntimeDataProperties = FrameworkProperties.getInstance();
+			Properties runtimeDataProperties = globalRuntimeDataProperties.loadPropertyFile(globalRuntimeDataPropertyFilePath);
+			
 			for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
 				
 				if (testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {
 					testRunner = new ParallelExecutor(testInstancesToRun.get(currentTestInstance), report,
 							executionType, dataTable, testRailListenter, lock,
-							androidDriverList.get(run));
+							androidDriverList.get(run), runtimeDataProperties);
 				} else {
 					testRunner = new ParallelExecutor(testInstancesToRun.get(currentTestInstance), report,
 							executionType, dataTable, lock,
-							androidDriverList.get(run));
+							androidDriverList.get(run), runtimeDataProperties);
 				}				
 				
 				parallelExecutor[run].execute(testRunner);	
@@ -412,8 +418,7 @@ public class Main{
 
 	private static void tearDown() {
 		
-		report.flush();				
-		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(globalRuntimeDataPropertyFilePath, utility.getRuntimeDataProperties());	
+		report.flush();
 		frameworkTestRailProperties.writeGlobalRuntimeDataProperties(testRailPropertyFilePath, utility.getTestRailProperties());
 		shutDownAppiumAndAndroidDriver();
 		

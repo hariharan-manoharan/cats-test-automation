@@ -9,6 +9,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
@@ -45,9 +46,10 @@ public class ParallelExecutor extends Utility implements Runnable {
 	int projectId = Integer.parseInt(testRailProperties.getProperty("testRail.projectId"));
 	private Lock lock;
 	private Connection connection;
+	private Properties runtimeDataProperties;
 
 
-	public ParallelExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver) {
+	public ParallelExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver, Properties runtimeDataProperties) {
 		this.testParameters = testParameters;
 		this.report = report;
 		this.executionType = executionType;
@@ -55,17 +57,18 @@ public class ParallelExecutor extends Utility implements Runnable {
 		this.testRailListenter = testRailListenter;
 		this.lock = lock;
 		this.driver = driver;
+		this.runtimeDataProperties =runtimeDataProperties;
 
 	}
 	
-	public ParallelExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable,Lock lock,  AndroidDriver driver) {
+	public ParallelExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable,Lock lock,  AndroidDriver driver, Properties runtimeDataProperties) {
 		this.testParameters = testParameters;
 		this.report = report;
 		this.executionType = executionType;
 		this.dataTable = dataTable;	
 		this.lock = lock;
 		this.driver = driver;
-
+		this.runtimeDataProperties =runtimeDataProperties;
 	}
 
 	@Override
@@ -202,8 +205,8 @@ public class ParallelExecutor extends Utility implements Runnable {
 					if(dynamicClass.isInterface()) {
 						continue;
 					}
-					constructor = dynamicClass.getDeclaredConstructors()[0];
-					classInstance = constructor.newInstance(test, driver, dataTable, testParameters, lock, connection);
+					constructor = dynamicClass.getDeclaredConstructors()[1];
+					classInstance = constructor.newInstance(test, driver, dataTable, testParameters, lock, connection, runtimeDataProperties);
 
 
 					switch (currentKeyword) {

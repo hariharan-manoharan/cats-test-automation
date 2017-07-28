@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedHashMap;
+import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 
 import com.relevantcodes.extentreports.ExtentTest;
@@ -23,15 +24,25 @@ public class SQLLibrary extends Utility {
 	public Lock lock;
 	public Connection connection;
 
+	
 	@SuppressWarnings("rawtypes")
 	public SQLLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection) {
 		super(test, driver, dataTable, testParameters, lock, connection);
 		this.lock = lock;
 		this.connection = connection;
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public SQLLibrary(ExtentTest test, AndroidDriver driver, DataTable dataTable, TestParameters testParameters, Lock lock, Connection connection, Properties runtimeDataProperties) {
+		super(test, driver, dataTable, testParameters, lock, connection, runtimeDataProperties);
+		this.lock = lock;
+		this.connection = connection;		
+	}
 
 	
 	//SQL FUNCTIONS
+	
+	
 	
 	public void createNewPart(){
 		String validateItem = "SELECT * FROM CATSCON_PART_STG WHERE ITEM='%s' AND RECORD_ID=%d";
@@ -746,6 +757,166 @@ public class SQLLibrary extends Utility {
 		return currentStageId;
 	} 
 	
+	
+	public void createLocatorRuleset() {
+		
+	LinkedHashMap<String, String> inputValueMap = dataTable.getRowData("Data_Staging", testParameters.getCurrentTestCase()+"_RULESET");		
+		
+	String query = null;	
+
+	try {
+		
+		int lastRuleSetId = getLastTransactionId("SELECT MAX(LOCATORRULESETID) AS LOCATORRULESETID FROM CATS_LOCATORRULESET","LOCATORRULESETID" );
+		int currentRuleSetId = lastRuleSetId+1;	
+		
+		String locatorRuleSetName = inputValueMap.get("VALUE1")+getCurrentFormattedTime("ddMMhhmmssSSS");
+	
+		query = "INSERT "
+				+"INTO CATS_LOCATORRULESET"
+				  +"("
+				   +" LOCATORRULESETID,"
+				    +"NAME,"
+				    +"DESCRIPTION,"
+				    +"SEGMENT1_NAME,"
+				    +"SEGMENT1_DISPLAY,"
+				    +"SEGMENT2_NAME,"
+				    +"SEGMENT2_DISPLAY,"
+				    +"SEGMENT3_NAME,"
+				    +"SEGMENT3_DISPLAY,"    
+				    +"ADDCONTACTID,"
+				    +"ADDDTTM,"
+				    +"MODIFIEDCONTACTID,"
+				    +"MODIFIEDDTTM"
+				  +")"
+				  +"VALUES"
+				  +"("
+				    +currentRuleSetId+","
+				    +"'"+locatorRuleSetName+"',"
+				    +"'"+inputValueMap.get("VALUE2")+"',"
+				    +"'"+inputValueMap.get("VALUE3")+"',"
+				    +"'"+inputValueMap.get("VALUE4")+"',"
+				    +"'"+inputValueMap.get("VALUE5")+"',"
+				    +"'"+inputValueMap.get("VALUE6")+"',"
+				    +"'"+inputValueMap.get("VALUE7")+"',"
+				    +"'"+inputValueMap.get("VALUE8")+"',"
+				    +inputValueMap.get("VALUE9")+","
+				    +inputValueMap.get("VALUE10")+","
+				    +inputValueMap.get("VALUE11")+","
+				    +inputValueMap.get("VALUE12")+")";		
+			
+		executeUpdateQuery(query, "Locator Ruleset with Name <b>"+locatorRuleSetName+ "</b> is inserted into table CATS_LOCATORRULESET (<b>LOCATORRULESETID - "+currentRuleSetId+"</b>).");		
+		connection.commit();	
+		
+		addRuntimeTestData("LOCATORRULESETID", String.valueOf(currentRuleSetId));
+		addRuntimeTestData("LOCATORRULESET_NAME", String.valueOf(locatorRuleSetName));	
+		
+		createLocatorRule(currentRuleSetId);
+		
+	} catch (SQLException e) {		
+		e.printStackTrace();
+	}
+
+}
+	
+	
+	public void createLocatorRule(int locatorRulsetID) {
+		
+	LinkedHashMap<String, String> inputValueMap	  = dataTable.getRowData("Data_Staging", testParameters.getCurrentTestCase()+"_RULE");	
+		
+	String query = null;	
+	
+	try {
+		lock.lock();
+		
+		
+		int lastRuleId = getLastTransactionId("SELECT MAX(LOCATORRULEID) AS LOCATORRULEID FROM CATS_LOCATORRULE","LOCATORRULEID" );
+		int currentRuleId = lastRuleId+1;		
+		
+		
+		String locatorRuleName = inputValueMap.get("VALUE1")+getCurrentFormattedTime("ddMMhhmmssSSS");
+	
+		query = "INSERT "
+				+"INTO CATS_LOCATORRULE"
+				+"("
+				+"LOCATORRULEID,"
+				+"LOCATORRULESETID,"
+				+"NAME,"
+				+"DESCRIPTION,"
+				+"SEGMENT1_CODECOMPONENT,"
+				+"SEGMENT1_LOWER,"
+				+"SEGMENT1_UPPER,"
+				+"SEGMENT2_CODECOMPONENT,"
+				+"SEGMENT2_LOWER,"
+				+"SEGMENT2_UPPER,"
+				+"SEGMENT3_CODECOMPONENT,"
+				+"SEGMENT3_LOWER,"
+				+"SEGMENT3_UPPER,"
+				+"ADDCONTACTID,"
+				+"ADDDTTM,"
+				+"MODIFIEDCONTACTID,"
+				+"MODIFIEDDTTM,"
+				+"REVISION"
+				+")"
+				+"VALUES"
+				+"("
+				+currentRuleId+","
+				+locatorRulsetID+","
+				+"'"+locatorRuleName+"',"
+				+"'"+inputValueMap.get("VALUE2")+"',"
+    			+"'"+inputValueMap.get("VALUE3")+"',"
+    			+"'"+inputValueMap.get("VALUE4")+"',"
+    			+"'"+inputValueMap.get("VALUE5")+"',"
+    			+"'"+inputValueMap.get("VALUE6")+"',"
+    			+"'"+inputValueMap.get("VALUE7")+"',"
+    			+"'"+inputValueMap.get("VALUE8")+"',"
+    			+"'"+inputValueMap.get("VALUE9")+"',"
+    			+"'"+inputValueMap.get("VALUE10")+"',"
+    			+"'"+inputValueMap.get("VALUE11")+"',"
+    			+inputValueMap.get("VALUE12")+","
+    			+inputValueMap.get("VALUE13")+","
+    			+inputValueMap.get("VALUE14")+","
+    			+inputValueMap.get("VALUE15")+","
+    			+inputValueMap.get("VALUE16")+")";			
+			
+		executeUpdateQuery(query, "Locator Rule with Name <b>"+locatorRuleName+ "</b> is inserted into table CATS_LOCATORRULE (<b>LOCATORRULEID - "+currentRuleId+"</b>).");		
+		connection.commit();	
+		
+		addRuntimeTestData("LOCATORRULEID", String.valueOf(currentRuleId));	
+		addRuntimeTestData("LOCATORRULE_NAME", String.valueOf(locatorRuleName));	
+			
+		
+		
+	} catch (SQLException e) {		
+		e.printStackTrace();
+	}finally{
+		lock.unlock();
+	}
+
+}
+	
+	public void updateLocatorRuleSet(String locationName, String locatorRuleSetID){
+		
+		String query = null;	
+		
+		try {
+			lock.lock();
+			
+			if(locatorRuleSetID.contains("#")){
+				locatorRuleSetID = getRuntimeTestdata(locatorRuleSetID);
+			}
+			
+			query = "UPDATE CATS_LOCATION SET LOCATORRULESETID="+locatorRuleSetID+" WHERE NAME='"+locationName+"'";
+			
+			executeUpdateQuery(query, "Locator Ruleset with LOCATORRULESETID <b>"+locatorRuleSetID+ "</b> is linked to Location <b>NAME - "+locationName+"</b>.");		
+			connection.commit();	
+			
+		}catch (SQLException e) {		
+			e.printStackTrace();
+		}finally{
+			lock.unlock();
+		}
+		
+	}
 
 
 }

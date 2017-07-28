@@ -63,6 +63,7 @@ public class Utility implements RoutineObjectRepository{
 	int verifyCounter = 0;
 	public Lock lock;
 	public Connection connection;
+
 	
 	
 
@@ -74,6 +75,17 @@ public class Utility implements RoutineObjectRepository{
 		this.testParameters = testParameters;
 		this.lock = lock;
 		this.connection = connection;
+	}	
+	
+	@SuppressWarnings("rawtypes")
+	public Utility(ExtentTest test, AndroidDriver driver, DataTable dataTable,TestParameters testParameters, Lock lock, Connection connection, Properties runtimeDataProperties) {
+		this.test = test;
+		this.driver = driver;
+		this.dataTable = dataTable;
+		this.testParameters = testParameters;
+		this.lock = lock;
+		this.connection = connection;
+		this.runtimeDataProperties = runtimeDataProperties;
 	}	
 
 	public Utility() {
@@ -1472,6 +1484,10 @@ public boolean checkRecordAvailable(String query) {
 		return partcode;
 
 	}
+	
+
+	
+
 	
 	
 public int createNewPart(LinkedHashMap<String, String> inputValueMap){

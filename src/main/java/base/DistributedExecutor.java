@@ -217,6 +217,7 @@ public class DistributedExecutor extends Utility implements Runnable {
 					case "deliveryinfocomplete":
 					case "multipleClickNext":
 					case "validatePicklistValue":
+					case "updateLocatorRuleSet":
 						try {
 							method = dynamicClass.getDeclaredMethod(currentKeyword, String.class, String.class);
 							isMethodFound = true;
@@ -266,7 +267,18 @@ public class DistributedExecutor extends Utility implements Runnable {
 							method.invoke(classInstance, dataMap.get(currentKey));
 						}
 						break;
-
+					case "createLocatorRule":
+						try {
+							method = dynamicClass.getDeclaredMethod(currentKeyword, Integer.TYPE);
+							isMethodFound = true;
+						} catch (NoSuchMethodException e) {
+							isMethodFound = false;
+							break;
+						}
+						if (isMethodFound) {
+							method.invoke(classInstance, Integer.parseInt(dataMap.get(currentKey)));
+						}
+						break;
 					default:
 						try {
 							method = dynamicClass.getDeclaredMethod(currentKeyword);

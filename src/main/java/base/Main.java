@@ -80,10 +80,10 @@ public class Main{
 	private static ArrayList<AppiumServerHandler> appiumServerInstanceList = new ArrayList<>();
 	private static ArrayList<Integer> driverSequence = new ArrayList<>();
 	
-	private static final String globalPropertyFilePath = "./src/main/resources/PropertyFiles/GlobalProperties.properties";
-	private static final String globalRuntimeDataPropertyFilePath = "./src/main/resources/PropertyFiles/GlobalRuntimeDataProperties.properties";
-	private static final String testRailPropertyFilePath = "./src/main/resources/PropertyFiles/TestRail.properties";
-	private static final String desiredCapabilityPropertyFilePath = "./src/main/resources/DesiredCapabilities/DesiredCapabilities.properties";
+	private static final String globalPropertyFilePath = "./resources/PropertyFiles/GlobalProperties.properties";
+	private static final String globalRuntimeDataPropertyFilePath = "./resources/PropertyFiles/GlobalRuntimeDataProperties.properties";
+	private static final String testRailPropertyFilePath = "./resources/PropertyFiles/TestRail.properties";
+	private static final String desiredCapabilityPropertyFilePath = "./resources/DesiredCapabilities/DesiredCapabilities.properties";
 	
 	
 
@@ -364,7 +364,7 @@ public class Main{
 		capabilities.setCapability("udid", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".udid"));
 		capabilities.setCapability(CapabilityType.BROWSER_NAME, desiredCapabilitiesProperties.getProperty("device1"+selectDevice+".browserName"));
 		capabilities.setCapability(CapabilityType.VERSION, desiredCapabilitiesProperties.getProperty("device"+selectDevice+".version"));
-		capabilities.setCapability("app", absolutePath + "\\src\\main\\resources\\Libs\\" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".app"));
+		capabilities.setCapability("app", absolutePath + "\\resources\\Libs\\" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".app"));
 		capabilities.setCapability("platformName", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".platformName"));
 		capabilities.setCapability("appPackage", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appPackage"));
 		capabilities.setCapability("appActivity", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appActivity"));
@@ -510,7 +510,7 @@ public class Main{
 	private static void setUpExecutionMode() {
 		
 		executionType = ExecutionType.valueOf(properties.getProperty("ExecutionType"));
-		nThreads = Integer.parseInt(properties.getProperty("NumberOfThreads"));
+		nThreads = Integer.parseInt(properties.getProperty("NumberOfNodes"));
 		
 	}
 	
@@ -529,9 +529,9 @@ public class Main{
 		String dataTableName = properties.getProperty("TestDataTableName");
 		
 		if(dataTableType.equalsIgnoreCase("MSExcel")){
-			dataTablePath = "./src/main/resources/TestData/MSExcel/"+dataTableName;
+			dataTablePath = "./resources/TestData/MSExcel/"+dataTableName;
 		}else if(dataTableType.equalsIgnoreCase("MSAccess")){
-			dataTablePath = "./src/main/resources/TestData/MSAccess/"+dataTableName;
+			dataTablePath = "./resources/TestData/MSAccess/"+dataTableName;
 		}
 		
 		dataTableFactory = DataTableFactoryProducer.getDataTableFactory();		
@@ -549,7 +549,7 @@ public class Main{
 	private static void initializeTestReport() {
 		
 		report = HtmlReport.getInstance();
-		report.loadConfig((new File("./src/main/resources/PropertyFiles/extent-report-config.xml")));
+		report.loadConfig((new File("./resources/PropertyFiles/extent-report-config.xml")));
 		report.addSystemInfo("Project", properties.getProperty("Project"));
 		report.addSystemInfo("Environment", properties.getProperty("Environment"));
 		report.addSystemInfo("Project ID", testRailProperties.getProperty("testRail.projectId"));

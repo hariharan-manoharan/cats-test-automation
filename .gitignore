@@ -27,10 +27,6 @@ hs_err_pid*
 *.txt
 /LatestResult/
 /Results/
-/src/main/resources/Libs/
-/src/main/resources/PropertyFiles/
-/src/main/resources/TestData/MSExcel/
+/resources/
 *.classpath
 /.settings/
-
-src/main/resources/DesiredCapabilities/DesiredCapabilities.properties

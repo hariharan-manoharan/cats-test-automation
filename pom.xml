@@ -35,20 +35,9 @@
 					<mainClass>main.java.base.Main</mainClass>
 				</configuration>
 			</plugin>
-			<!-- <plugin>
-				<groupId>com.lazerycode.jmeter</groupId>
-				<artifactId>jmeter-maven-plugin</artifactId>
-				<version>1.4.1</version>
-				<executions>
-					<execution>
-						<id>jmeter-tests</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jmeter</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin> -->
+			<!-- <plugin> <groupId>com.lazerycode.jmeter</groupId> <artifactId>jmeter-maven-plugin</artifactId> 
+				<version>1.4.1</version> <executions> <execution> <id>jmeter-tests</id> <phase>verify</phase> 
+				<goals> <goal>jmeter</goal> </goals> </execution> </executions> </plugin> -->
 		</plugins>
 	</build>
 	<dependencies>
@@ -100,10 +89,17 @@
 			<version>6.8</version>
 			<scope>test</scope>
 		</dependency>
+<!-- 		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc6</artifactId>
+			<version>11.2.0.4</version>
+		</dependency> -->
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc6</artifactId>
 			<version>11.2.0.4</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/resources/Libs/ojdbc6.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>

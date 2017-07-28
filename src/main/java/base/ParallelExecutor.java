@@ -374,9 +374,9 @@ public class ParallelExecutor extends Utility implements Runnable {
 				if (msg.equals("Would you like to switch to Batch mode?")) {					
 					this.test.log(LogStatus.WARNING,
 							"<font color=red><b>Network not available....Please check network connectivity</b></font>");
-					this.test.log(LogStatus.WARNING,
+				/*	this.test.log(LogStatus.WARNING,
 							"<font color=red><b>Execution of upcoming this.test cases will be suspended</b></font>");
-					this.test.log(LogStatus.INFO, "<b>Exception handler completed</b>");
+					this.test.log(LogStatus.INFO, "<b>Exception handler completed</b>");*/
 					return;
 				} else if (GetText(this.driver,this.test,ID_ALERT_TITLE, "Alert Title").equals("Mobility")) {
 					Click(this.driver, this.test,ID_MESSAGE_OK, "Clicked 'Ok' for prompt");

@@ -2286,4 +2286,35 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 
 	}
 	
+	@SuppressWarnings("unused")
+	protected String findDir(File root, String name)
+	{
+	    if (root.getName().equals(name))
+	    {
+	        return root.getAbsolutePath();
+	    }
+
+	    File[] files = root.listFiles();
+
+	    if(files != null)
+	    {
+	        for (File f : files)  
+	        {
+	            if(f.isDirectory())
+	            {   
+	                String myResult = findDir(f, name);
+	                if (myResult == null) {
+	                    continue;
+	                }
+	                //we found a result so return!
+	                else {
+	                    return myResult;
+	                }
+	            }
+	        }
+	    }
+
+	    return null;
+	}
+	
 }

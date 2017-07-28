@@ -172,9 +172,9 @@ public class DistributedExecutor extends Utility implements Runnable {
 						"<font size=2 face = Bedrock color=blue><b>" + currentKeyword.toUpperCase() + "</font></b>",
 						"");
 				
-
-			File packageDirectory = new File(
-					"./src/main/java/businessComponents/" + executionType + "/" + properties.getProperty("Project"));
+			String requiredDirectory = findDir(new File(System.getProperty("user.dir")), properties.getProperty("Project"));			
+			
+			File packageDirectory = new File(requiredDirectory);
 
 			File[] packageFiles = packageDirectory.listFiles();			
 

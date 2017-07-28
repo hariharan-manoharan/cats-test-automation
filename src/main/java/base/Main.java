@@ -93,7 +93,7 @@ public class Main{
 	 * @param args
 	 */
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		
 		prepare();	
 		initializeTestReport();		
@@ -178,7 +178,8 @@ public class Main{
 	 * 
 	 */
 
-	private static void execute() {			
+	private static void execute() {		
+
 		
 		if(!testInstancesToRun.isEmpty()) {
 		String executionMode = properties.getProperty("ExecutionMode");	

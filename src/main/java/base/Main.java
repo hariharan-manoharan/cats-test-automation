@@ -79,7 +79,7 @@ public class Main{
 	private static FrameworkProperties frameworkTestRailProperties;
 	private static FrameworkProperties globalDesiredCapabilitiesProperties;
 	private static Utility utility;
-	private static ExtentTest runManagerTest;
+	private static ExtentTest setUpReport;
 	private static Lock lock;
 	private static ArrayList<AndroidDriver> androidDriverList = new ArrayList<>();
 	private static ArrayList<AppiumServerHandler> appiumServerInstanceList = new ArrayList<>();
@@ -145,8 +145,8 @@ public class Main{
 		testInstancesToRun = runManager.getRunManagerInfo();
 		
 		if(testInstancesToRun.isEmpty()) {
-			runManagerTest = report.startTest("Run Manager status");
-			runManagerTest.log(LogStatus.FATAL, "No test cases are selected in Run Manager for execution.");
+			setUpReport = report.startTest("Run Manager status");
+			setUpReport.log(LogStatus.FATAL, "No test cases are selected in Run Manager for execution.");
 		}
 		
 		Collections.sort(testInstancesToRun);
@@ -211,6 +211,8 @@ public class Main{
 		Runnable testRunner = null;
 		lock = new ReentrantLock();
 		
+		if(adbDevices.size()>=nThreads) {
+		
 		for (int t = 0; t < nThreads; t++) {
 
 			appiumServerSetup(t + 1);
@@ -267,6 +269,11 @@ public class Main{
 		
 		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(globalRuntimeDataPropertyFilePath, utility.getRuntimeDataProperties());	
 
+		}else {
+			setUpReport = report.startTest("Execution setup status");
+			setUpReport.log(LogStatus.FATAL, "Number of adb devices connected <b>("+adbDevices.size()+")</b> is not equal to NumberOfNodes property <b>("+nThreads+")</b>");
+			setUpReport.log(LogStatus.INFO, "<b>Number of adb devices connected should be equal greater than or to NumberOfNodes</b>");
+		}
 	}
 	
 	
@@ -354,16 +361,16 @@ public class Main{
 		DesiredCapabilities capabilities = new DesiredCapabilities();
 		capabilities.setCapability("deviceName", adbDevices.get(selectDevice-1));
 		capabilities.setCapability("udid", adbDevices.get(selectDevice-1));
-		capabilities.setCapability(CapabilityType.BROWSER_NAME, desiredCapabilitiesProperties.getProperty("device1"+selectDevice+".browserName"));
-		capabilities.setCapability(CapabilityType.VERSION, desiredCapabilitiesProperties.getProperty("device"+selectDevice+".version"));
-		capabilities.setCapability("app", absolutePath + "\\resources\\Libs\\" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".app"));
-		capabilities.setCapability("platformName", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".platformName"));
-		capabilities.setCapability("appPackage", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appPackage"));
-		capabilities.setCapability("appActivity", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appActivity"));
-		capabilities.setCapability("unicodeKeyboard", properties.getProperty("unicodeKeyboard"));
-		capabilities.setCapability("resetKeyboard", properties.getProperty("resetKeyboard"));
-		capabilities.setCapability("newCommandTimeout", properties.getProperty("newCommandTimeout"));
-		capabilities.setCapability("noReset", properties.getProperty("noReset"));
+		capabilities.setCapability(CapabilityType.BROWSER_NAME, desiredCapabilitiesProperties.getProperty("browserName"));
+		capabilities.setCapability(CapabilityType.VERSION, desiredCapabilitiesProperties.getProperty("version"));
+		capabilities.setCapability("app", absolutePath + "\\resources\\Libs\\" + desiredCapabilitiesProperties.getProperty("app"));
+		capabilities.setCapability("platformName", desiredCapabilitiesProperties.getProperty("platformName"));
+		capabilities.setCapability("appPackage", desiredCapabilitiesProperties.getProperty("appPackage"));
+		capabilities.setCapability("appActivity", desiredCapabilitiesProperties.getProperty("appActivity"));
+		capabilities.setCapability("unicodeKeyboard", desiredCapabilitiesProperties.getProperty("unicodeKeyboard"));
+		capabilities.setCapability("resetKeyboard", desiredCapabilitiesProperties.getProperty("resetKeyboard"));
+		capabilities.setCapability("newCommandTimeout", desiredCapabilitiesProperties.getProperty("newCommandTimeout"));
+		capabilities.setCapability("noReset", desiredCapabilitiesProperties.getProperty("noReset"));
 
 		
 		driver = new AndroidDriver(new URL(	"http://" + properties.getProperty("RemoteAddress") + ":" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.port") + "/wd/hub"),capabilities);

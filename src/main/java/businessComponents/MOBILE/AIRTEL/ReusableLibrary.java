@@ -694,6 +694,26 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+	public void clickButtonWithText(String buttonText) {
+		
+		List<WebElement> elements = driver.findElementsByXPath(".//android.widget.Button");
+		boolean isClicked = false;
+		
+		for(WebElement element:elements) {
+			
+			if(element.getText().equalsIgnoreCase(buttonText)) {
+				isClicked = true;
+				element.click();
+				takeScreenshot(buttonText+" button is Clicked");
+			}
+		}
+		
+		
+		if(!isClicked) {
+			takeScreenshot(buttonText+" button is not Clicked");
+		}
+	}
 
 
 

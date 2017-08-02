@@ -80,8 +80,9 @@ public class ParallelExecutor extends Utility implements Runnable {
 			if (testParameters.getExecuteCurrentTestCase().equalsIgnoreCase("Yes")) {
 				test = report.startTest(testParameters.getCurrentTestCase() + " : " + testParameters.getDescription());
 				dataTable.setCurrentRow(testParameters.getCurrentTestCase());
-				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");					
-			
+				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");	
+				test.log(LogStatus.INFO, "Current Thread - "+Thread.currentThread().getName().toString(), "");
+				test.log(LogStatus.INFO, "AndroidDriver Session ID - "+driver.getSessionId().toString(), "");
 
 				if (testParameters.getConnectDB().equalsIgnoreCase("Yes")) {
 					connection = Getconnections();

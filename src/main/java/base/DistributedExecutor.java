@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +40,7 @@ public class DistributedExecutor extends Utility implements Runnable {
 	private TestParameters testParameters;
 	private ExecutionType executionType;
 	private DataTable dataTable;
+	private ArrayList<AndroidDriver> driverList;
 	private AndroidDriver driver;
 	private TestRailListener testRailListenter;
 	String testRailEnabled = testRailProperties.getProperty("testRail.enabled");
@@ -47,24 +49,24 @@ public class DistributedExecutor extends Utility implements Runnable {
 	private Connection connection;
 
 
-	public DistributedExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  AndroidDriver driver) {
+	public DistributedExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable, TestRailListener testRailListenter, Lock lock,  ArrayList<AndroidDriver> androidDriverList) {
 		this.testParameters = testParameters;
 		this.report = report;
 		this.executionType = executionType;
 		this.dataTable = dataTable;
 		this.testRailListenter = testRailListenter;
 		this.lock = lock;
-		this.driver = driver;
+		this.driverList = androidDriverList;
 
 	}
 	
-	public DistributedExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable,Lock lock,  AndroidDriver driver) {
+	public DistributedExecutor(TestParameters testParameters, ExtentReports report, ExecutionType executionType, DataTable dataTable,Lock lock,  ArrayList<AndroidDriver> androidDriverList) {
 		this.testParameters = testParameters;
 		this.report = report;
 		this.executionType = executionType;
 		this.dataTable = dataTable;	
 		this.lock = lock;
-		this.driver = driver;
+		this.driverList = androidDriverList;
 
 	}
 
@@ -74,11 +76,21 @@ public class DistributedExecutor extends Utility implements Runnable {
 		LinkedHashMap<String, String> keywordMap = new LinkedHashMap<String, String>();
 		try {	
 						
-			if (testParameters.getExecuteCurrentTestCase().equalsIgnoreCase("Yes")) {
+			if (testParameters.getExecuteCurrentTestCase().equalsIgnoreCase("Yes")) {				
+				
 				test = report.startTest(testParameters.getCurrentTestCase() + " : " + testParameters.getDescription());
 				dataTable.setCurrentRow(testParameters.getCurrentTestCase());
-				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");					
-			
+				test.log(LogStatus.INFO, testParameters.getCurrentTestCase() + " execution started", "");
+				test.log(LogStatus.INFO, "Current Thread - "+Thread.currentThread().getName().toString(), "");
+				
+				
+				String[] threadNumber = Thread.currentThread().getName().toString().split("-");
+				
+				int driverindex = Integer.parseInt(threadNumber[3])-1;				
+				
+				driver = driverList.get(driverindex);
+				
+				test.log(LogStatus.INFO, "AndroidDriver Session ID - "+driver.getSessionId().toString(), "");
 
 				if (testParameters.getConnectDB().equalsIgnoreCase("Yes")) {
 					connection = Getconnections();
@@ -98,7 +110,8 @@ public class DistributedExecutor extends Utility implements Runnable {
 				report.endTest(test);
 				report.flush();		
 				
-				testRailReport();
+				testRailReport();				
+
 			}
 		} catch (SessionNotCreatedException e) {
 			test.log(LogStatus.FAIL, "Android Driver and Appium server setup not done Successfully", "");
@@ -294,6 +307,8 @@ public class DistributedExecutor extends Utility implements Runnable {
 						break;
 
 					}
+					
+					report.flush();
 
 				}
 			}

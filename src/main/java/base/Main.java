@@ -4,8 +4,13 @@
 package main.java.base;
 
 import java.awt.Desktop;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -78,12 +83,13 @@ public class Main{
 	private static Lock lock;
 	private static ArrayList<AndroidDriver> androidDriverList = new ArrayList<>();
 	private static ArrayList<AppiumServerHandler> appiumServerInstanceList = new ArrayList<>();
-	private static ArrayList<Integer> driverSequence = new ArrayList<>();
+	static ArrayList<String> adbDevices = null;
 	
 	private static final String globalPropertyFilePath = "./resources/PropertyFiles/GlobalProperties.properties";
 	private static final String globalRuntimeDataPropertyFilePath = "./resources/PropertyFiles/GlobalRuntimeDataProperties.properties";
 	private static final String testRailPropertyFilePath = "./resources/PropertyFiles/TestRail.properties";
 	private static final String desiredCapabilityPropertyFilePath = "./resources/DesiredCapabilities/DesiredCapabilities.properties";
+	private static final String FILENAME = "\\adbDevices-list.txt";
 	
 	
 
@@ -116,6 +122,7 @@ public class Main{
 		setAbsolutePath();
 		collectGlobalProperties();
 		collectTestRailProperties();
+		identifyListofDevicesConnected();
 		collectDesiredCapabilitiesProperties();
 		
 	}	
@@ -230,19 +237,17 @@ public class Main{
 
 			ExecutorService distributedExecutor = Executors.newFixedThreadPool(nThreads);
 
-			int groupedTestInstanceSize = groupedtestInstancesToRun.get(k).size();
-
-			driverSequence(groupedTestInstanceSize);
+			int groupedTestInstanceSize = groupedtestInstancesToRun.get(k).size();			
 
 			for (int currentTestInstance = 0; currentTestInstance < groupedTestInstanceSize; currentTestInstance++) {
 				if (testRailProperties.getProperty("testRail.enabled").equalsIgnoreCase("True")) {
 					testRunner = new DistributedExecutor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
 							executionType, dataTable, testRailListenter, lock,
-							androidDriverList.get(driverSequence.get(currentTestInstance)));
+							androidDriverList);
 				} else {
 					testRunner = new DistributedExecutor(groupedtestInstancesToRun.get(k).get(currentTestInstance), report,
 							executionType, dataTable, lock,
-							androidDriverList.get(driverSequence.get(currentTestInstance)));
+							androidDriverList);
 				}
 
 				distributedExecutor.execute(testRunner);
@@ -302,7 +307,7 @@ public class Main{
 				} else {
 					testRunner = new ParallelExecutor(testInstancesToRun.get(currentTestInstance), report,
 							executionType, dataTable, lock,
-							androidDriverList.get(run), runtimeDataProperties);
+							androidDriverList.get(run), runtimeDataProperties);					
 				}				
 				
 				parallelExecutor[run].execute(testRunner);	
@@ -327,20 +332,6 @@ public class Main{
 		
 		
 	}
-
-	
-	
-	public static void driverSequence(int sequenceRepeatCount) {
-		
-		for(int j=0;j<sequenceRepeatCount;j++) {
-		
-		for(int i=0;i<nThreads;i++) {
-			driverSequence.add(i);
-		}
-		
-		}
-		
-	}
 	
 	
 	public static void appiumServerSetup(int selectDevice) {		
@@ -361,8 +352,8 @@ public class Main{
 		String absolutePath = new File(System.getProperty("user.dir")).getAbsolutePath();
 
 		DesiredCapabilities capabilities = new DesiredCapabilities();
-		capabilities.setCapability("deviceName", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".deviceName"));
-		capabilities.setCapability("udid", desiredCapabilitiesProperties.getProperty("device"+selectDevice+".udid"));
+		capabilities.setCapability("deviceName", adbDevices.get(selectDevice-1));
+		capabilities.setCapability("udid", adbDevices.get(selectDevice-1));
 		capabilities.setCapability(CapabilityType.BROWSER_NAME, desiredCapabilitiesProperties.getProperty("device1"+selectDevice+".browserName"));
 		capabilities.setCapability(CapabilityType.VERSION, desiredCapabilitiesProperties.getProperty("device"+selectDevice+".version"));
 		capabilities.setCapability("app", absolutePath + "\\resources\\Libs\\" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".app"));
@@ -377,7 +368,7 @@ public class Main{
 		
 		driver = new AndroidDriver(new URL(	"http://" + properties.getProperty("RemoteAddress") + ":" + desiredCapabilitiesProperties.getProperty("device"+selectDevice+".appium.port") + "/wd/hub"),capabilities);
 		
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);	
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		
 		androidDriverList.add(driver);
 		
@@ -421,7 +412,11 @@ public class Main{
 		
 		report.flush();
 		frameworkTestRailProperties.writeGlobalRuntimeDataProperties(testRailPropertyFilePath, utility.getTestRailProperties());
-		shutDownAppiumAndAndroidDriver();
+		shutDownAppiumAndAndroidDriver();	
+		
+		if(properties.getProperty("RestartAdbServer").equalsIgnoreCase("True")) {
+			executeShellScript(absolutePath+"\\adbKillServer.sh");	
+		}
 		
 		try {
 			Desktop.getDesktop().open(new File(HtmlReport.reportPath));
@@ -581,7 +576,106 @@ public class Main{
 		
 	}
 	
+	private static void executeShellScript(String shellScriptPath) {
+
+		String[] cmdScript = null;
+		
+		try {
+
+			cmdScript = new String[]{"bash", shellScriptPath}; 	
+			
+			Process procScript = Runtime.getRuntime().exec(cmdScript);
+
+			procScript.waitFor();
+			/*StringBuffer output = new StringBuffer();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(procScript.getInputStream()));
+			String line = "";
+			while ((line = reader.readLine()) != null) {
+				output.append(line + "\n");
+				
+			}
+			
+			System.out.println(output);*/
+			
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+	}
 	
+	
+	
+	private static void identifyListofDevicesConnected() {
+		
+		String exeuteOverWifi = properties.getProperty("ExecuteOverWifi");
+		String restartAdbServer = properties.getProperty("RestartAdbServer");
+		
+		if(restartAdbServer.equalsIgnoreCase("True")) {
+			executeShellScript(absolutePath+"\\adbKillServer.sh");	
+			executeShellScript(absolutePath+"\\adbStartServer.sh");	
+		}
+		
+		if(exeuteOverWifi.equalsIgnoreCase("True")) {
+			executeShellScript(absolutePath+"\\adbDevicesWifi.sh");
+		}else {
+			executeShellScript(absolutePath+"\\adbDevicesUsb.sh");
+		}
+
+		BufferedReader br = null;
+		FileReader fr = null;
+		adbDevices = new ArrayList<String>();	
+		
+
+		try {
+			
+			fr = new FileReader(absolutePath+FILENAME);
+			br = new BufferedReader(fr);
+
+			String sCurrentLine;
+
+			
+			if(exeuteOverWifi.equalsIgnoreCase("True")) {
+			while ((sCurrentLine = br.readLine()) != null) {
+				if(sCurrentLine.contains(":")) {
+					String[] splitCurentLine = sCurrentLine.split("\\s");
+					if(splitCurentLine[1].equals("device")) {					
+					adbDevices.add(splitCurentLine[0]);
+					}
+				}
+			}
+			}else {
+				while ((sCurrentLine = br.readLine()) != null) {
+					if(!sCurrentLine.equals("List of devices attached") && !sCurrentLine.equals("")) {
+						String[] splitCurentLine = sCurrentLine.split("\\s");
+						if(splitCurentLine[1].equals("device")) {					
+						adbDevices.add(splitCurentLine[0]);
+						}
+					}
+				}
+			}
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		} finally {
+
+			try {
+
+				if (br != null)
+					br.close();
+
+				if (fr != null)
+					fr.close();
+
+			} catch (IOException ex) {
+
+				ex.printStackTrace();
+
+			}
+
+		}
+
+	}
 	
 		
 }

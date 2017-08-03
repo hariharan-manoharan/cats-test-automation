@@ -221,6 +221,7 @@ public class ParallelExecutor extends Utility implements Runnable {
 					case "deliveryinfocomplete":
 					case "multipleClickNext":
 					case "validatePicklistValue":
+					case "verifyPrompt":
 						try {
 							method = dynamicClass.getDeclaredMethod(currentKeyword, String.class, String.class);
 							isMethodFound = true;

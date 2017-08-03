@@ -527,6 +527,31 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			report(driver,test, msg + " is not displayed", LogStatus.FAIL);			
 		}
 	}
+	
+	
+	public void verifyPrompt(String prompt, String action) throws TimeoutException, NoSuchElementException{
+		
+		if(isElementPresent(ID_MESSAGE, "Alert")) {
+		
+		if (GetText(ID_MESSAGE, GetText(ID_ALERT_TITLE, "Alert Title")).equalsIgnoreCase(prompt)) {			
+			
+			switch(action) {
+			case "ClickYes":
+				Click(ID_MESSAGE_CONFIRM_YES, "Clicked 'Yes' for prompt - " + prompt);
+				break;
+			case "ClickNo":
+				Click(ID_MESSAGE_CONFIRM_NO, "Clicked 'No' for prompt - " + prompt);
+				break;
+			case "ClickOk":
+				Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt - " + prompt);
+				break;
+				
+			}
+			
+		}
+		}
+		
+	}
 
 
 

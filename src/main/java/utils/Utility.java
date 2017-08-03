@@ -57,7 +57,8 @@ public class Utility implements RoutineObjectRepository{
 	public DataTable dataTable;
 	public TestParameters testParameters;
 	public static Properties properties;
-	public static Properties runtimeDataProperties;
+	public static Properties distributedRuntimeDataProperties;
+	public Properties parallelRuntimeDataProperties;
 	public static Properties testRailProperties;	
 	public static LinkedHashMap<String, String> environmentVariables;
 	int verifyCounter = 0;
@@ -85,7 +86,7 @@ public class Utility implements RoutineObjectRepository{
 		this.testParameters = testParameters;
 		this.lock = lock;
 		this.connection = connection;
-		this.runtimeDataProperties = runtimeDataProperties;
+		this.parallelRuntimeDataProperties = runtimeDataProperties;
 	}	
 
 	public Utility() {
@@ -100,7 +101,7 @@ public class Utility implements RoutineObjectRepository{
 	
 	@SuppressWarnings("static-access")
 	public void setRuntimeDataProperties(Properties runtimeDataProperties) {
-		this.runtimeDataProperties = runtimeDataProperties;
+		this.distributedRuntimeDataProperties = runtimeDataProperties;
 	}
 	
 	@SuppressWarnings("static-access")
@@ -118,7 +119,7 @@ public class Utility implements RoutineObjectRepository{
 	
 	@SuppressWarnings("static-access")
 	public Properties getRuntimeDataProperties() {
-		return this.runtimeDataProperties;
+		return this.distributedRuntimeDataProperties;
 	}
 
 	@SuppressWarnings("static-access")
@@ -2058,6 +2059,9 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		Statement stmt;
 		int lastTransactionId = 0;
 		try{
+			
+		lock.lock();
+			
 		stmt = connection.createStatement();
 		rs = stmt.executeQuery(String.format(query));
 		if(rs!=null){
@@ -2070,6 +2074,8 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 		}
 		}catch (SQLException e) {			
 			e.printStackTrace();
+		}finally {
+			lock.unlock();
 		}
 		
 		return lastTransactionId;
@@ -2181,8 +2187,11 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 			lock.lock();
 		try {
 
-			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
-			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {			
+				distributedRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			}else {
+				parallelRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			}
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
@@ -2200,8 +2209,11 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 
 		try {
 
-			//data = globalRuntimeDatamap.get(tescase_ColumnName);
-			data = runtimeDataProperties.getProperty(tescase_ColumnName);
+			if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {		
+			data = distributedRuntimeDataProperties.getProperty(tescase_ColumnName);
+			}else {
+			data = 	parallelRuntimeDataProperties.getProperty(tescase_ColumnName);
+			}
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
@@ -2224,9 +2236,11 @@ public int createNewPart(LinkedHashMap<String, String> inputValueMap){
 
 				data = columnValue + getCurrentFormattedTime("ddMMhhmmssSSS");
 
-				// globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" +
-				// columnName, data);
-				runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+				if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {	
+					distributedRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+				}else {
+					parallelRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+				}
 
 			} catch (Exception e) {
 				test.log(LogStatus.FAIL, e);

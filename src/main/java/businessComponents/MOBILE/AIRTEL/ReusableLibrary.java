@@ -500,13 +500,18 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 	public void clickOkPrompt(String msg) throws TimeoutException, NoSuchElementException{
 
+		String data = null;
 		if (msg.contains("@")){
 			String[] key =msg.split("@");
 			String errormessage1 =  key [0];
 			String errormessage2 =  key[1];
 			String errormessage3 =  key[2];
 
-			String data = runtimeDataProperties.getProperty(errormessage2);
+			if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {	
+			data = distributedRuntimeDataProperties.getProperty(errormessage2);
+			}else {
+			data = parallelRuntimeDataProperties.getProperty(errormessage2);	
+			}
 
 			String errormessage = errormessage1 +data+errormessage3;
 			msg=errormessage;
@@ -528,28 +533,39 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 	}
 
 
-	public void addRuntimeTestData(String columnName, String columnValue) {
-
+public void addRuntimeTestData(String columnName, String columnValue) {
+		
+		try {
+			lock.lock();
 		try {
 
-			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
-			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {			
+				distributedRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			}else {
+				parallelRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, columnValue);
+			}
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
 		}
+		}finally {
+			lock.unlock();
+		}
 
 	}
-
-
+	
+	
 	public String getRuntimeTestdata(String tescase_ColumnName) {
 
 		String data = null;
 
 		try {
 
-			//data = globalRuntimeDatamap.get(tescase_ColumnName);
-			data = runtimeDataProperties.getProperty(tescase_ColumnName);
+			if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {		
+			data = distributedRuntimeDataProperties.getProperty(tescase_ColumnName);
+			}else {
+			data = 	parallelRuntimeDataProperties.getProperty(tescase_ColumnName);
+			}
 
 		} catch (Exception e) {
 			test.log(LogStatus.FAIL, e);
@@ -558,21 +574,32 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		return data;
 
 	}
-
-
+	
+	
 	public String generateTestData(String columnName, String columnValue) {
-
+		
 		String data = null;
 
 		try {
+			
+			lock.lock();			
 
-			data = columnValue + getCurrentFormattedTime("ddMMhhmmssSSS");
+			try {
 
-			//globalRuntimeDatamap.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
-			runtimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+				data = columnValue + getCurrentFormattedTime("ddMMhhmmssSSS");
 
-		} catch (Exception e) {
-			test.log(LogStatus.FAIL, e);
+				if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {	
+					distributedRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+				}else {
+					parallelRuntimeDataProperties.put(testParameters.getCurrentTestCase() + "#" + columnName, data);
+				}
+
+			} catch (Exception e) {
+				test.log(LogStatus.FAIL, e);
+			}
+
+		} finally {
+			lock.unlock();
 		}
 
 		return data;
@@ -602,8 +629,11 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 		
 		if(data!=null){
 			if(data.contains("#")){
-
-				data = runtimeDataProperties.getProperty(data);
+				if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {	
+				data = distributedRuntimeDataProperties.getProperty(data);
+				}else {
+				data = parallelRuntimeDataProperties.getProperty(data);	
+				}
 
 			}
 		}

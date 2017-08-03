@@ -286,7 +286,7 @@ public class ParallelExecutor extends Utility implements Runnable {
 						break;
 
 					}
-
+					report.flush();
 				}
 			}
 		}

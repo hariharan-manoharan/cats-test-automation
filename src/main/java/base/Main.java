@@ -38,6 +38,7 @@ import io.appium.java_client.android.AndroidDriver;
 import main.java.executionSetup.ExecutionType;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
+import main.java.reporting.HtmlReportParallel;
 import main.java.testDataAccess.DataTable;
 import main.java.testDataAccess.DataTableAbstractFactory;
 import main.java.testDataAccess.DataTableFactoryProducer;
@@ -271,8 +272,8 @@ public class Main{
 
 		}else {
 			setUpReport = report.startTest("Execution setup status");
-			setUpReport.log(LogStatus.FATAL, "Number of adb devices connected <b>("+adbDevices.size()+")</b> is not equal to NumberOfNodes property <b>("+nThreads+")</b>");
-			setUpReport.log(LogStatus.INFO, "<b>Number of adb devices connected should be equal greater than or to NumberOfNodes</b>");
+			setUpReport.log(LogStatus.FATAL, "Number of adb devices connected <b>("+adbDevices.size()+")</b> is not equal to NumberOfNodes property <b>("+nThreads+").</b>");
+			setUpReport.log(LogStatus.INFO, "<b>Number of adb devices connected should be greater than or equal to NumberOfNodes. Please check whether all the devices are connected properly.</b>");
 		}
 	}
 	
@@ -287,6 +288,8 @@ public class Main{
 		
 		Runnable testRunner = null;
 		lock = new ReentrantLock();
+		
+		if(adbDevices.size()>=nThreads) {
 		
 		for (int t = 0; t < numberOfNodes; t++) {
 
@@ -304,6 +307,7 @@ public class Main{
 			
 			FrameworkProperties globalRuntimeDataProperties = FrameworkProperties.getInstance();
 			Properties runtimeDataProperties = globalRuntimeDataProperties.loadPropertyFile(globalRuntimeDataPropertyFilePath);
+			ExtentReports report = initializeTestReport("TestSummary");
 			
 			for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
 				
@@ -334,6 +338,11 @@ public class Main{
 				e.printStackTrace();
 			}
 		}
+		}
+		}else {
+			setUpReport = report.startTest("Execution setup status");
+			setUpReport.log(LogStatus.FATAL, "Number of adb devices connected <b>("+adbDevices.size()+")</b> is not equal to NumberOfNodes property <b>("+nThreads+").</b>");
+			setUpReport.log(LogStatus.INFO, "<b>Number of adb devices connected should be greater than or equal to NumberOfNodes. Please check whether all the devices are connected properly.</b>");
 		}
 		
 		
@@ -558,6 +567,22 @@ public class Main{
 		report.addSystemInfo("Project ID", testRailProperties.getProperty("testRail.projectId"));
 		report.addSystemInfo("Suite ID", testRailProperties.getProperty("testRail.suiteId"));
 		report.addSystemInfo("Test Run name", testRailProperties.getProperty("testRail.testRunName"));		
+		
+	}
+	
+	
+	private static ExtentReports initializeTestReport(String reportName) {
+		
+		HtmlReportParallel htmlReportParallel = new HtmlReportParallel(reportName);
+		ExtentReports report = htmlReportParallel.initialize();
+		report.loadConfig((new File("./resources/PropertyFiles/extent-report-config.xml")));
+		report.addSystemInfo("Project", properties.getProperty("Project"));
+		report.addSystemInfo("Environment", properties.getProperty("Environment"));
+		report.addSystemInfo("Project ID", testRailProperties.getProperty("testRail.projectId"));
+		report.addSystemInfo("Suite ID", testRailProperties.getProperty("testRail.suiteId"));
+		report.addSystemInfo("Test Run name", testRailProperties.getProperty("testRail.testRunName"));		
+		
+		return report;
 		
 	}
 	

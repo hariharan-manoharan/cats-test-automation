@@ -536,8 +536,12 @@ public class SQLLibrary extends Utility {
 		String query1;
 
 		String Shipmentnumber= null;
-
-		Shipmentnumber =runtimeDataProperties.getProperty(TCID);
+		
+		if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {
+		Shipmentnumber =distributedRuntimeDataProperties.getProperty(TCID);
+		}else {
+		Shipmentnumber =parallelRuntimeDataProperties.getProperty(TCID);	
+		}
 
 		try{
 			query = "select * FROM CATS_SHIPMENT where SHIPMENTNUMBER ="+"'"+Shipmentnumber+"'";

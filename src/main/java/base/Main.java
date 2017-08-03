@@ -13,7 +13,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -38,7 +41,6 @@ import io.appium.java_client.android.AndroidDriver;
 import main.java.executionSetup.ExecutionType;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
-import main.java.reporting.HtmlReportParallel;
 import main.java.testDataAccess.DataTable;
 import main.java.testDataAccess.DataTableAbstractFactory;
 import main.java.testDataAccess.DataTableFactoryProducer;
@@ -86,6 +88,8 @@ public class Main{
 	private static ArrayList<AppiumServerHandler> appiumServerInstanceList = new ArrayList<>();
 	static ArrayList<String> adbDevices = null;
 	
+	public static String reportFolderName;	
+	
 	private static final String globalPropertyFilePath = "./resources/PropertyFiles/GlobalProperties.properties";
 	private static final String globalRuntimeDataPropertyFilePath = "./resources/PropertyFiles/GlobalRuntimeDataProperties.properties";
 	private static final String testRailPropertyFilePath = "./resources/PropertyFiles/TestRail.properties";
@@ -103,7 +107,8 @@ public class Main{
 	public static void main(String[] args) {		
 		
 		prepare();	
-		initializeTestReport();		
+		setReportFolderName();	
+		initializeTestReport();
 		initializeTestRailReporting();
 		collectRunInfo();		
 		setup();
@@ -209,6 +214,8 @@ public class Main{
 		
 		initializeGlobalRuntimeDataProperties();
 		
+		ExtentReports report = initializeTestReport("TestSummary");
+		
 		Runnable testRunner = null;
 		lock = new ReentrantLock();
 		
@@ -307,7 +314,7 @@ public class Main{
 			
 			FrameworkProperties globalRuntimeDataProperties = FrameworkProperties.getInstance();
 			Properties runtimeDataProperties = globalRuntimeDataProperties.loadPropertyFile(globalRuntimeDataPropertyFilePath);
-			ExtentReports report = initializeTestReport("TestSummary");
+			ExtentReports report = initializeTestReport("TestSummary_"+(run+1));
 			
 			for (int currentTestInstance = 0; currentTestInstance < testInstancesToRun.size(); currentTestInstance++) {
 				
@@ -435,7 +442,14 @@ public class Main{
 		}
 		
 		try {
-			Desktop.getDesktop().open(new File(HtmlReport.reportPath));
+			
+			if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {
+			Desktop.getDesktop().open(new File(HtmlReport.staticReportPath.get(0)));
+			}else {
+				for(int i=1;i<=Integer.parseInt(properties.getProperty("NumberOfNodes"));i++) {
+					Desktop.getDesktop().open(new File(HtmlReport.staticReportPath.get(i)));
+				}
+			}
 			CopyLatestResult copyLatestResult = new CopyLatestResult();
 			copyLatestResult.copyLatestResultFolder();
 			
@@ -558,9 +572,16 @@ public class Main{
 	 * 
 	 */
 	
-	private static void initializeTestReport() {
+	private static void setReportFolderName() {
 		
-		report = HtmlReport.getInstance();
+		reportFolderName = "Run_" + getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+		
+	}
+	
+	private static ExtentReports initializeTestReport() {
+		
+		HtmlReport htmlReportParallel = new HtmlReport("TestSummary", reportFolderName);
+		report = htmlReportParallel.initialize();
 		report.loadConfig((new File("./resources/PropertyFiles/extent-report-config.xml")));
 		report.addSystemInfo("Project", properties.getProperty("Project"));
 		report.addSystemInfo("Environment", properties.getProperty("Environment"));
@@ -568,12 +589,14 @@ public class Main{
 		report.addSystemInfo("Suite ID", testRailProperties.getProperty("testRail.suiteId"));
 		report.addSystemInfo("Test Run name", testRailProperties.getProperty("testRail.testRunName"));		
 		
+		return report;
+		
 	}
 	
 	
 	private static ExtentReports initializeTestReport(String reportName) {
 		
-		HtmlReportParallel htmlReportParallel = new HtmlReportParallel(reportName);
+		HtmlReport htmlReportParallel = new HtmlReport(reportName, reportFolderName);
 		ExtentReports report = htmlReportParallel.initialize();
 		report.loadConfig((new File("./resources/PropertyFiles/extent-report-config.xml")));
 		report.addSystemInfo("Project", properties.getProperty("Project"));
@@ -707,6 +730,22 @@ public class Main{
 
 		}
 
+	}
+	
+	
+	/**
+	 * Function to format the current time instance
+	 * 
+	 * @return String (formatted date)
+	 * @author Hari
+	 * @since 12/27/2016
+	 * 
+	 */
+
+	public static String getCurrentFormattedTime(String format) {
+		DateFormat dateFormat = new SimpleDateFormat(format);
+		Calendar calendar = Calendar.getInstance();
+		return dateFormat.format(calendar.getTime());
 	}
 	
 		

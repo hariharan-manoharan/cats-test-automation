@@ -37,6 +37,7 @@ import io.appium.java_client.android.AndroidKeyCode;
 import io.appium.java_client.pagefactory.AndroidFindBy;
 import main.java.executionSetup.TestParameters;
 import main.java.reporting.HtmlReport;
+import main.java.reporting.HtmlReport;
 import main.java.testDataAccess.DataTable;
 import main.java.utils.Utility;
 
@@ -443,12 +444,13 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 
 		if(properties.getProperty("take.screenshot.on.pass").equalsIgnoreCase("True")){
 
-			String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+			String screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss_SSS");
 
 			File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-			try {
+			try {			
 				FileUtils.copyFile(scrFile,
-						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));				
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

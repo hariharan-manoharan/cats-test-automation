@@ -204,12 +204,14 @@ public class Utility implements RoutineObjectRepository{
 
 		String screenshotName = null;
 
-		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss_SSS");
 
 		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 		try {
-			FileUtils.copyFile(scrFile,
-					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+			
+				FileUtils.copyFile(scrFile,
+						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));	
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -221,12 +223,14 @@ public class Utility implements RoutineObjectRepository{
 
 		String screenshotName = null;
 
-		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss");
+		screenshotName = getCurrentFormattedTime("dd_MMM_yyyy_hh_mm_ss_SSS");
 
 		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 		try {
+			
 			FileUtils.copyFile(scrFile,
-					new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+						new File("./Results/" + HtmlReport.reportFolderName + "/" + screenshotName + ".png"));
+		
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

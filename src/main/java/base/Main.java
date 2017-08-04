@@ -88,7 +88,8 @@ public class Main{
 	private static ArrayList<AppiumServerHandler> appiumServerInstanceList = new ArrayList<>();
 	static ArrayList<String> adbDevices = null;
 	
-	public static String reportFolderName;	
+	private static String reportFolderName;	
+	private static boolean issueWithSetup = false;
 	
 	private static final String globalPropertyFilePath = "./resources/PropertyFiles/GlobalProperties.properties";
 	private static final String globalRuntimeDataPropertyFilePath = "./resources/PropertyFiles/GlobalRuntimeDataProperties.properties";
@@ -151,8 +152,10 @@ public class Main{
 		testInstancesToRun = runManager.getRunManagerInfo();
 		
 		if(testInstancesToRun.isEmpty()) {
+			issueWithSetup = true;
 			setUpReport = report.startTest("Run Manager status");
 			setUpReport.log(LogStatus.FATAL, "No test cases are selected in Run Manager for execution.");
+			report.flush();
 		}
 		
 		Collections.sort(testInstancesToRun);
@@ -276,11 +279,14 @@ public class Main{
 		}
 		
 		globalRuntimeDataProperties.writeGlobalRuntimeDataProperties(globalRuntimeDataPropertyFilePath, utility.getRuntimeDataProperties());	
+		report.flush();
 
 		}else {
+			issueWithSetup = true;
 			setUpReport = report.startTest("Execution setup status");
 			setUpReport.log(LogStatus.FATAL, "Number of adb devices connected <b>("+adbDevices.size()+")</b> is not equal to NumberOfNodes property <b>("+nThreads+").</b>");
 			setUpReport.log(LogStatus.INFO, "<b>Number of adb devices connected should be greater than or equal to NumberOfNodes. Please check whether all the devices are connected properly.</b>");
+			report.flush();
 		}
 	}
 	
@@ -347,9 +353,11 @@ public class Main{
 		}
 		}
 		}else {
+			issueWithSetup = true;
 			setUpReport = report.startTest("Execution setup status");
 			setUpReport.log(LogStatus.FATAL, "Number of adb devices connected <b>("+adbDevices.size()+")</b> is not equal to NumberOfNodes property <b>("+nThreads+").</b>");
 			setUpReport.log(LogStatus.INFO, "<b>Number of adb devices connected should be greater than or equal to NumberOfNodes. Please check whether all the devices are connected properly.</b>");
+			report.flush();
 		}
 		
 		
@@ -431,9 +439,8 @@ public class Main{
 	 * 
 	 */
 
-	private static void tearDown() {
+	private static void tearDown() {		
 		
-		report.flush();
 		frameworkTestRailProperties.writeGlobalRuntimeDataProperties(testRailPropertyFilePath, utility.getTestRailProperties());
 		shutDownAppiumAndAndroidDriver();	
 		
@@ -446,8 +453,12 @@ public class Main{
 			if(properties.getProperty("ExecutionMode").equalsIgnoreCase("DISTRIBUTED")) {
 			Desktop.getDesktop().open(new File(HtmlReport.staticReportPath.get(0)));
 			}else {
+				if (!issueWithSetup) {
 				for(int i=1;i<=Integer.parseInt(properties.getProperty("NumberOfNodes"));i++) {
 					Desktop.getDesktop().open(new File(HtmlReport.staticReportPath.get(i)));
+				}
+				}else {
+					Desktop.getDesktop().open(new File(HtmlReport.staticReportPath.get(0)));
 				}
 			}
 			CopyLatestResult copyLatestResult = new CopyLatestResult();

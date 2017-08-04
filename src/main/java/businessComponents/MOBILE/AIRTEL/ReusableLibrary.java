@@ -545,7 +545,9 @@ public class ReusableLibrary extends Utility implements RoutineObjectRepository 
 			case "ClickOk":
 				Click(ID_MESSAGE_OK, "Clicked 'Ok' for prompt - " + prompt);
 				break;
-				
+			default:
+				test.log(LogStatus.FAIL, "Action <b><"+action+"></b> cannot be performed for the prompt <b><"+prompt+"></b>. Provide valid action like <ClickYes>/<ClickNo>/<ClickOk>");
+				break;
 			}
 			
 		}
